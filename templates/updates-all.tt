@@ -1,0 +1,10 @@
+[% FOREACH update = updates %]
+
+<div class="entry">
+<a name="[% update.ID %]"></a>
+<h2>[% update.PostDate %]</h2>
+<h3>[% update.Title %]</h3>
+[% update.Content %]
+
+</div>
+[% END %]

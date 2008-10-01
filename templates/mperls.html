@@ -1,0 +1,7 @@
+<h2>Perl Versions By YEAR/MONTH (latest first)</h2>
+<table>
+<tr><th>DATE</th><th>COUNT</th><th>TOP PERLS</th></tr>
+[% FOREACH row = STATS %]
+<tr>[% FOREACH col = row %]<td nowrap="nowrap">[% col %]</td>[% END %]</tr>
+[% END %]
+</table>

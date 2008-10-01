@@ -1,0 +1,18 @@
+<h2>TOP TESTERS OF ALL TIME</h2>
+<table>
+<tr><th>POSITION</th><th>SUBMISSIONS</th><th>TESTER</th></tr>
+[% FOREACH row = STATS %]
+<tr><td align="right">[% row.0 %]</td><td align="right">[% row.1 %]</td><td>[% row.2 %]</td></tr>
+[% END %]
+</table>
+
+<h3>Current Counts for known/unknown testers</h3>
+<table>
+<tr><th>Unknown Addresses:	</th><td align="right">[% COUNTS.0 %]</td></tr>
+<tr><th>Known Addresses:	</th><td align="right">[% COUNTS.1 %]</td></tr>
+<tr><th>Listed Addresses:	</th><td align="right">[% COUNTS.2 %]</td></tr>
+<tr><td>&nbsp;</td><td></td></tr>
+<tr><th>Unknown Testers:	</th><td align="right">[% COUNTS.3 %]</td></tr>
+<tr><th>Known Testers:		</th><td align="right">[% COUNTS.4 %]</td></tr>
+<tr><th>Listed Testers:		</th><td align="right">[% COUNTS.5 %]</td></tr>
+</table>

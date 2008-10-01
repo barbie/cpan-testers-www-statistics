@@ -1,0 +1,61 @@
+CPAN-Testers-WWW-Statistics
+===========================
+
+Website creation tools for CPAN Tester Statistics.
+
+Please note the tests for this code is very basic. If you wish to help me out
+and can add to the test suite, please feel free.
+
+INSTALLATION
+
+Untar the tarball into the directory of choice. All scripts can then be run
+from that directory. All the results end up in ./html, which can then be
+copied to your web server.
+
+DEPENDENCIES
+
+The scripts require the following Perl modules to be installed:
+
+  CGI
+  DBI
+  DBD::SQLite
+  GD::Graph::lines
+  Getopt::ArgvFile
+  Getopt::Long
+  HTML::Entities
+  IO::File
+  Sort::Versions
+  Template
+  Time::Piece
+  WWW::Mechanize
+
+SCRIPTS
+
+* addresses.pl
+
+Selects all the tester email addresses and attempts to guess the mapping of
+any addresses not mapped to known people in the address.txt file.
+
+* cpanstats-writepages
+
+Web page creation script. Generates all the HTML files.
+
+* cpanstats-writegraphs
+
+Graph creation script. Generates all the graphs files.
+
+* getmailrc.pl
+
+Gets the latest copy of the 01mailrc.txt.gz and extracts the text file.
+
+* updates.pl
+
+Used in association with the cpanstats-data-latest.tar.gz tarball to update
+templates and the RSS feed.
+
+COPYRIGHT AND LICENCE
+
+  Copyright (C) 2005-2008 Barbie for Miss Barbell Productions
+
+  This package is free software; you can redistribute it and/or 
+  modify it under the same terms as Perl itself.
