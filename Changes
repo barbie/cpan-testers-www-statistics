@@ -1,5 +1,12 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.53	current
+	- fixed template navigation links (thanks to Steffen Kaiser)
+	- cpanmail.cgi (0.03) fix to stop apache error log entries.
+
+0.52	09/10/2008
+	- added interesting stats page (thanks to JJ for the suggestion)..
+
 0.51	01/10/2008
 	- updated index template with correct links.
 

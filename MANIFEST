@@ -25,6 +25,7 @@ templates/dmatrix.html
 templates/favicon.ico
 templates/graphs.html
 templates/index.html
+templates/interest.html
 templates/layout.html
 templates/month.html
 templates/mperls.html

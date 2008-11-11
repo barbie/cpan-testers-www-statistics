@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.51';
+$VERSION = '0.52';
 
 #----------------------------------------------------------------------------
 
@@ -187,6 +187,7 @@ sub _write_stats {
     _progress("building report matrix") if($self->{progress});
 
     $self->_report_matrix();
+    $self->_report_interesting();
 
 ## BUILD GENERAL STATS
 
@@ -480,6 +481,24 @@ sub _report_matrix {
 
     $tvars{CONTENT} = $content;
     $self->_writepage('rmatrix',\%tvars);
+}
+
+=item * _report_interesting
+
+Generates the interesting stats page
+
+=cut
+
+sub _report_interesting {
+    my $self = shift;
+    my %tvars;
+
+    my @bydist = $self->{dbh}->get_query("SELECT count(id) AS count,dist FROM cpanstats WHERE state != 'cpan' GROUP BY dist ORDER BY count DESC LIMIT 20");
+    my @byvers = $self->{dbh}->get_query("SELECT count(id) AS count,dist,version FROM cpanstats WHERE state != 'cpan' GROUP BY dist,version ORDER BY count DESC LIMIT 20");
+
+    $tvars{BYDIST} = \@bydist;
+    $tvars{BYVERS} = \@byvers;
+    $self->_writepage('interest',\%tvars);
 }
 
 =item * _writepage

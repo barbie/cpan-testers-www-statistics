@@ -2,7 +2,7 @@
 use strict;
 $|++;
 
-my $VERSION = 0.02;
+my $VERSION = '0.03';
 
 #----------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ my ($dbh,%tvars);
 
 my $cgi = CGI->new();
 $tvars{nntpid} = $cgi->param('nntpid');
-$tvars{nntpid} =~ s/\D+//g;
+$tvars{nntpid} =~ s/\D+//g  if($tvars{nntpid});
 
 my $found = 0;
 if($tvars{nntpid}) {

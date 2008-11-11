@@ -1,0 +1,17 @@
+<h2>Top 20 Distributions with Most Reports</h2>
+<table>
+<tr><th>#</th><th>COUNT</th><th>DISTRIBUTION</th></tr>
+[% cnt = 1 %]
+[% FOREACH row = BYDIST %]
+<tr><td>[% cnt; cnt = cnt + 1 %]</td>[% FOREACH col = row %]<td>[% col %]</td>[% END %]</tr>
+[% END %]
+</table>
+
+<h2>Top 20 Distribution/Versions with Most Reports</h2>
+<table>
+<tr><th>#</th><th>COUNT</th><th>DISTRIBUTION</th><th>VERSION</th</tr>
+[% cnt = 1 %]
+[% FOREACH row = BYVERS %]
+<tr><td>[% cnt; cnt = cnt + 1 %]</td>[% FOREACH col = row %]<td>[% col %]</td>[% END %]</tr>
+[% END %]
+</table>
