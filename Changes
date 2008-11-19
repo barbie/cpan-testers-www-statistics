@@ -1,8 +1,12 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.53	current
+0.53	19/11/2008
 	- fixed template navigation links (thanks to Steffen Kaiser)
 	- cpanmail.cgi (0.03) fix to stop apache error log entries.
+	- added script name reference to warnings
+	- reduced length of request string to Google Graphs by only using the
+	  first letter of every other month, and removing '000' and replacing
+	  with 'k' to represent values of over 1000.
 
 0.52	09/10/2008
 	- added interesting stats page (thanks to JJ for the suggestion)..

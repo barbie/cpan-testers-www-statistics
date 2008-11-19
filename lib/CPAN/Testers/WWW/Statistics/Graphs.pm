@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.52';
+$VERSION = '0.53';
 
 #----------------------------------------------------------------------------
 
@@ -136,15 +136,15 @@ sub create {
         $mech->get($url);
         if(!$mech->success()) {
             my $file = "$g->[0].html";
-            warn("FAIL: Cannot access page - see '$file'\n");
+            warn("FAIL: $0 - Cannot access page - see '$file'\n");
             $mech->save_content($file);
         } elsif($mech->response->header('Content-Type') =~ /html/) {
             my $file = "$g->[0].html";
-            warn("FAIL: request failed - see '$file'\n");
+            warn("FAIL: $0 - request failed - see '$file'\n");
             $mech->save_content($file);
         } else {
             my $file = "$self->{directory}/$g->[0].png";
-            my $fh = IO::File->new(">$file") or die "Cannot write file [$file]: $!\n";
+            my $fh = IO::File->new(">$file") or die "$0 - Cannot write file [$file]: $!\n";
             binmode($fh);
             print $fh $mech->content;
             $fh->close;
@@ -169,7 +169,7 @@ sub _make_graph {
     for my $date (@{$data[0]}) {
         my $year  = substr($date,0,4);
         my $month = substr($date,4,2);
-        push @dates1, $MONTH[$month];
+        push @dates1, ($month %2 == 1 ? $MONTH[$month] : '');
         push @dates2, ($year != $yr ? $year : '');
         $yr = $year;
     }
@@ -269,7 +269,10 @@ sub _set_range {
     elsif($max < 1000000)   { $step = 50000    }
 
     my @r;
-    for(my $r = $min; $r < ($max+$step); $r += $step) {push @r, $r};
+    for(my $r = $min; $r < ($max+$step); $r += $step) {
+        my $x = $r < 1000 ? $r : ($r/1000) . 'k';
+        push @r, $x;
+    };
 #print "range=".(join('|',@r))."\n";
     return join('|',@r);
 }
