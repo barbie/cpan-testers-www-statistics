@@ -1,3 +1,14 @@
+<h2>Contents</h2>
+<ul>
+<li><a href="#top20dist">Top 20 Distributions with Most Reports</a></li>
+<li><a href="#top20dver">Top 20 Distribution/Versions with Most Reports</a></li>
+<li><a href="#posters">Notable Posts to cpan-testers</a></li>
+<li><a href="#entries">Notable Entries posted to cpan-testers</a></li>
+<li><a href="#reports">Notable Reports posted to cpan-testers</a></li>
+</ul>
+
+
+<a name="top20dist" />
 <h2>Top 20 Distributions with Most Reports</h2>
 <table>
 <tr><th>#</th><th>COUNT</th><th>DISTRIBUTION</th></tr>
@@ -7,11 +18,39 @@
 [% END %]
 </table>
 
+<a name="top20dver" />
 <h2>Top 20 Distribution/Versions with Most Reports</h2>
 <table>
-<tr><th>#</th><th>COUNT</th><th>DISTRIBUTION</th><th>VERSION</th</tr>
+<tr><th>#</th><th>COUNT</th><th>DISTRIBUTION</th><th>VERSION</th></tr>
 [% cnt = 1 %]
 [% FOREACH row = BYVERS %]
 <tr><td>[% cnt; cnt = cnt + 1 %]</td>[% FOREACH col = row %]<td>[% col %]</td>[% END %]</tr>
+[% END %]
+</table>
+
+<a name="posters" />
+<h2>Notable Posts to cpan-testers</h2>
+<table>
+<tr>[% FOREACH cell = HEADINGS %]<th>[% cell %]</th>[% END %]</tr>
+[% FOREACH row = POSTERS; cnt = 0 %]
+<tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>[% ELSE %]<td>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
+[% END %]
+</table>
+
+<a name="entries" />
+<h2>Notable Entries posted to cpan-testers</h2>
+<table>
+<tr>[% FOREACH cell = HEADINGS %]<th>[% cell %]</th>[% END %]</tr>
+[% FOREACH row = ENTRIES; cnt = 0 %]
+<tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>[% ELSE %]<td>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
+[% END %]
+</table>
+
+<a name="reports" />
+<h2>Notable Reports posted to cpan-testers</h2>
+<table>
+<tr>[% FOREACH cell = HEADINGS %]<th>[% cell %]</th>[% END %]</tr>
+[% FOREACH row = REPORTS; cnt = 0 %]
+<tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>[% ELSE %]<td>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
 [% END %]
 </table>

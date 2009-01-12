@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.53';
+$VERSION = '0.54';
 
 #----------------------------------------------------------------------------
 
@@ -101,7 +101,7 @@ sub new {
 
 =item * create
 
-Method to facilitate the creation of graphs.
+Method to facilitate the creation of pages.
 
 =cut
 
@@ -498,6 +498,80 @@ sub _report_interesting {
 
     $tvars{BYDIST} = \@bydist;
     $tvars{BYVERS} = \@byvers;
+
+    my (%index,@posters,@entries,@reports);
+    my %counter = ( posters => 0, entries => 0, reports => 0 );
+    my ($last_posters,$last_entries,$last_reports);
+    my ($posters_count,$entries_count,$reports_count) = (0,0,0);
+
+    my $next = $self->{dbh}->get_query_iterator('SELECT * FROM cpanstats ORDER BY id');
+    while(my $row = $next->()) {
+        my @row = (0, @$row);
+        $counter{posters} = $row[1];
+        if($counter{posters} == 1 || ($counter{posters} % 500000) == 0) {
+            $index{posters}->{$row[1]} = $counter{posters};
+            push @posters, \@row;
+        } else {
+            $posters_count = $counter{posters};
+            $last_posters = \@row;
+        }
+
+        $counter{entries}++;
+        if($counter{entries} == 1 || ($counter{entries} % 500000) == 0) {
+            $index{entries}->{$row[1]} = $counter{entries};
+            push @entries, \@row;
+        } else {
+            $entries_count = $counter{entries};
+            $last_entries = \@row;
+        }
+
+        if($row[2] ne 'cpan') {
+            $counter{reports}++;
+            if(($counter{reports} == 1 || ($counter{reports} % 500000) == 0)) {
+                $index{reports}->{$row[1]} = $counter{reports};
+                push @reports, \@row;
+            } else {
+                $reports_count = $counter{reports};
+                $last_reports = \@row;
+            }
+        }
+    }
+
+    $index{posters}->{$last_posters->[1]} = $posters_count;
+    $index{entries}->{$last_entries->[1]} = $entries_count;
+    $index{reports}->{$last_reports->[1]} = $reports_count;
+
+    push @posters, $last_posters;
+    push @entries, $last_entries;
+    push @reports, $last_reports;
+
+    my (@postersx,@entriesx,@reportsx);
+    for my $row (@posters) {
+        $row->[0] = $index{posters}{$row->[1]};
+        $row->[4] = $self->_tester_name($row->[4])  if($row->[4] =~ /\@/);
+        my @this = @$row;
+        push @postersx, \@this;
+    }
+    for my $row (@entries) {
+        $row->[0] = $index{entries}{$row->[1]};
+        $row->[4] = $self->_tester_name($row->[4])  if($row->[4] =~ /\@/);
+        my @this = @$row;
+        push @entriesx, \@this;
+    }
+    for my $row (@reports) {
+        $row->[0] = $index{reports}{$row->[1]};
+        $row->[4] = $self->_tester_name($row->[4])  if($row->[4] =~ /\@/);
+        my @this = @$row;
+        push @reportsx, \@this;
+    }
+
+    my @headings = ('count','id','state','postdate','tester','dist','version','platform','perl','osname','osvers','fulldate');
+
+    $tvars{HEADINGS} = \@headings;
+    $tvars{POSTERS}  = \@postersx;
+    $tvars{ENTRIES}  = \@entriesx;
+    $tvars{REPORTS}  = \@reportsx;
+
     $self->_writepage('interest',\%tvars);
 }
 
@@ -627,7 +701,7 @@ sub _init_date {
     # LIMIT is the last date for all data
     $LIMIT    = ($THISYEAR) * 100 + $datetime[4] + 1;
     if($datetime[4] == 0) {
-        $datetime[4] = 12;
+        $datetime[4] = 11;
         $THISYEAR--;
     }
 

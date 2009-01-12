@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 
-my $VERSION = '0.11';
+my $VERSION = '0.12';
 
 #http://www.eurodns.com/search/index.php
 
@@ -14,6 +14,10 @@ addresses.pl - helper script to map tester addresses to real people.
 =head1 SYNOPSIS
 
   perl addresses.pl
+        --database|d=<file> \
+        --address|a=<file>  \
+        --mailrc|m=<file>   \
+        [--month=<string>] [--match] [--sort]
 
 =head1 DESCRIPTION
 
@@ -102,7 +106,7 @@ sub load_addresses {
 #    use Data::Dumper;
 #    print STDERR Dumper(\%domain_map);
 
-    $fh = IO::File->new($options{mailrc})    or die "Cannot open address file [$options{mailrc}]: $!";
+    $fh = IO::File->new($options{mailrc})    or die "Cannot open mailrc file [$options{mailrc}]: $!";
     while(<$fh>) {
         s/\s+$//;
         next    if(/^$/);
@@ -183,7 +187,11 @@ sub print_addresses {
         }
     }
     for my $email (sort {$a->[0] cmp $b->[0]} @mails) {
-        print "$email->[0]\t$email->[1],\n";
+        if($options{'sort'}) {
+            print "$email->[1],\n";
+        } else {
+            print "$email->[0]\t$email->[1],\n";
+        }
     }
 
     print "\nArticles parsed = $parsed\n\n";
@@ -233,8 +241,9 @@ sub map_domain {
                     $domain eq 'gmx.de'         ||
                     $domain eq 'ath.cx'         ||
                     $domain eq 'nih.gov'        ||
+                    $domain eq 'rambler.ru'     ||
 
-                    $domain =~ /^(ieee|no-ip|dyndns)\.org$/                                         ||
+                    $domain =~ /^(ieee|no-ip|dyndns|cpan|perl)\.org$/                               ||
                     $domain =~ /^(verizon|gmx|comcast|earthlink|cox)\.net$/                         ||
                     $domain =~ /^(yahoo|google|gmail|mac|pair|rr|sun|aol|pobox|hotmail|ibm)\.com$/  ||
 
@@ -271,8 +280,9 @@ sub init_options {
         'mailrc|m=s',
         'month=s',
         'match',
+        'sort',
         'help|h',
-        'version|V'
+        'version|v'
     );
 
     _help(1) if($options{help});
@@ -284,21 +294,22 @@ sub init_options {
     $options{mailrc}   ||= MAILRC;
     $options{month}    ||= MONTH;
     $options{match}    ||= 0;
+    $options{'sort'}   ||= 0;
 
     for my $opt (qw(database address mailrc)) {
-        if($options{$opt} && ! -f $options{$opt}) {
-            print "Given $opt file [$options{$opt}] not a valid file, see help below.\n";
-            _help(1);
-        }
+        _help(1,"No $opt option given, see help below.")                                unless(   $options{$opt});
+        _help(1,"Given $opt file [$options{$opt}] not a valid file, see help below.")   unless(-f $options{$opt});
     }
 }
 
 sub _help {
-    my $full = shift;
+    my ($full,$mess) = @_;
+
+    print "\n$mess\n\n" if($mess);
 
     if($full) {
         print "\n";
-        print "Usage:$0 [--help|h] [--version|V] \\\n";
+        print "Usage:$0 [--help|h] [--version|v] \\\n";
         print "         [--database|d=<file>] \\\n";
         print "         [--address|a=<file>] \\\n";
         print "         [--mailrc|m=<file>] \\\n";

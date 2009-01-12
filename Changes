@@ -1,5 +1,11 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.54	12/01/2009
+	- updated addresses.pl (v0.12) to ignore further generic domains. Also
+	  added ability to sort patterns, without including reversed strings.
+	- fix to previous month calculation when it's January (D'oh!).
+	- added postings to cpan-testers to the interesting stats page.
+
 0.53	19/11/2008
 	- fixed template navigation links (thanks to Steffen Kaiser)
 	- cpanmail.cgi (0.03) fix to stop apache error log entries.
