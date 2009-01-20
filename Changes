@@ -1,5 +1,9 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.55	20/01/2009
+	- wording fix in interesting.html.
+	- URL fixes in templates.
+
 0.54	12/01/2009
 	- updated addresses.pl (v0.12) to ignore further generic domains. Also
 	  added ability to sort patterns, without including reversed strings.
