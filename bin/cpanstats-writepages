@@ -2,7 +2,7 @@
 use strict;
 $|++;
 
-my $VERSION = '0.48';
+my $VERSION = '0.49';
 
 #----------------------------------------------------------------------------
 
@@ -30,13 +30,10 @@ use lib qw(./lib ../lib);
 use Getopt::ArgvFile default=>1;
 use Getopt::Long;
 
-use CPAN::Testers::WWW::Statistics::Pages;
+use CPAN::Testers::WWW::Statistics;
 
 # -------------------------------------
 # Variables
-
-use constant DATABASE => './cpanstats.db';
-use constant ADDRESS  => 'data/addresses.txt';
 
 my (%options);
 
@@ -45,14 +42,16 @@ my (%options);
 
 init_options();
 
-my $pages = CPAN::Testers::WWW::Statistics::Pages->new(
+my $stats = CPAN::Testers::WWW::Statistics->new(
+        config    => $options{config},
         directory => $options{directory},
         templates => $options{templates},
         database  => $options{database},
         address   => $options{address},
-        progress  => $options{progress}
+        logfile   => $options{logfile},
+        logclean  => $options{logclean}
 );
-$pages->create();
+$stats->make_pages();
 
 # -------------------------------------
 # Subroutines
@@ -69,31 +68,19 @@ Prepare command line options
 
 sub init_options {
     GetOptions( \%options,
+        'config=s',
         'templates=s',
         'directory=s',
         'database|d=s',
         'address|a=s',
-        'progress|p',
+        'logfile=s',
+        'logclean=i',
         'help|h',
-        'version|V'
+        'version|v'
     );
 
     _help(1) if($options{help});
     _help(0) if($options{version});
-
-    # use defaults if none provided
-    $options{database} ||= DATABASE;
-    $options{address}  ||= ADDRESS;
-
-    if($options{database} && ! -f $options{database}) {
-        print "Given database file not a valid file, see help below.\n";
-        _help(1);
-    }
-
-    if($options{address} && ! -f $options{address}) {
-        print "Given address data file not a valid file, see help below.\n";
-        _help(1);
-    }
 }
 
 sub _help {
@@ -101,22 +88,25 @@ sub _help {
 
     if($full) {
         print "\n";
-        print "Usage:$0 [--help|h] [--version|V] \\\n";
+        print "Usage:$0 --config=<file> \\\n";
+        print "         [--logfile=<file> [--logclean=<1|0>]] \\\n";
         print "         [--templates=<dir>]   \\\n";
         print "         [--directory=<dir>]   \\\n";
         print "         [--database|d=<file>] \\\n";
         print "         [--address|a=<file>]  \\\n";
-        print "         [--progress|p]  \n\n";
+        print "         [--help|h] [--version|v] \n\n";
 
 #              12345678901234567890123456789012345678901234567890123456789012345678901234567890
         print "This program builds the CPAN Testers Statistics website.\n";
 
         print "\nFunctional Options:\n";
+        print "  [--config=<file>]          # path to config file [required]\n";
         print "  [--templates=<dir>]        # path to templates\n";
         print "  [--directory=<dir>]        # path to website directory\n";
-        print "  [--database=<file>]        # path/file to database\n";
-        print "  [--address=<file>]         # path/file to address file\n";
-        print "  [--progress]               # enable progress messages\n";
+        print "  [--database=<file>]        # path to SQLite database file\n";
+        print "  [--address=<file>]         # path to address file\n";
+        print "  [--logfile=<file>]         # path to logfile\n";
+        print "  [--logclean]		    # overwrite log if specified\n";
 
         print "\nOther Options:\n";
         print "  [--version]                # program version\n";
@@ -147,11 +137,12 @@ http://rt.cpan.org/Public/Dist/Display.html?Name=CPAN-Testers-WWW-Statistics
 
 =head1 SEE ALSO
 
-L<CPAN::WWW::Testers::Generator>,
+L<CPAN::Testers::Data::Generator>,
 L<CPAN::WWW::Testers>
 
 F<http://www.cpantesters.org/>,
-F<http://stats.cpantesters.org/>
+F<http://stats.cpantesters.org/>,
+F<http://wiki.cpantesters.org/>
 
 =head1 AUTHOR
 
@@ -160,7 +151,7 @@ F<http://stats.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2005-2008 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2009 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.

@@ -1,5 +1,14 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.56	current
+	- added new testers graph.
+	- removed Database.pm and replaced with new prerequisite 
+	  CPAN::Testers::Common::DBUtils
+	- redesigned API so that Statistics.pm now handles common code pieces.
+	- changes to scripts to use new interface:
+            bin/cpanstats-writegraphs   (v0.49)
+            bin/cpanstats-writepages    (v0.49)
+
 0.55	20/01/2009
 	- wording fix in interesting.html.
 	- URL fixes in templates.

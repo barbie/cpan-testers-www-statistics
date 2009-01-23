@@ -2,7 +2,7 @@
 use strict;
 $|++;
 
-my $VERSION = '0.48';
+my $VERSION = '0.49';
 
 #----------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ use lib qw(./lib ../lib);
 use Getopt::ArgvFile default=>1;
 use Getopt::Long;
 
-use CPAN::Testers::WWW::Statistics::Graphs;
+use CPAN::Testers::WWW::Statistics;
 
 # -------------------------------------
 # Variables
@@ -40,12 +40,14 @@ my (%options);
 
 init_options();
 
-my $pages = CPAN::Testers::WWW::Statistics::Graphs->new(
+my $stats = CPAN::Testers::WWW::Statistics->new(
+        config    => $options{config},
         directory => $options{directory},
-        progress  => $options{progress}
+        logfile   => $options{logfile},
+        logclean  => $options{logclean}
 );
 
-$pages->create();
+$stats->make_graphs();
 
 # -------------------------------------
 # Subroutines
@@ -62,10 +64,12 @@ Prepare command line options
 
 sub init_options {
     GetOptions( \%options,
+        'config=s',
         'directory=s',
-        'progress|p',
+        'logfile=s',
+        'logclean=i',
         'help|h',
-        'version|V'
+        'version|v'
     );
 
     _help(1) if($options{help});
@@ -77,15 +81,19 @@ sub _help {
 
     if($full) {
         print "\n";
-        print "Usage:$0 [--help|h] [--version|V] \\\n";
-        print "         [--directory=<dir>] [--progress] \n\n";
+        print "Usage:$0 --config=<file> \\\n";
+        print "         [--logfile=<file> [--logclean=<1|0>]] \\\n";
+        print "         [--directory=<dir>]   \\\n";
+        print "         [--help|h] [--version|v] \n\n";
 
 #              12345678901234567890123456789012345678901234567890123456789012345678901234567890
         print "This program builds the CPAN Testers Statistics website graphs.\n";
 
         print "\nFunctional Options:\n";
+        print "  [--config=<file>]          # path to config file [required]\n";
         print "  [--directory=<dir>]        # path to website directory\n";
-        print "  [--progress]               # provide verbose progress messages\n";
+        print "  [--logfile=<file>]         # path to logfile\n";
+        print "  [--logclean]		    # overwrite log if specified\n";
 
         print "\nOther Options:\n";
         print "  [--version]                # program version\n";
@@ -114,11 +122,12 @@ http://rt.cpan.org/Public/Dist/Display.html?Name=CPAN-Testers-WWW-Statistics
 
 =head1 SEE ALSO
 
-L<CPAN::WWW::Testers::Generator>,
+L<CPAN::Testers::Data::Generator>,
 L<CPAN::WWW::Testers>
 
 F<http://www.cpantesters.org/>,
-F<http://stats.cpantesters.org/>
+F<http://stats.cpantesters.org/>,
+F<http://wiki.cpantesters.org/>
 
 =head1 AUTHOR
 
@@ -127,7 +136,7 @@ F<http://stats.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2005-2008 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2009 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.

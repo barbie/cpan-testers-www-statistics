@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.55';
+$VERSION = '0.56';
 
 #----------------------------------------------------------------------------
 
@@ -14,12 +14,20 @@ CPAN::Testers::WWW::Statistics::Graphs - CPAN Testers Statistics graphs.
 
 =head1 SYNOPSIS
 
-  my $ct = CPAN::Testers::WWW::Statistics::Graphs->new(progress => 1);
+  my %hash = { config => 'options' };
+  my $obj = CPAN::Testers::WWW::Statistics->new(%hash);
+  my $ct = CPAN::Testers::WWW::Statistics::Graphs->new(parent => $obj);
   $ct->create();
 
 =head1 DESCRIPTION
 
 Using previously formatted data, generate graphs using the Google Chart API.
+
+Note that this package should not be called directly, but via its parent as:
+
+  my %hash = { config => 'options' };
+  my $obj = CPAN::Testers::WWW::Statistics->new(%hash);
+  $obj->make_graphs();
 
 =cut
 
@@ -45,6 +53,7 @@ my @graphs = (
 ['stats1','CPAN Testers Statistics - Reports',      [qw(UPLOADS REPORTS PASS FAIL)]],
 ['stats2','CPAN Testers Statistics - Attributes',   [qw(TESTERS PLATFORMS PERLS)]],
 ['stats3','CPAN Testers Statistics - Non-Passes',   [qw(FAIL NA UNKNOWN)]],
+['stats4','CPAN Testers Statistics - Testers',      [qw(ALL FIRST LAST)]],
 );
 
 my $mech = WWW::Mechanize->new();
@@ -99,14 +108,13 @@ assumed.
 =cut
 
 sub new {
-    my ($class,%hash) = @_;
-    my $self = {};
+    my $class = shift;
+    my %hash  = @_;
 
-    $self->{progress}  = $hash{progress}  || 0;
-    $self->{directory} = $hash{directory} || './html';
+    die "Must specify the parent statistics object\n"   unless(defined $hash{parent});
 
+    my $self = {parent => $hash{parent}};
     bless $self, $class;
-    return $self;
 }
 
 =head2 Methods
@@ -123,14 +131,15 @@ Method to facilitate the creation of graphs.
 
 sub create {
     my $self = shift;
+    my $directory = $self->{parent}->directory;
 
-    _progress("start")  if($self->{progress});
+    $self->{parent}->_log("start");
 
     for my $g (@graphs) {
-        _progress("writing graph - $g->[0]")  if($self->{progress});
+        $self->{parent}->_log("writing graph - $g->[0]");
 
-        my $url = _make_graph($self->{directory},@$g);
-        _progress("url - [".(length $url)."] $url")  if($self->{progress});
+        my $url = _make_graph($directory,@$g);
+        $self->{parent}->_log("url - [".(length $url)."] $url");
 #        print "$url\n";
 
         $mech->get($url);
@@ -143,7 +152,7 @@ sub create {
             warn("FAIL: $0 - request failed - see '$file'\n");
             $mech->save_content($file);
         } else {
-            my $file = "$self->{directory}/$g->[0].png";
+            my $file = $directory . "/$g->[0].png";
             my $fh = IO::File->new(">$file") or die "$0 - Cannot write file [$file]: $!\n";
             binmode($fh);
             print $fh $mech->content;
@@ -151,7 +160,7 @@ sub create {
         }
     }
 
-    _progress("finish")  if($self->{progress});
+    $self->{parent}->_log("finish");
 }
 
 #=item _make_graph
@@ -277,17 +286,6 @@ sub _set_range {
     return join('|',@r);
 }
 
-my $lasttime = time;
-
-sub _progress {
-    my $msg = shift;
-    my $time = time;
-    my @localtime = localtime($time);
-    my $secs = $time - $lasttime;
-    printf STDERR "%02d:%02d:%02d\t%03d\t%s\n", $localtime[2], $localtime[1], $localtime[0], $secs, $msg;
-    $lasttime = $time;
-}
-
 q('This is not a love song!');
 
 __END__
@@ -306,7 +304,7 @@ http://rt.cpan.org/Public/Dist/Display.html?Name=CPAN-Testers-WWW-Statistics
 
 =head1 SEE ALSO
 
-L<CPAN::WWW::Testers::Generator>,
+L<CPAN::Testers::Data::Generator>,
 L<CPAN::WWW::Testers>
 
 F<http://www.cpantesters.org/>,

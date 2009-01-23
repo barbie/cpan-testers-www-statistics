@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.55';
+$VERSION = '0.56';
 
 #----------------------------------------------------------------------------
 
@@ -14,7 +14,9 @@ CPAN::Testers::WWW::Statistics::Pages - CPAN Testers Statistics pages.
 
 =head1 SYNOPSIS
 
-  my $ct = CPAN::Testers::WWW::Statistics::Pages->new(progress => 1);
+  my %hash = { config => 'options' };
+  my $obj = CPAN::Testers::WWW::Statistics->new(%hash);
+  my $ct = CPAN::Testers::WWW::Statistics::Pages->new(parent => $obj);
   $ct->create();
 
 =head1 DESCRIPTION
@@ -24,11 +26,18 @@ all the HTML pages needed for the CPAN Testers Statistics website. In addition,
 also generates the data files in order generate the graphs that appear on the
 site.
 
+Note that this package should not be called directly, but via its parent as:
+
+  my %hash = { config => 'options' };
+  my $obj = CPAN::Testers::WWW::Statistics->new(%hash);
+  $obj->make_pages();
+
 =cut
 
 # -------------------------------------
 # Library Modules
 
+use CPAN::Testers::Common::DBUtils;
 use File::Basename;
 use File::Copy;
 use File::Path;
@@ -38,13 +47,8 @@ use Sort::Versions;
 use Template;
 #use Time::HiRes qw ( time );
 
-use CPAN::Testers::WWW::Statistics::Database;
-
 # -------------------------------------
 # Variables
-
-use constant DATABASE => './cpanstats.db';
-use constant ADDRESS  => 'data/addresses.txt';
 
 my ($known_s,$known_t) = (0,0);
 
@@ -80,19 +84,13 @@ to the database. If no database path is supplied, './cpanstats.db' is used.
 =cut
 
 sub new {
-    my ($class,%hash) = @_;
-    my $self = {};
+    my $class = shift;
+    my %hash  = @_;
 
-    $self->{templates} = $hash{templates} || './templates';
-    $self->{directory} = $hash{directory} || './html';
-    $self->{progress}  = $hash{progress}  || 0;
-    $self->{database}  = $hash{database}  || DATABASE;
-    $self->{address}   = $hash{address}   || ADDRESS;
+    die "Must specify the parent statistics object\n"   unless(defined $hash{parent});
 
+    my $self = {parent => $hash{parent}};
     bless $self, $class;
-
-    return unless(-f $self->{database});
-    return $self;
 }
 
 =head2 Public Methods
@@ -103,23 +101,21 @@ sub new {
 
 Method to facilitate the creation of pages.
 
+=back
+
 =cut
 
 sub create {
     my $self = shift;
 
-    _progress("init") if($self->{progress});
-    _init_date();
+    $self->{parent}->_log("init");
+    $self->_init_date();
 
-    $self->{dbh} = CPAN::Testers::WWW::Statistics::Database->new(database => $self->{database});
-
-    _progress("start") if($self->{progress});
+    $self->{parent}->_log("start");
     $self->_write_basics();
     $self->_write_stats();
-    _progress("finish") if($self->{progress});
+    $self->{parent}->_log("finish");
 }
-
-=back
 
 =head2 Private Methods
 
@@ -134,16 +130,21 @@ without any data processing required.
 
 sub _write_basics {
     my $self = shift;
+    my $directory = $self->{parent}->directory;
+    my $templates = $self->{parent}->templates;
+    my $database  = $self->{parent}->database;
 
-    mkpath($self->{directory});
+    $self->{parent}->_log("writing basic files");
+
+    mkpath($directory);
 
     # calculate database metrics
-    my $mtime = (stat($self->{database}))[9];
+    my $mtime = (stat($database))[9];
     my @ltime = localtime($mtime);
     $DATABASE2 = sprintf "%d%s %s %d", $ltime[3],_ext($ltime[3]),$month{$ltime[4]},$ltime[5]+1900;
     my $DATABASE1 = sprintf "%04d/%02d/%02d", $ltime[5]+1900,$ltime[4]+1,$ltime[3];
-    my $DBSZ_UNCOMPRESSED = int((-s $self->{database}        ) / (1024 * 1024));
-    my $DBSZ_COMPRESSED   = int((-s $self->{database} . '.gz') / (1024 * 1024));
+    my $DBSZ_UNCOMPRESSED = int((-s $database        ) / (1024 * 1024));
+    my $DBSZ_COMPRESSED   = int((-s $database . '.gz') / (1024 * 1024));
 
     # additional pages not requiring metrics
     my %pages = (
@@ -154,7 +155,7 @@ sub _write_basics {
             response => {},
             graphs   => {});
 
-    _progress("building support pages") if($self->{progress});
+    $self->{parent}->_log("building support pages");
     $self->_writepage($_,$pages{$_})    for(keys %pages);
 
     # copy files
@@ -163,11 +164,11 @@ sub _write_basics {
         'cgi-bin/cpanmail.cgi',
         'favicon.ico',
         'style.css',
-        map {'images/'.basename($_)} glob($self->{templates} . '/images/*'),
+        map {'images/'.basename($_)} glob($templates . '/images/*'),
         )
     {
-        my $src  = "$self->{templates}/$filename";
-        my $dest = "$self->{directory}/$filename";
+        my $src  = $templates . "/$filename";
+        my $dest = $directory . "/$filename";
         mkpath( dirname($dest) );
         copy( $src, $dest );
     }
@@ -182,18 +183,16 @@ creates the HTML pages.
 
 sub _write_stats {
     my $self = shift;
-    my (%stats,%perls,%fails,%pass,%tvars);
-
-    _progress("building report matrix") if($self->{progress});
+    my (%stats,%perls,%fails,%pass,%tvars,%testers,%counts);
 
     $self->_report_matrix();
     $self->_report_interesting();
 
 ## BUILD GENERAL STATS
 
-    _progress("building stats hash") if($self->{progress});
+    $self->{parent}->_log("building stats hash");
 
-    my $iterator = $self->{dbh}->get_query_iterator("SELECT * FROM cpanstats");
+    my $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats");
     while(my $row = $iterator->()) {
         #insert_report($id,$state,$date,$from,$distvers,$platform);
         $row->[7] =~ s/\s.*//;  # only need to know the main release
@@ -223,16 +222,21 @@ sub _write_stats {
             $perl =~ s/\s.*//;  # only need to know the main release
             $perls{$perl} = 1;
             $pass{$row->[6]}->{$perl}->{$row->[4]} = 1;
+
+            # record tester activity
+            $testers{$name}->{first} ||= $row->[2];
+            $testers{$name}->{last}    = $row->[2];
+            $counts{$row->[2]}->{testers}{$name} = 1;
         }
     }
 
     my @versions = sort {versioncmp($b,$a)} keys %perls;
 
-    _progress("stats hash built") if($self->{progress});
+    $self->{parent}->_log("stats hash built");
 
 ## GENERATE DISTRIBUTION MATRIX
 
-    _progress("building distribution matrix") if($self->{progress});
+    $self->{parent}->_log("building distribution matrix");
 
     my $index = 0;
     my $content = '<table class="matrix">';
@@ -266,7 +270,7 @@ sub _write_stats {
     }
     $content .= '</table>';
 
-    _progress("written $index list pages") if($self->{progress});
+    $self->{parent}->_log("written $index list pages");
 
     $tvars{CONTENT} = $content;
     $self->_writepage('dmatrix',\%tvars);
@@ -274,7 +278,7 @@ sub _write_stats {
 
 ## GENERATE MONTHLY REPORT STAT GRAPHS & TABLE
 
-    _progress("building monthly stats for graphs") if($self->{progress});
+    $self->{parent}->_log("building monthly stats for graphs - 1,3");
 
     #print "DATE,UPLOADS,REPORTS,NA,PASS,FAIL,UNKNOWN\n";
     my $fh = IO::File->new(">stats1.txt");
@@ -315,6 +319,8 @@ sub _write_stats {
 
 ## GENERATE MONTHLY REPORT STAT GRAPHS
 
+    $self->{parent}->_log("building monthly stats for graphs - 2");
+
     #print "DATE,TESTERS,PLATFORMS,PERLS\n";
     $fh = IO::File->new(">stats2.txt");
     for my $date (sort keys %stats) {
@@ -327,9 +333,39 @@ sub _write_stats {
     }
     $fh->close;
 
+## GENERATE MONTHLY TESTER STAT GRAPHS
+
+    $self->{parent}->_log("building monthly stats for graphs - 4");
+
+    for my $tester (keys %testers) {
+        $counts{$testers{$tester}->{first}}->{first}++;
+        $counts{$testers{$tester}->{last}}->{last}++;
+    }
+
+    #print "DATE,ALL,FIRST,LAST\n";
+    $fh = IO::File->new(">stats4.txt");
+    for my $date (sort keys %stats) {
+        next    if($date > $LIMIT-1);
+
+        if(defined $counts{$date}) {
+            $counts{$date}->{all}     = scalar(keys %{$counts{$date}->{testers}});
+        }
+        $counts{$date}->{all}   ||= 0;
+        $counts{$date}->{first} ||= 0;
+        $counts{$date}->{last}  ||= 0;
+        $counts{$date}->{last}    = ''  if($date > $THISDATE);
+
+        printf $fh "%d,%s,%s,%s\n",
+            $date,
+            $counts{$date}->{all},
+            $counts{$date}->{first},
+            $counts{$date}->{last};
+    }
+    $fh->close;
+
 ## GENERATE FAILURE RATE TABLES
 
-    _progress("building failure rates") if($self->{progress});
+    $self->{parent}->_log("building failure rates");
 
     # calculate worst failure rates - by failure count
     my %worst;
@@ -368,7 +404,7 @@ sub _write_stats {
 
 ## GENERATE MONTHLY TESTERS / PLATFORM / PERL REPORT TABLES
 
-    _progress("building monthly tables") if($self->{progress});
+    $self->{parent}->_log("building monthly tables");
 
     for my $date (sort keys %stats) {
         next    if($date > $LIMIT);
@@ -398,7 +434,7 @@ sub _write_stats {
     $self->_writepage('mperls',\%tvars);
     undef %tvars;
 
-    my %testers;
+    %testers = ();
     for my $date (sort keys %stats) {
         next    if($date > $LIMIT);
 
@@ -416,7 +452,7 @@ sub _write_stats {
 
 ## GENERATE TESTERS LEADER BOARD
 
-    _progress("building leader board") if($self->{progress});
+    $self->{parent}->_log("building leader board");
 
     $count = 1;
     for my $tester (sort {$testers{$b} <=> $testers{$a}} keys %testers) {
@@ -449,15 +485,15 @@ sub _report_matrix {
     my $self = shift;
     my (%stats,%perls,%tvars);
 
-    # grab all records for the month
-    my $iterator = $self->{dbh}->get_query_iterator("SELECT * FROM cpanstats WHERE postdate like '$LASTDATE'");
-    while(my $row = $iterator->()) {
-        next    if($row->[1] eq 'cpan');
+    $self->{parent}->_log("building report matrix");
 
+    # grab all records for the month
+    my $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT platform,perl FROM cpanstats WHERE postdate='$LASTDATE' AND state!='cpan'");
+    while(my $row = $iterator->()) {
         # platform -> perl
-        $row->[7] =~ s/\s.*//;  # only need to know the main release
-        $stats{$row->[6]}->{$row->[7]}++;
-        $perls{$row->[7]} = 1;
+        $row->[1] =~ s/\s.*//;  # only need to know the main release
+        $stats{$row->[0]}->{$row->[1]}++;
+        $perls{$row->[1]} = 1;
     }
 
     my @vers = sort {versioncmp($b,$a)} keys %perls;
@@ -493,8 +529,10 @@ sub _report_interesting {
     my $self = shift;
     my %tvars;
 
-    my @bydist = $self->{dbh}->get_query("SELECT count(id) AS count,dist FROM cpanstats WHERE state != 'cpan' GROUP BY dist ORDER BY count DESC LIMIT 20");
-    my @byvers = $self->{dbh}->get_query("SELECT count(id) AS count,dist,version FROM cpanstats WHERE state != 'cpan' GROUP BY dist,version ORDER BY count DESC LIMIT 20");
+    $self->{parent}->_log("building interesting page");
+
+    my @bydist = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT count(id) AS count,dist FROM cpanstats WHERE state != 'cpan' GROUP BY dist ORDER BY count DESC LIMIT 20");
+    my @byvers = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT count(id) AS count,dist,version FROM cpanstats WHERE state != 'cpan' GROUP BY dist,version ORDER BY count DESC LIMIT 20");
 
     $tvars{BYDIST} = \@bydist;
     $tvars{BYVERS} = \@byvers;
@@ -504,7 +542,7 @@ sub _report_interesting {
     my ($last_posters,$last_entries,$last_reports);
     my ($posters_count,$entries_count,$reports_count) = (0,0,0);
 
-    my $next = $self->{dbh}->get_query_iterator('SELECT * FROM cpanstats ORDER BY id');
+    my $next = $self->{parent}->{CPANSTATS}->iterator('array','SELECT * FROM cpanstats ORDER BY id');
     while(my $row = $next->()) {
         my @row = (0, @$row);
         $counter{posters} = $row[1];
@@ -583,15 +621,17 @@ Creates a single HTML page.
 
 sub _writepage {
     my ($self,$page,$vars) = @_;
+    my $directory = $self->{parent}->directory;
+    my $templates = $self->{parent}->templates;
 
-#   _progress("writing page - $page") if($self->{progress});
+#   $self->{parent}->_log("writing page - $page");
 
     my $template = $page;
     $template = 'distlist'    if($page =~ /^list-/);
 
     my $layout = "layout.html";
     my $source = "$template.html";
-    my $target = "$self->{directory}/$page.html";
+    my $target = "$directory/$page.html";
 
     $vars->{SOURCE}   = $source;
     $vars->{VERSION}  = $VERSION;
@@ -604,85 +644,18 @@ sub _writepage {
 #        print STDERR "$page:" . Dumper($pages{$page});
 #    }
 
-    my %config = (                              # provide config info
+    my %config = (                          # provide config info
         RELATIVE        => 1,
         ABSOLUTE        => 1,
-        INCLUDE_PATH    => $self->{templates},
+        INCLUDE_PATH    => $templates,
         INTERPOLATE     => 0,
         POST_CHOMP      => 1,
         TRIM            => 1,
     );
 
-    my $parser = Template->new(\%config);           # initialise parser
+    my $parser = Template->new(\%config);   # initialise parser
     $parser->process($layout,$vars,$target) # parse the template
         or die $parser->error();
-}
-
-=item * _tester_name
-
-Returns either the known name of the tester for the given email address, or
-returns a doctored version of the address for displaying in HTML.
-
-=cut
-
-my $address;
-sub _tester_name {
-    my ($self,$name) = @_;
-
-    $address ||= do {
-        my (%address_map,%known);
-        my $fh = IO::File->new($self->{address})    or die "Cannot open address file [$self->{address}]: $!";
-        while(<$fh>) {
-            chomp;
-            my ($source,$target) = (/(.*),(.*)/);
-            next    unless($source && $target);
-            $address_map{$source} = $target;
-            $known{$target}++;
-        }
-        $fh->close;
-        $known_t = scalar(keys %known);
-        $known_s = scalar(keys %address_map);
-        \%address_map;
-    };
-
-    my $addr = ($address->{$name} && $address->{$name} =~ /\&\#x?\d+\;/)
-                ? $address->{$name}
-                : encode_entities( ($address->{$name} || $name) );
-    $addr =~ s/\./ /g if($addr =~ /\@/);
-    $addr =~ s/\@/[]/g;
-    $addr =~ s/</&lt;/g;
-    return $addr;
-}
-
-=item * _ext
-
-Provides the ordinal for dates.
-
-=cut
-
-sub _ext {
-    my $num = shift;
-    return 'st' if($num == 1 || $num == 21 || $num == 31);
-    return 'nd' if($num == 2 || $num == 22);
-    return 'rd' if($num == 3 || $num == 23);
-    return 'th';
-}
-
-=item * _progress
-
-Simple audit logging function.
-
-=cut
-
-my $lasttime = time;
-
-sub _progress {
-    my $msg = shift;
-    my $time = time;
-    my @localtime = localtime($time);
-    my $secs = $time - $lasttime;
-    printf STDERR "%02d:%02d:%02d\t%03d\t%s\n", $localtime[2], $localtime[1], $localtime[0], $secs, $msg;
-    $lasttime = $time;
 }
 
 =item * _init_date
@@ -725,7 +698,59 @@ sub _init_date {
     #print STDERR "RUNDATE=[$RUNDATE]\n";
 }
 
-q("I'm breaking the back of love.");
+=item * _tester_name
+
+Returns either the known name of the tester for the given email address, or
+returns a doctored version of the address for displaying in HTML.
+
+=cut
+
+my $address;
+sub _tester_name {
+    my ($self,$name) = @_;
+
+    $address ||= do {
+        my (%address_map,%known);
+        my $address = $self->{parent}->address;
+
+        my $fh = IO::File->new($address)    or die "Cannot open address file [$address]: $!";
+        while(<$fh>) {
+            chomp;
+            my ($source,$target) = (/(.*),(.*)/);
+            next    unless($source && $target);
+            $address_map{$source} = $target;
+            $known{$target}++;
+        }
+        $fh->close;
+        $known_t = scalar(keys %known);
+        $known_s = scalar(keys %address_map);
+        \%address_map;
+    };
+
+    my $addr = ($address->{$name} && $address->{$name} =~ /\&\#x?\d+\;/)
+                ? $address->{$name}
+                : encode_entities( ($address->{$name} || $name) );
+    $addr =~ s/\./ /g if($addr =~ /\@/);
+    $addr =~ s/\@/[]/g;
+    $addr =~ s/</&lt;/g;
+    return $addr;
+}
+
+=item * _ext
+
+Provides the ordinal for dates.
+
+=cut
+
+sub _ext {
+    my $num = shift;
+    return 'st' if($num == 1 || $num == 21 || $num == 31);
+    return 'nd' if($num == 2 || $num == 22);
+    return 'rd' if($num == 3 || $num == 23);
+    return 'th';
+}
+
+q("Will code for Guinness!");
 
 __END__
 
@@ -745,7 +770,7 @@ http://rt.cpan.org/Public/Dist/Display.html?Name=CPAN-Testers-WWW-Statistics
 
 =head1 SEE ALSO
 
-L<CPAN::WWW::Testers::Generator>,
+L<CPAN::Testers::Data::Generator>,
 L<CPAN::WWW::Testers>
 
 F<http://www.cpantesters.org/>,

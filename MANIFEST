@@ -9,8 +9,8 @@ bin/cpanstats-writepages
 bin/getmailrc.pl
 bin/updates.pl
 examples/cpanstats.sh
+examples/example-settings.ini
 lib/CPAN/Testers/WWW/Statistics.pm
-lib/CPAN/Testers/WWW/Statistics/Database.pm
 lib/CPAN/Testers/WWW/Statistics/Graphs.pm
 lib/CPAN/Testers/WWW/Statistics/Pages.pm
 t/01base.t
