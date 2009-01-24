@@ -24,6 +24,7 @@ testers, and some backend code to help map tester address to a real identity.
 
 use base qw(Class::Accessor::Chained::Fast);
 
+use CPAN::Testers::Common::DBUtils;
 use Config::IniFiles;
 use File::Basename;
 use File::Path;
@@ -99,15 +100,15 @@ sub new {
     $self->logclean( _defined_or( $hash{logclean},  $cfg->val('MASTER','logclean' ), 0 ));
     $self->directory(_defined_or( $hash{directory}, $cfg->val('MASTER','directory') ));
 
-    $self->_log("templates=".$self->templates);
-    $self->_log("database =".$self->database);
-    $self->_log("address  =".$self->address);
-    $self->_log("logfile  =".$self->logfile);
-    $self->_log("logclean =".$self->logclean);
-    $self->_log("directory=".$self->directory);
+    $self->_log("templates=".($self->templates || ''));
+    $self->_log("database =".($self->database  || ''));
+    $self->_log("address  =".($self->address   || ''));
+    $self->_log("logfile  =".($self->logfile   || ''));
+    $self->_log("logclean =".($self->logclean  || ''));
+    $self->_log("directory=".($self->directory || ''));
 
-    die "Must specify the output directory\n"           unless(   $self->directory);
-    die "Must specify the template directory\n"         unless(   $self->templates);
+    die "Must specify the output directory\n"           unless($self->directory);
+    die "Must specify the template directory\n"         unless($self->templates);
 
     return $self;
 }

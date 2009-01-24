@@ -8,6 +8,7 @@ Revision history for CPAN-Testers-WWW-Statistics
 	- changes to scripts to use new interface:
             bin/cpanstats-writegraphs   (v0.49)
             bin/cpanstats-writepages    (v0.49)
+	- added new test suite
 
 0.55	20/01/2009
 	- wording fix in interesting.html.

@@ -37,7 +37,6 @@ Note that this package should not be called directly, but via its parent as:
 # -------------------------------------
 # Library Modules
 
-use CPAN::Testers::Common::DBUtils;
 use File::Basename;
 use File::Copy;
 use File::Path;
@@ -91,6 +90,9 @@ sub new {
 
     my $self = {parent => $hash{parent}};
     bless $self, $class;
+
+    $self->_init_date();
+    return $self;
 }
 
 =head2 Public Methods
@@ -107,9 +109,6 @@ Method to facilitate the creation of pages.
 
 sub create {
     my $self = shift;
-
-    $self->{parent}->_log("init");
-    $self->_init_date();
 
     $self->{parent}->_log("start");
     $self->_write_basics();
@@ -287,10 +286,10 @@ sub _write_stats {
         next    if($date > $LIMIT);
         my @fields = (
             $date,
-            $stats{$date}->{pause},
-            $stats{$date}->{reports},
-            $stats{$date}->{state}->{pass},
-            $stats{$date}->{state}->{fail}
+            ($stats{$date}->{pause}         || 0),
+            ($stats{$date}->{reports}       || 0),
+            ($stats{$date}->{state}->{pass} || 0),
+            ($stats{$date}->{state}->{fail} || 0)
         );
 
         unshift @{$tvars{STATS}},
@@ -665,6 +664,9 @@ Prime all key date variable.
 =cut
 
 sub _init_date {
+    my $self = shift;
+    $self->{parent}->_log("init");
+
     my @datetime = localtime;
     $THISYEAR = ($datetime[5] +1900);
     $RUNDATE  = sprintf "%d%s %s %d",

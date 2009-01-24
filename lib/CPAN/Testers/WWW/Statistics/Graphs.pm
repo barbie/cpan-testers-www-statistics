@@ -34,6 +34,7 @@ Note that this package should not be called directly, but via its parent as:
 # -------------------------------------
 # Library Modules
 
+use File::Path;
 use HTML::Entities;
 use IO::File;
 use WWW::Mechanize;
@@ -132,13 +133,14 @@ Method to facilitate the creation of graphs.
 sub create {
     my $self = shift;
     my $directory = $self->{parent}->directory;
+    mkpath($directory);
 
     $self->{parent}->_log("start");
 
     for my $g (@graphs) {
         $self->{parent}->_log("writing graph - $g->[0]");
 
-        my $url = _make_graph($directory,@$g);
+        my $url = _make_graph("$directory",@$g);
         $self->{parent}->_log("url - [".(length $url)."] $url");
 #        print "$url\n";
 
@@ -152,7 +154,7 @@ sub create {
             warn("FAIL: $0 - request failed - see '$file'\n");
             $mech->save_content($file);
         } else {
-            my $file = $directory . "/$g->[0].png";
+            my $file = "$directory/$g->[0].png";
             my $fh = IO::File->new(">$file") or die "$0 - Cannot write file [$file]: $!\n";
             binmode($fh);
             print $fh $mech->content;
