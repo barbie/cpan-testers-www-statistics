@@ -23,7 +23,7 @@ $|=1;
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 116;
+use Test::More tests => 169;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;
@@ -115,6 +115,29 @@ check_dir_contents(
 	"[graphs]",
 	$obj->directory,
 	File::Spec->catfile($EXPECTEDPATH,'56writes.graphs'),
+);
+ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+
+
+#---------------------------------------
+# Tests for main API
+
+$obj->directory($dir . '/make_pages'),
+$obj->make_pages();
+check_dir_contents(
+	"[make_pages]",
+	$obj->directory,
+	File::Spec->catfile($EXPECTEDPATH,'56writes.make_pages'),
+);
+ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+
+
+$obj->directory($dir . '/make_graphs'),
+$obj->make_graphs();
+check_dir_contents(
+	"[make_graphs]",
+	$obj->directory,
+	File::Spec->catfile($EXPECTEDPATH,'56writes.make_graphs'),
 );
 ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 

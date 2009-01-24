@@ -69,6 +69,8 @@ specified within the 'MASTER' section of the configuration file.
 
 =cut
 
+sub _alarm_handler () { return; }
+
 sub new {
     my $class = shift;
     my %hash  = @_;
@@ -81,8 +83,10 @@ sub new {
     die "Configuration file [$hash{config}] not found\n"    unless(-f $hash{config});
 
     # load configuration file
-    my $cfg = Config::IniFiles->new( -file => $hash{config} );
-    die "Cannot load configuration file [$hash{config}]\n"  unless($cfg);
+    my $cfg;
+    local $SIG{'__WARN__'} = \&_alarm_handler;
+    eval { $cfg = Config::IniFiles->new( -file => $hash{config} ); };
+    die "Cannot load configuration file [$hash{config}]\n"  unless($cfg && !$@);
 
     # configure databases
     for my $db (qw(CPANSTATS UPLOADS)) {
@@ -139,7 +143,7 @@ sub make_pages {
     die "Must specify the path of the SQL database\n"   unless(   $self->database);
     die "SQL database not found\n"                      unless(-f $self->database);
     die "Must specify the path of the address file\n"   unless(   $self->address);
-    die "address file not found\n"                      unless(-f $self->address);
+    die "Address file not found\n"                      unless(-f $self->address);
 
     my $stats = CPAN::Testers::WWW::Statistics::Pages->new(parent => $self);
     $stats->create();
