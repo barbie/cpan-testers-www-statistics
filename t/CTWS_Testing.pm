@@ -67,7 +67,7 @@ __DATA__
 
 [MASTER]
 database=t/_DBDIR/test.db
-address=data/addresses.txt
+address=t/data/addresses.txt
 templates=templates
 
 [CPANSTATS]

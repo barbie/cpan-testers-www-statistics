@@ -23,7 +23,7 @@ $|=1;
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 144;
+use Test::More tests => 142;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;
@@ -57,6 +57,30 @@ if(-f $zip) {
 
 my $page = CTWS_Testing::getPages();
 my $dir  = $obj->directory();
+
+# copy templates directory
+# .. as updates-index.html and updates-all.html are created dynamically
+#    we create blank version in this test version of the directory
+my $SOURCE = $obj->templates();
+my $TARGET = File::Spec->catfile( 't', '_TEMPLATES' );
+my @source = CTWS_Testing::listFiles( $SOURCE );
+for my $f (@source) {
+    my $source = File::Spec->catfile( $SOURCE, $f );
+    my $target = File::Spec->catfile( $TARGET, $f );
+    mkpath( dirname($target) );
+    copy( $source, $target );
+}
+for my $f ( # fake blog files
+            'updates-index.html','updates-all.html','rss-2.0.xml'
+          ) {
+    my $file = File::Spec->catfile( $TARGET, $f );
+    my $fh = IO::File->new($file,'w+') or next;
+    print $fh "\n";
+    $fh->close;
+}
+my $images = File::Spec->catfile( $TARGET, 'images' );
+rmtree($images);
+$obj->templates($TARGET);
 
 
 $obj->directory($dir . '/_write_basics'),
@@ -166,6 +190,7 @@ if( $UPDATE_ARCHIVE ){
 
 ok( CTWS_Testing::whackDir($obj), 'directory removed' );
 ok( rmtree($EXPECTEDPATH), 'expected dir removed' );
+ok( rmtree($TARGET), 'template dir removed' );
 
 exit;
 
@@ -196,7 +221,7 @@ sub check_dir_contents {
     my $fExpected = File::Spec->catfile($expectedDir, $f);
 
     # diff text files only
-    if($f =~ /\.(html?|txt|js|css|json|ya?ml|ini|cgi|xml)$/i) {
+    if($f =~ /\.(html?|txt|js|css|json|ya?ml|ini|cgi)$/i) {
         my $ok = eq_or_diff_files(
         $fGot,
         $fExpected,

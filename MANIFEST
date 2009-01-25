@@ -23,6 +23,7 @@ t/50logging.t
 t/51init.t
 t/52methods-graphs.t
 t/52methods-pages.t
+t/56writes.t
 t/59cleanup.t
 t/90podtest.t
 t/91podcover.t
