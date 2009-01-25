@@ -255,13 +255,15 @@ sub _dec2hex {
 sub _set_max {
     my $max = shift;
 #print "max=$max\n";
-    if($max < 10)           { $max = 10 }
-    elsif($max < 100)       { $max = ((int($max/10)+1)*10) }
-#    elsif($max < 500)       { $max = ((int($max/50)+1)*50) }
-    elsif($max < 1000)      { $max = ((int($max/100)+1)*100) }
-    elsif($max < 10000)     { $max = ((int($max/1000)+1)*1000) }
-    elsif($max < 100000)    { $max = ((int($max/10000)+1)*10000) }
-    elsif($max < 1000000)   { $max = ((int($max/10000)+1)*10000) }
+
+       if($max <  10)       { $max = 10 }
+    elsif($max <  100)      { $max = ((int($max/10)+1)*10)           }
+#    elsif($max < 500)      { $max = ((int($max/50)+1)*50)           }
+    elsif($max <  1000)     { $max = ((int($max/100)+1)*100)         }
+    elsif($max <  10000)    { $max = ((int($max/1000)+1)*1000)       }
+    elsif($max <  100000)   { $max = ((int($max/10000)+1)*10000)     }
+    elsif($max <  1000000)  { $max = ((int($max/100000)+1)*100000)   }
+    else                    { $max = ((int($max/1000000)+1)*1000000) }
 
 #print "max=$max\n";
     return $max;
@@ -271,17 +273,18 @@ sub _set_range {
     my ($min,$max) = @_;
     my $step = 1;
 
-    if($max < 10)           { $step = 1        }
-    elsif($max < 100)       { $step = 10       }
-    elsif($max < 500)       { $step = 50       }
-    elsif($max < 1000)      { $step = 50       }
-    elsif($max < 10000)     { $step = 500      }
-    elsif($max < 100000)    { $step = 5000     }
-    elsif($max < 1000000)   { $step = 50000    }
+       if($max <  10)       { $step = 1        }
+    elsif($max <  100)      { $step = 10       }
+    elsif($max <  500)      { $step = 50       }
+    elsif($max <  1000)     { $step = 50       }
+    elsif($max <  10000)    { $step = 500      }
+    elsif($max <  100000)   { $step = 5000     }
+    elsif($max <  1000000)  { $step = 50000    }
+    else                    { $step = 1000000  }
 
     my @r;
     for(my $r = $min; $r < ($max+$step); $r += $step) {
-        my $x = $r < 1000 ? $r : ($r/1000) . 'k';
+        my $x = $r < 1000000 ? $r < 1000 ? $r : ($r/1000) . 'k' : ($r/1000000) . 'm';
         push @r, $x;
     };
 #print "range=".(join('|',@r))."\n";

@@ -23,7 +23,7 @@ $|=1;
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 169;
+use Test::More tests => 144;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;
@@ -37,6 +37,8 @@ use lib 't';
 use CTWS_Testing;
 
 ok( my $obj = CTWS_Testing::getObj(), "got object" );
+ok( CTWS_Testing::cleanDir($obj), 'directory removed' );
+
 my $rc;
 my @files;
 my @expectedFiles;
@@ -57,6 +59,7 @@ my $page = CTWS_Testing::getPages();
 my $dir  = $obj->directory();
 
 
+$obj->directory($dir . '/_write_basics'),
 $page->_write_basics();
 check_dir_contents(
 	"[_write_basics]",
@@ -66,6 +69,7 @@ check_dir_contents(
 ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
 
+$obj->directory($dir . '/_report_matrix'),
 $page->_report_matrix();
 check_dir_contents(
 	"[_report_matrix]",
@@ -75,6 +79,7 @@ check_dir_contents(
 ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
 
+$obj->directory($dir . '/_report_interesting'),
 $page->_report_interesting();
 check_dir_contents(
 	"[_report_interesting]",
@@ -156,6 +161,9 @@ if( $UPDATE_ARCHIVE ){
 
 ##################################################################
 
+#my $time = time;
+#system("cp -r $EXPECTEDPATH ${EXPECTEDPATH}_$time");
+
 ok( CTWS_Testing::whackDir($obj), 'directory removed' );
 ok( rmtree($EXPECTEDPATH), 'expected dir removed' );
 
@@ -186,19 +194,25 @@ sub check_dir_contents {
   foreach my $f ( @files ){
     my $fGot = File::Spec->catfile($dir,$f);
     my $fExpected = File::Spec->catfile($expectedDir, $f);
-    my $ok = eq_or_diff_files(
-	$fGot,
-	$fExpected,
-	"$diz diff $f",
-	sub {
-	  $_[0] =~ s/^(\s*)\d+\.\d+(?:_\d+)? at \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.( Comments and design patches)/$1 ==TIMESTAMP== $2/gmi;
-	  $_[0] =~ s/\d+(st|nd|rd|th)\s+\w+\s+\d+/==TIMESTAMP==/gmi;
-	  $_[0] =~ s!\d{4}/\d{2}/\d{2}!==TIMESTAMP==!gmi;
-	}
-    );
-    next if $ok;
+
+    # diff text files only
+    if($f =~ /\.(html?|txt|js|css|json|ya?ml|ini|cgi|xml)$/i) {
+        my $ok = eq_or_diff_files(
+        $fGot,
+        $fExpected,
+        "$diz diff $f",
+        sub {
+          $_[0] =~ s/^(\s*)\d+\.\d+(?:_\d+)? at \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.( Comments and design patches)/$1 ==TIMESTAMP== $2/gmi;
+          $_[0] =~ s/\d+(st|nd|rd|th)\s+\w+\s+\d+/==TIMESTAMP==/gmi;
+          $_[0] =~ s!\d{4}/\d{2}/\d{2}!==TIMESTAMP==!gmi;
+        }
+        );
+        next if $ok;
+    }
+
     next unless $UPDATE_ARCHIVE;
-    mkpath( dirname($fExpected) ) unless -f $fExpected;
+    if(-f $fExpected)   { unlink($fExpected); }
+    else                { mkpath( dirname($fExpected) ) ; }
     copy( $fGot, $fExpected );
   }
 }

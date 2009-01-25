@@ -21,6 +21,7 @@ t/21dies.t
 t/50logging.ini
 t/50logging.t
 t/51init.t
+t/52methods-graphs.t
 t/52methods-pages.t
 t/56writes.t
 t/59cleanup.t
