@@ -1,6 +1,6 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.56	current
+0.56	25/01/2009
 	- added new testers graph.
 	- removed Database.pm and replaced with new prerequisite 
 	  CPAN::Testers::Common::DBUtils
