@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.57';
+$VERSION = '0.58';
 
 #----------------------------------------------------------------------------
 
@@ -24,8 +24,8 @@ testers, and some backend code to help map tester address to a real identity.
 
 use base qw(Class::Accessor::Chained::Fast);
 
-use CPAN::Testers::Common::DBUtils;
 use Config::IniFiles;
+use CPAN::Testers::Common::DBUtils;
 use File::Basename;
 use File::Path;
 use IO::File;

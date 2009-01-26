@@ -1,5 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.58	26/01/2009
+	- added missing Config::IniFiles dependency.
+
 0.57	25/01/2009
 	- reworked 56writes.t with a test version of the templates directory.
 
