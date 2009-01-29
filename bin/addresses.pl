@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 
-my $VERSION = '0.12';
+my $VERSION = '0.13';
 
 #http://www.eurodns.com/search/index.php
 
@@ -231,21 +231,19 @@ sub map_domain {
     my ($key,$local,$domain,$email) = @_;
 
     return 0    if( $domain eq 'us.ibm.com'     ||
-                    $domain eq 'aacom.fr'       ||
-                    $domain eq 'free.fr'        ||
-                    $domain eq 'web.de'         ||
-                    $domain eq 'xs4all.nl'      ||
-                    $domain eq 'demon.nl'       ||
                     $domain eq 'shaw.ca'        ||
-                    $domain eq 'mail.ru'        ||
-                    $domain eq 'gmx.de'         ||
                     $domain eq 'ath.cx'         ||
-                    $domain eq 'nih.gov'        ||
-                    $domain eq 'rambler.ru'     ||
 
-                    $domain =~ /^(ieee|no-ip|dyndns|cpan|perl)\.org$/                               ||
-                    $domain =~ /^(verizon|gmx|comcast|earthlink|cox)\.net$/                         ||
-                    $domain =~ /^(yahoo|google|gmail|mac|pair|rr|sun|aol|pobox|hotmail|ibm)\.com$/  ||
+                    $domain =~ /^(rambler|mail)\.de$/   ||
+                    $domain =~ /^(web|gmx)\.de$/        ||
+                    $domain =~ /^(aacom|free)\.fr$/     ||
+                    $domain =~ /^(xs4all|demon)\.nl$/   ||
+
+                    $domain =~ /^(nasa|nih)\.gov$/                                  ||
+                    $domain =~ /^(ieee|no-ip|dyndns|cpan|perl|freebsd)\.org$/       ||
+                    $domain =~ /^(verizon|gmx|comcast|earthlink|cox|usa)\.net$/     ||
+                    $domain =~ /^(yahoo|google|gmail|mac|pair|rr|sun|aol)\.com$/    ||
+                    $domain =~ /^(pobox|hotmail|ibm|onlinehome-server)\.com$/       ||
 
                     $domain =~ /^(net|org|com)\.(br|au|tw)$/        ||
                     $domain =~ /^(co|org)\.uk$/                     ||
