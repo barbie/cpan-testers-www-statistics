@@ -5,6 +5,7 @@ WriteMakefile(
     'VERSION_FROM'     => 'lib/CPAN/Testers/WWW/Statistics.pm',
     'PREREQ_PM'        => {
 
+        Class::Accessor::Chained::Fast  => 0,
         Config::IniFiles                => 0,
         CPAN::Testers::Common::DBUtils  => 0.03,
         GD::Graph::lines                => 0,

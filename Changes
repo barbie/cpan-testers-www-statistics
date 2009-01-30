@@ -1,7 +1,10 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.59	current
+0.59	30/01/2009
 	- updated addresses.pl (v0.13) to ignore further generic domains.
+	- updated test to ignore minor distro version changes.
+	- added missing Class::Accessor::Chained::Fast dependency.
+
 
 0.58	26/01/2009
 	- added missing Config::IniFiles dependency.

@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-BASE=/home/barbie/projects/cpan-testers/cpanstats
+BASE=/opt/projects/cpantesters/cpanstats
 mkdir -p $BASE/logs
 
 date
