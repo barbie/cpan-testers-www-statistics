@@ -1,5 +1,9 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.60	current
+	- added sponsor message to templates/layout.html.
+	- added missing DBD dependencies.
+
 0.59	30/01/2009
 	- updated addresses.pl (v0.13) to ignore further generic domains.
 	- updated test to ignore minor distro version changes.

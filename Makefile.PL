@@ -24,6 +24,9 @@ WriteMakefile(
         CGI                             => 0,
         Email::Simple                   => 0,
         Time::Piece                     => 0,
+
+        DBD::mysql                      => 0,
+        DBD::SQLite                     => 0,
     },
 
     NO_META            => 1,
