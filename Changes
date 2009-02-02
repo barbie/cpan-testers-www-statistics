@@ -1,6 +1,6 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.60	current
+0.60	02/02/2009
 	- added sponsor message to templates/layout.html.
 	- added missing DBD dependencies.
 
