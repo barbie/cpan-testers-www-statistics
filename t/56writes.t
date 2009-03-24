@@ -230,6 +230,7 @@ sub check_dir_contents {
           $_[0] =~ s/^(\s*)\d+\.\d+(?:_\d+)? at \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.( Comments and design patches)/$1 ==TIMESTAMP== $2/gmi;
           $_[0] =~ s/\d+(st|nd|rd|th)\s+\w+\s+\d+/==TIMESTAMP==/gmi;
           $_[0] =~ s!\d{4}/\d{2}/\d{2}!==TIMESTAMP==!gmi;
+          $_[0] =~ s!\w+ \d{4}!==TIMESTAMP==!gmi;
           $_[0] =~ s!CPAN-Testers-WWW-Statistics-0.\d{2}!==DISTRO==!gmi;
         }
         );

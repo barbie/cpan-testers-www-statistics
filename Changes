@@ -1,5 +1,12 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.61	24/03/2009
+	- template headers updated.
+	- added further release test file - 95changedate.t
+	- added further version tests to 94metatest.t
+	- updated cpanmail.cgi (v0.04) to use CPAN::Testers::Common::DBUtils 
+	  and a config file contain the database connection settings.
+
 0.60	02/02/2009
 	- added sponsor message to templates/layout.html.
 	- added missing DBD dependencies.
@@ -8,7 +15,6 @@ Revision history for CPAN-Testers-WWW-Statistics
 	- updated addresses.pl (v0.13) to ignore further generic domains.
 	- updated test to ignore minor distro version changes.
 	- added missing Class::Accessor::Chained::Fast dependency.
-
 
 0.58	26/01/2009
 	- added missing Config::IniFiles dependency.

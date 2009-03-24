@@ -2,7 +2,7 @@
 use strict;
 $|++;
 
-my $VERSION = '0.03';
+my $VERSION = '0.04';
 
 #----------------------------------------------------------------------------
 
@@ -27,9 +27,9 @@ the email address in a non-spam form.
 
 use CGI;
 #use CGI::Carp qw(fatalsToBrowser);
-use DBI;
+use Config::IniFiles;
+use CPAN::Testers::Common::DBUtils;
 use Email::Simple;
-use IO::File;
 use Net::NNTP;
 use Template;
 
@@ -37,10 +37,9 @@ use Template;
 # Variables
 
 my $LOG = 'logs/cpanstats.log';
-my $DB  = '/home/barbie/projects/cpanstats/cpanstats.db';
+my $CONFIG = './cpanmail.ini';
 
-my $exists = -f $DB;
-my ($dbh,%tvars);
+my %tvars;
 
 # -------------------------------------
 # Program
@@ -51,7 +50,7 @@ $tvars{nntpid} =~ s/\D+//g  if($tvars{nntpid});
 
 my $found = 0;
 if($tvars{nntpid}) {
-    if($exists) {
+    if(-f $CONFIG) {
         $found = retrieve_from_db($tvars{nntpid});
     }
 
@@ -76,11 +75,22 @@ Access the database and retrieve the required article data.
 
 sub retrieve_from_db {
     my $id = shift;
+    my $cfg;
 
-    $dbh = DBI->connect('dbi:SQLite:dbname='.$DB,'','');
-    $dbh->{AutoCommit} = 1;
+    # load configuration file
+    local $SIG{'__WARN__'} = \&_alarm_handler;
+    eval { $cfg = Config::IniFiles->new( -file => $CONFIG ); };
+    return 0    unless($cfg && !$@);
 
-    my @rows = get_query("SELECT * FROM cpanstats WHERE id = $id");
+    # configure databases
+    my $db = 'CPANSTATS';
+    return 0    unless($cfg->SectionExists($db));
+    my %opts = map {my $v = $cfg->val($db,$_); defined($v) ? ($_ => $v) : () }
+                    qw(driver database dbfile dbhost dbport dbuser dbpass);
+    my $dbh = CPAN::Testers::Common::DBUtils->new(%opts);
+    return 0    unless($dbh);
+
+    my @rows = $dbh->get_query('array',"SELECT * FROM cpanstats WHERE id=$id");
     return 0    unless(@rows);
 
     $tvars{subject} = sprintf "%s %s-%s %s %s", $rows[0]->[1], $rows[0]->[4], $rows[0]->[5], $rows[0]->[6], $rows[0]->[7];
@@ -144,22 +154,7 @@ sub write_results {
 		or die $parser->error();
 }
 
-=item get_query
-
-A SELECT SQL query wrapper.
-
-=cut
-
-sub get_query {
-    my $sql = shift;
-    my @rows;
-    my $sth = $dbh->prepare($sql);
-    $sth->execute;
-    while(my $row = $sth->fetchrow_arrayref) {
-        push @rows, [@$row];
-    }
-    return @rows;
-}
+sub _alarm_handler () { return; }
 
 __END__
 
@@ -177,9 +172,9 @@ be forthcoming, please feel free to (politely) remind me.
 
 =head1 SEE ALSO
 
-L<DBI> and L<Net::NNTP>.
+L<Net::NNTP>.
 
-F<http://perl.grango.org/>
+F<http://stats.cpantesters.org/>
 
 =head1 AUTHOR
 
@@ -188,10 +183,9 @@ F<http://perl.grango.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2005-2008 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2009 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.
 
 =cut
-

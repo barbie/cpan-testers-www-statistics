@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.60';
+$VERSION = '0.61';
 
 #----------------------------------------------------------------------------
 
@@ -692,7 +692,7 @@ sub _init_date {
         $THATYEAR--;
     }
     $LASTDATE = sprintf "%04d%02d", $THATYEAR, int($datetime[4]);
-    $THATDATE = sprintf "%s %d", $month{int($datetime[4])}, $THISYEAR;
+    $THATDATE = sprintf "%s %d", $month{int($datetime[4])}, $THATYEAR;
 
     #print STDERR "THISYEAR=[$THISYEAR]\n";
     #print STDERR "LIMIT=[$LIMIT]\n";

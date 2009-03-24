@@ -28,6 +28,7 @@ t/59cleanup.t
 t/90podtest.t
 t/91podcover.t
 t/94metatest.t
+t/95changedate.t
 t/CTWS_Testing.pm
 t/data/21config00.ini
 t/data/21config01.ini
