@@ -1,5 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.62	25/03/2009
+	- updated pre-requisites for test files.
+
 0.61	24/03/2009
 	- template headers updated.
 	- added further release test file - 95changedate.t

@@ -27,6 +27,12 @@ WriteMakefile(
 
         DBD::mysql                      => 0,
         DBD::SQLite                     => 0,
+
+        Test::Differences               => 0,     # for testing
+        Archive::Zip                    => 0,     # for testing
+        Archive::Extract                => 0,     # for testing
+        File::Slurp                     => 0,     # for testing
+        File::Spec                      => 0,     # for testing
     },
 
     NO_META            => 1,
