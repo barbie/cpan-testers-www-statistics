@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.62';
+$VERSION = '0.63';
 
 #----------------------------------------------------------------------------
 
@@ -145,31 +145,40 @@ sub _write_basics {
     my $DBSZ_UNCOMPRESSED = int((-s $database        ) / (1024 * 1024));
     my $DBSZ_COMPRESSED   = int((-s $database . '.gz') / (1024 * 1024));
 
+    my $ranges    = $self->{parent}->ranges;
+
     # additional pages not requiring metrics
     my %pages = (
             index    => {THISDATE => $THISDATE, DATABASE => $DATABASE1,
                          DBSZ_COMPRESSED => $DBSZ_COMPRESSED, DBSZ_UNCOMPRESSED => $DBSZ_UNCOMPRESSED},
-            updates  => {},
             cpanmail => {},
             response => {},
-            graphs   => {});
+            graphs   => {},
+            graphs1  => {RANGES => $ranges, template=>'archive',PREFIX=>'stats1',TITLE=>'Monthly Report Counts'},
+            graphs2  => {RANGES => $ranges, template=>'archive',PREFIX=>'stats2',TITLE=>'Testers, Platforms and Perls'},
+            graphs3  => {RANGES => $ranges, template=>'archive',PREFIX=>'stats3',TITLE=>'Monthly Non-Passing Reports Counts'},
+            graphs4  => {RANGES => $ranges, template=>'archive',PREFIX=>'stats4',TITLE=>'Monthly Tester Fluctuations'}
+    );
 
     $self->{parent}->_log("building support pages");
     $self->_writepage($_,$pages{$_})    for(keys %pages);
 
     # copy files
-    foreach my $filename (
-        'rss-2.0.xml',
-        'cgi-bin/cpanmail.cgi',
-        'favicon.ico',
-        'style.css',
-        map {'images/'.basename($_)} glob($templates . '/images/*'),
-        )
-    {
+    $self->{parent}->_log("copying static files");
+    my $tocopy = $self->{parent}->tocopy;
+    foreach my $filename (@$tocopy) {
         my $src  = $templates . "/$filename";
-        my $dest = $directory . "/$filename";
-        mkpath( dirname($dest) );
-        copy( $src, $dest );
+        if(-f $src) {
+            my $dest = $directory . "/$filename";
+            mkpath( dirname($dest) );
+            if(-d dirname($dest)) {
+                copy( $src, $dest );
+            } else {
+                warn "Missing directory: $dest\n";
+            }
+        } else {
+            warn "Missing file: $src\n";
+        }
     }
 }
 
@@ -254,7 +263,7 @@ sub _write_stats {
                 $tvars{vplatform} = $platform;
                 $tvars{vperl}     = $perl;
                 $tvars{count}     = $count;
-                $self->_writepage('list-'.$index,\%tvars);
+                $self->_writepage('matrix/list-'.$index,\%tvars);
                 undef %tvars;
             }
 
@@ -262,7 +271,7 @@ sub _write_stats {
                         . ($count > 50 ? 'lots' :
                           ($count >  0 ? 'some' : 'none'))
                         . '">'
-                        . ($count ? qq|<a href="list-$index.html">$count</a>| : '-')
+                        . ($count ? qq|<a href="matrix/list-$index.html">$count</a>| : '-')
                         . '</td>';
         }
         $content .= '</tr>';
@@ -487,13 +496,18 @@ sub _report_matrix {
     $self->{parent}->_log("building report matrix");
 
     # grab all records for the month
-    my $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT platform,perl FROM cpanstats WHERE postdate='$LASTDATE' AND state!='cpan'");
+    #my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT platform,perl FROM cpanstats WHERE postdate='$LASTDATE' AND state!='cpan'");
+    my $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT platform,perl,id FROM cpanstats WHERE postdate='$LASTDATE' AND state!='cpan'");
     while(my $row = $iterator->()) {
+        $self->{parent}->_log("- id=$row->[2]");
+
+    #for my $row (@rows) {
         # platform -> perl
         $row->[1] =~ s/\s.*//;  # only need to know the main release
         $stats{$row->[0]}->{$row->[1]}++;
         $perls{$row->[1]} = 1;
     }
+    $self->{parent}->_log("- hash created");
 
     my @vers = sort {versioncmp($b,$a)} keys %perls;
 
@@ -513,6 +527,7 @@ sub _report_matrix {
         $content .= '</tr>';
     }
     $content .= '</table>';
+    $self->{parent}->_log("- matrix created");
 
     $tvars{CONTENT} = $content;
     $self->_writepage('rmatrix',\%tvars);
@@ -623,20 +638,24 @@ sub _writepage {
     my $directory = $self->{parent}->directory;
     my $templates = $self->{parent}->templates;
 
-#   $self->{parent}->_log("writing page - $page");
+   $self->{parent}->_log("_writepage: page=$page");
 
-    my $template = $page;
-    $template = 'distlist'    if($page =~ /^list-/);
+    my $template = $vars->{template} || $page;
+    $template = 'distlist'    if($page =~ m!^matrix/list-!);
 
     my $layout = "layout.html";
     my $source = "$template.html";
     my $target = "$directory/$page.html";
+    mkdir(dirname($target));
 
-    $vars->{SOURCE}   = $source;
-    $vars->{VERSION}  = $VERSION;
-    $vars->{RUNDATE}  = $RUNDATE;
-    $vars->{STATDATE} = $STATDATE;
-    $vars->{THATDATE} = $THATDATE;
+   $self->{parent}->_log("_writepage: layout=$layout, source=$source, target=$target");
+
+    $vars->{SOURCE}    = $source;
+    $vars->{VERSION}   = $VERSION;
+    $vars->{RUNDATE}   = $RUNDATE;
+    $vars->{STATDATE}  = $STATDATE;
+    $vars->{THATDATE}  = $THATDATE;
+    $vars->{copyright} = $self->{parent}->copyright;
 
 #    if($page =~ /^list-/) {
 #        use Data::Dumper;
@@ -654,7 +673,7 @@ sub _writepage {
 
     my $parser = Template->new(\%config);   # initialise parser
     $parser->process($layout,$vars,$target) # parse the template
-        or die $parser->error();
+        or die $parser->error() . "\n";
 }
 
 =item * _init_date

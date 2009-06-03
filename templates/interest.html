@@ -1,5 +1,14 @@
+[% 
+    title = 'Interesting Stats' ;
+    box_sites = 1
+
+    crumb2_name = 'Main' ;
+    crumb2_href = '/' ;
+    crumb1_name = 'Interesting Stats' ;
+%]
+
 <h2>Contents</h2>
-<ul>
+<ul class="contents">
 <li><a href="#top20dist">Top 20 Distributions with Most Reports</a></li>
 <li><a href="#top20dver">Top 20 Distribution/Versions with Most Reports</a></li>
 <li><a href="#posters">All Posts to cpan-testers</a></li>
@@ -10,47 +19,57 @@
 
 <a name="top20dist" />
 <h2>Top 20 Distributions with Most Reports</h2>
+<div class="boxer">
 <table>
-<tr><th>#</th><th>COUNT</th><th>DISTRIBUTION</th></tr>
+<tr><th class="top">#</th><th class="top">COUNT</th><th class="top">DISTRIBUTION</th></tr>
 [% cnt = 1 %]
 [% FOREACH row = BYDIST %]
 <tr><td>[% cnt; cnt = cnt + 1 %]</td>[% FOREACH col = row %]<td>[% col %]</td>[% END %]</tr>
 [% END %]
 </table>
+</div>
 
 <a name="top20dver" />
 <h2>Top 20 Distribution/Versions with Most Reports</h2>
+<div class="boxer">
 <table>
-<tr><th>#</th><th>COUNT</th><th>DISTRIBUTION</th><th>VERSION</th></tr>
+<tr><th class="top">#</th><th class="top">COUNT</th><th class="top">DISTRIBUTION</th><th class="top">VERSION</th></tr>
 [% cnt = 1 %]
 [% FOREACH row = BYVERS %]
 <tr><td>[% cnt; cnt = cnt + 1 %]</td>[% FOREACH col = row %]<td>[% col %]</td>[% END %]</tr>
 [% END %]
 </table>
+</div>
 
 <a name="posters" />
 <h2>All Posts to cpan-testers</h2>
+<div class="boxer flat">
 <table>
-<tr>[% FOREACH cell = HEADINGS %]<th>[% cell %]</th>[% END %]</tr>
+<tr>[% FOREACH cell = HEADINGS %]<th class="top">[% cell %]</th>[% END %]</tr>
 [% FOREACH row = POSTERS; cnt = 0 %]
 <tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>[% ELSE %]<td>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
 [% END %]
 </table>
+</div>
 
 <a name="entries" />
 <h2>Notable Entries posted to cpan-testers</h2>
+<div class="boxer flat">
 <table>
-<tr>[% FOREACH cell = HEADINGS %]<th>[% cell %]</th>[% END %]</tr>
+<tr>[% FOREACH cell = HEADINGS %]<th class="top">[% cell %]</th>[% END %]</tr>
 [% FOREACH row = ENTRIES; cnt = 0 %]
 <tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>[% ELSE %]<td>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
 [% END %]
 </table>
+</div>
 
 <a name="reports" />
 <h2>Notable Reports posted to cpan-testers</h2>
+<div class="boxer flat">
 <table>
-<tr>[% FOREACH cell = HEADINGS %]<th>[% cell %]</th>[% END %]</tr>
+<tr>[% FOREACH cell = HEADINGS %]<th class="top">[% cell %]</th>[% END %]</tr>
 [% FOREACH row = REPORTS; cnt = 0 %]
 <tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>[% ELSE %]<td>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
 [% END %]
 </table>
+</div>

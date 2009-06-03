@@ -1,4 +1,16 @@
+[% 
+    title = 'Reports' ;
+    box_sites = 1
+
+    crumb2_name = 'Matrices' ;
+    crumb2_href = '/' ;
+    crumb1_name = 'Reports' ;
+%]
+
 <h2>Platform/Perl Matrix for Reports for [% THATDATE %]</h2>
 <p>The matrix below represents all the test reports submitted to the
 cpan-testers mailing list during [% THATDATE %].</p>
+
+<div class="boxer">
 [% CONTENT %]
+</div>

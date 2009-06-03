@@ -1,7 +1,18 @@
+[% 
+    title = 'Reports' ;
+    box_sites = 1
+
+    crumb2_name = 'Monthly Stats' ;
+    crumb2_href = '/' ;
+    crumb1_name = 'Reports' ;
+%]
+
 <h2>Uploads &amp; Reports By YEAR/MONTH (latest first)</h2>
+<div class="boxer">
 <table>
-<tr><th>DATE</th><th>UPLOADS</th><th>REPORTS</th><th>PASS</th><th>FAIL</th><th>NA</th><th>UNKNOWN</th></tr>
+<tr><th class="top">DATE</th><th class="top">UPLOADS</th><th class="top">REPORTS</th><th class="top">PASS</th><th class="top">FAIL</th><th class="top">NA</th><th class="top">UNKNOWN</th></tr>
 [% FOREACH row = STATS %]
 <tr>[% FOREACH col = row %]<td nowrap="nowrap">[% col %]</td>[% END %]</tr>
 [% END %]
 </table>
+</div>

@@ -1,0 +1,25 @@
+[% 
+    title = TITLE ;
+    box_sites = 1
+
+    crumb3_name = 'Main' ;
+    crumb3_href = '/' ;
+    crumb2_name = 'Graphs' ;
+    crumb2_href = '/graphs.html' ;
+    crumb1_name = title ;
+%]
+
+<h2>Contents</h2>
+<ul class="contents">
+[% FOREACH item = RANGES.reverse %]
+<li><a href="#[% item %]">[% item.substr(0,4) %] - [% item.substr(7,4) %]</a></li>
+[% END %]
+</ul>
+
+<h2>Graphs</h2>
+[% FOREACH item = RANGES.reverse %]
+<h3>[% item.substr(0,4) %] - [% item.substr(7,4) %]</h3>
+<p><a name="[% item %]"></a><img src="/[% PREFIX %]-[% item %].png" alt="[% title %] - [% item.substr(0,4) %] to [% item.substr(7,4) %]" /></p>
+[% END %]
+
+<p>Graphs generated using the <a href="http://code.google.com/apis/chart/">Google Chart API</a>.</p>

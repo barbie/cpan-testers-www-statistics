@@ -78,3 +78,17 @@ database=t/_DBDIR/test.db
 driver=SQLite
 database=t/_DBDIR/test2.db
 
+[TOCOPY]
+LIST=<<HERE
+cgi-bin/cpanmail.cgi
+favicon.ico
+css/layout_setup.css
+css/layout_text.css
+HERE
+
+[RANGES]
+LIST=<<HERE
+199901-200412
+200301-200712
+200601-200912
+HERE

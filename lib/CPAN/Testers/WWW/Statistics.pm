@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.62';
+$VERSION = '0.63';
 
 #----------------------------------------------------------------------------
 
@@ -97,12 +97,18 @@ sub new {
         die "Cannot configure $db database\n" unless($self->{$db});
     }
 
+    my @TOCOPY = split("\n", $cfg->val('TOCOPY','LIST'));
+    $self->tocopy(\@TOCOPY);
+    my @RANGES = split("\n", $cfg->val('RANGES','LIST'));
+    $self->ranges(\@RANGES);
+
     $self->templates(_defined_or( $hash{templates}, $cfg->val('MASTER','templates') ));
     $self->database( _defined_or( $hash{database},  $cfg->val('MASTER','database' ) ));
     $self->address(  _defined_or( $hash{address},   $cfg->val('MASTER','address'  ) ));
     $self->logfile(  _defined_or( $hash{logfile},   $cfg->val('MASTER','logfile'  ) ));
     $self->logclean( _defined_or( $hash{logclean},  $cfg->val('MASTER','logclean' ), 0 ));
     $self->directory(_defined_or( $hash{directory}, $cfg->val('MASTER','directory') ));
+    $self->copyright(                               $cfg->val('MASTER','copyright') );
 
     $self->_log("templates=".($self->templates || ''));
     $self->_log("database =".($self->database  || ''));
@@ -134,14 +140,15 @@ Method to facilitate the creation of the statistics graphs.
 =cut
 
 __PACKAGE__->mk_accessors(
-    qw( directory templates database address logfile logclean ));
+    qw( directory templates database address logfile logclean copyright
+        tocopy ranges));
 
 sub make_pages {
     my $self = shift;
 
     die "Template directory not found\n"                unless(-d $self->templates);
     die "Must specify the path of the SQL database\n"   unless(   $self->database);
-    die "SQL database not found\n"                      unless(-f $self->database);
+    die "Archive SQLite database not found\n"           unless(-f $self->database);
     die "Must specify the path of the address file\n"   unless(   $self->address);
     die "Address file not found\n"                      unless(-f $self->address);
 

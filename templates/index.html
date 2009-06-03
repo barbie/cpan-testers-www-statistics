@@ -1,19 +1,21 @@
-[% INCLUDE "updates-index.html" %]
+[% 
+    title = 'Welcome' ;
+    box_sites = 1
 
-<p>
-If you want to get involved in CPAN Testing, please checkout the <a href="http://wiki.cpantesters.org/">CPAN Testers Wiki</a> for details of how to set things up. You can also join the <a href="http://wiki.cpantesters.org/wiki/MailingLists">CPAN Testers Discussion mailing list</a> if you need any further advice or if you have any suggestions for improving the tools or resources.</p>
-
+    crumb1_name = 'Welcome' ;
+%]
 
 <h2>The Statistics</h2>
 <p>Everyone loves statistics, and here are several more for you to have fun with. I originally produced these statistics to spot trends in any testing of CPAN that was occurring, but I also wanted to see more clearly what platforms and versions of perl were being tested. The results were rather enlightening, so I extended the analysis to look at the complete recorded history of CPAN Testers. The first productive results of this exercise was to submit patches to the <a href='http://search.cpan.org/dist/CPAN-WWW-Testers/'>CPAN::WWW::Testers</a> and <a href='http://search.cpan.org/dist/CPAN-WWW-Testers-Generator/'>CPAN::WWW::Testers::Generator</a> modules, that now include the Perl version and platform in the test report summaries. Hopefully future results will be to inspire others to be involved with CPAN testing.
 </p>
-<h2>The History</h2>
-<p>The CPAN testers was conceived back in May 1998 by Graham Barr and Chris Nandor as a way to provide multi-platform testing for modules. Today over 1 million tester reports have been submitted by over 1,000 testers, who have given valuable feedback for users and authors alike.
-</p>
+
 <h2>How To Become A Tester</h2>
-<p>Whether you have a common platform or a very unusual one, you can help by testing modules you install and submitting reports. There are plenty of module authors who could use test reports and helpful feedback on their modules and distributions. If you'd like to get involved, please take a look at the <a href="http://wiki.cpantesters.org">CPAN Testers Wiki</a>, and read up on who you can become a CPAN Testers with CPAN/CPAN::Reporter or CPAN::YACSmoke, how join the cpan-testers-discuss <a href="http://wiki.cpantesters.org/wiki/MailingLists">mailing list</a> and what happens when you start submitting your reports.</p>
+<p>Whether you have a common platform or a very unusual one, you can help by testing modules you install and submitting reports. There are plenty of module authors who could use test reports and helpful feedback on their modules and distributions. If you'd like to get involved, please take a look at the <a href="http://wiki.cpantesters.org">CPAN Testers Wiki</a>, and read up on how you can become a CPAN Testers with either CPAN/CPAN::Reporter or CPANPLUS/CPANPLUS::YACSmoke, how to join the <a href="http://wiki.cpantesters.org/wiki/MailingLists">CPAN Testers Discussion mailing list</a> and what happens when you start submitting your reports.</p>
+
 <h2>Help Refine The Stats</h2>
 <p>In creating all these statistics, it has taken a notable amount of time to match email addresses to real people. There are a significant number who aren't CPAN authors, and many who have only contributed a few reports. As a consequence, there are still many many email addresses I haven't been able to trace. If you spot an email address that you've used to send reports, please let me know, and I'll update ASAP.</p>
+<p>If you have any suggestions for improving the tools or resources here, please contact me, or post a note to the mailing list.</p>
+
 <h2>The Code &amp; The Database</h2>
 <p>Want to see the code and current database for the site, then look no further.</p>
 <ul>

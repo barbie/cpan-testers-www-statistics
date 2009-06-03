@@ -7,7 +7,6 @@ bin/addresses.pl
 bin/cpanstats-writegraphs
 bin/cpanstats-writepages
 bin/getmailrc.pl
-bin/updates.pl
 examples/cpanstats.sh
 examples/example-settings.ini
 lib/CPAN/Testers/WWW/Statistics.pm
@@ -34,6 +33,8 @@ t/data/21config00.ini
 t/data/21config01.ini
 t/data/21config02.ini
 t/data/21config03.ini
+t/data/21config04.ini
+t/data/21config06.ini
 t/data/21config05.ini
 t/data/21config07.ini
 t/data/21config08.ini
@@ -42,9 +43,12 @@ t/data/21config10.ini
 t/data/21config11.ini
 t/data/addresses.txt
 t/expected.zip
+templates/archive.html
 templates/cgi-bin/cpanmail.cgi
 templates/cpanmail.html
 templates/cpanmail-response.html
+templates/css/layout_setup.css
+templates/css/layout_text.css
 templates/distlist.html
 templates/dmatrix.html
 templates/favicon.ico
@@ -59,11 +63,10 @@ templates/mreports.html
 templates/mtesters.html
 templates/response.html
 templates/rmatrix.html
-templates/style.css
 templates/testers.html
-templates/updates.html
-templates/updates-all.tt
-templates/updates-index.tt
-templates/updates-rss.tt
 templates/wdists.html
 templates/wpcent.html
+t/56writes-update.txt
+templates/public/box-menus.html
+templates/public/box-sites.html
+templates/public/footer.html

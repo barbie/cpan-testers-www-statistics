@@ -3,7 +3,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb">
 <head>
 
-<title>CPAN Testers Statistics</title>
+[% body = PROCESS $SOURCE %]
+
+[% 
+    base_url   = 'stats.cpantesters.org' ;
+    base_href  = 'http://stats.cpantesters.org' ;
+    base_title = 'CPAN Testers Statistics' ;
+%]
+
+
+<title>[% base_title %]: [% htmltitle || title | html %]</title>
 
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
 <meta name="title"       content="CPAN Testers Statistics" />
@@ -12,9 +21,10 @@
 <meta name="keywords"    content="perl, cpan, test, testing, tester, testers, stat, statistics, reports, yacsmoke, smoke, smoker, black box, automated, automation" />
 <meta name="description" content="Analysis of reports submitted by the CPAN Testers community, who automatically black box test submissions to Perl's CPAN code repository" />
 
-<link href="/style.css" rel="stylesheet" type="text/css" />
-<link rel="alternate"  type="application/rss+xml"  title="RSS 2.0" href="http://stats.cpantesters.org/rss-2.0.xml" />
+<link rel="stylesheet" type="text/css" media="screen,projection,print" href="/css/layout_setup.css" />
+<link rel="stylesheet" type="text/css" media="screen,projection,print" href="/css/layout_text.css" />
 
+<!--
 <script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
 </script>
 <script type="text/javascript">
@@ -23,86 +33,89 @@ urchinTracker();
 </script>
 
 <script type="text/javascript">
-<!--
 function goThere(loc) {
   window.location.href=loc;
 }
-// -->
 </script>
+// -->
 </head>
 
 <body>
+  <!-- Main Page Container -->
+  <div class="page-container">
 
-<div class="top"><a href="index.html">CPAN Testers Statistics</a></div>
-<div class="nav">
-<table id="header">
-<tr><th>Main</th>
-    <td rowspan="2">||</td>
-    <th>Monthly Stats</th>
-    <td rowspan="2">||</td>
-    <th>Matrices</th>
-    <td rowspan="2">||</td>
-    <th>Failures</th>
-    <td rowspan="2">||</td>
-    <th>Tools</th>
-    <td rowspan="2"><span style="color:#f00">August 1999 - [% STATDATE %]</span></td>
-</tr>
-<tr><td>
-        <a href='/index.html'>Home</a> |
-        <a href='/graphs.html'>Graphs</a> |
-        <a href='/testers.html'>Leader Board</a> |
-        <a href='/interest.html'>Interesting Stats</a> |
-        <a href='/updates.html'>Blog</a> |
-        <a href='/rss-2.0.xml'>RSS Feed</a>
-    </td>
-    <td>
-        <a href='/mreports.html'>Reports</a> |
-        <a href='/mtesters.html'>Testers</a> |
-        <a href='/mplatforms.html'>Platforms</a> |
-        <a href='/mperls.html'>Perls</a>
-    </td>
-    <td>
-        <a href='/rmatrix.html'>Reports</a> |
-        <a href='/dmatrix.html'>Distributions</a>
-    </td>
-    <td>
-        <a href='/wdists.html'>Counts</a> |
-        <a href='/wpcent.html'>Percentage</a>
-    </td>
-    <td>
-        <a href='/cpanmail.html'>Find A Tester</a> |
-<select name="Redirect" onchange="goThere(this.options[this.selectedIndex].value)">
-<option value="" selected="selected">Click to redirect</option>
-<option value="http://www.cpantesters.org">CPAN Testers Reports</option>
-<option value="http://wiki.cpantesters.org">CPAN Testers Wiki</option>
-<option value="http://stats.cpantesters.org">CPAN Testers Statistics</option>
-<option value="http://deps.cpantesters.org">CPAN Dependencies</option>
-<option value="http://matrix.cpantesters.org">CPAN Testers Matrix</option>
-<option value="http://pass.cpantesters.org">PASS Matrix</option>
-</select>
-    </td>
-</tr>
-</table>
-</div>
+    <!-- For alternative headers START PASTE here -->
 
-<div class="content">
+    <!-- A. HEADER -->      
+    <div class="header">
+      
+      <!-- A.1 HEADER TOP -->
+      <div class="header-middle">
 
-[% INCLUDE $SOURCE %]
+        <!-- Sitelogo and sitename -->
+        <div class="sitename">
+          <h1><a href="/">[% base_title %]</a></h1>
+          <h3>[% base_url %]</h3>
+          <h2>August 1999 - [% STATDATE %]</h2>
+        </div>
 
-</div>
+        [% INCLUDE "public/box-sites.html" %]
+      </div>
+    </div>
 
-<div class="footer">
-	<p>Site generated with CPAN-Testers-WWW-Statistics-[% VERSION %], on <b>[% RUNDATE %]</b>.<br />
-	CPAN Tester data generated <a href="http://search.cpan.org/dist/CPAN-Testers-Data-Generator">CPAN-Testers-Data-Generator</a>.<br />
-	CPAN Testers Statistics site maintained by Barbie - <a href="mailto:barbie@cpan.org">barbie@cpan.org</a>.<br />
-	</p>
+    <!-- B. MAIN -->
+    <div class="break">
 
-	<p>The CPAN Testers server is supported and funded by <a href="http://birmingham.pm.org">Birmingham Perl Mongers</a>.</p>
+      <!-- A.4 HEADER BREADCRUMBS -->
 
-	<div id="adverts">
-	<script type="text/javascript"  src="http://adserver.szabgab.com/ads/direct_link_selflink.js?cnt=3&amp;noself=1"></script>
-	<p>Ads provide by <a href="http://adserver.szabgab.com">The Perl Community AdServer</a></p>
-	</div>
-</div>
+      <!-- Breadcrumbs -->
+      <div class="header-breadcrumbs">
+        <ul>
+          <li><a href="/">Home</a></li>
+          [% IF crumb3_name %]<li><a href="[% crumb3_href %]">[% crumb3_name %]</a></li>[% END %]
+          [% IF crumb2_name %]<li><a href="[% crumb2_href %]">[% crumb2_name %]</a></li>[% END %]
+          <li>[% crumb1_name %]</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- For alternative headers END PASTE here -->
+
+    <!-- B. MAIN -->
+    <div class="main">
+      <div class="main-inner">
+
+      <!-- B.1 MAIN NAVIGATION -->
+      <div class="main-navigation">
+
+        <!-- Navigation Level 3 -->
+        <div class="round-border-topright"></div>
+
+        [% INCLUDE "public/box-menus.html" %]
+
+      </div>
+ 
+      <!-- B.1 MAIN CONTENT -->
+      <div class="main-content">
+
+        <!-- Pagetitle -->
+        <h1 class="pagetitle">[% title %]</h1>
+        <div class="column1-unit">
+
+          [% body %]
+
+        </div>
+        <hr class="clear-contentunit" />
+
+      </div>
+      <div class="blank"></div>
+      </div>
+    </div>
+      
+    <!-- C. FOOTER AREA -->      
+    [% INCLUDE "public/footer.html" %]
+
+  </div> 
+
 </body>
 </html>

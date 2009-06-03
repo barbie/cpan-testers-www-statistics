@@ -1,11 +1,19 @@
-<h2>Distribution PASS List</h2>
-<pre>
-<strong>PLATFORM:</strong> [% vplatform %]
+[% 
+    title = 'Distribution PASS List' ;
+    box_sites = 1
 
-<strong>PERL:</strong>     [% vperl %]
+    crumb2_name = 'Matrices' ;
+    crumb2_href = '/' ;
+    crumb1_name = 'Distributions' ;
+    crumb2_href = '/dmatrix.html' ;
+    crumb1_name = 'List' ;
+%]
 
-<strong>COUNT:</strong>    [% count %]
-</pre>
+<table>
+<tr><th class="top">PLATFORM:</th><td>[% vplatform %]</td></tr>
+<tr><th class="top">PERL:</th><td>[% vperl %]</td></tr>
+<tr><th class="top">COUNT:</th><td>[% count %]</td></tr>
+</table>
 
 <p>All the distributions listed below have had at least one PASS report
 submitted to the cpan-testers mailing list, for this instance of platform and

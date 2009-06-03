@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.62';
+$VERSION = '0.63';
 
 #----------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ my @graphs = (
 my $mech = WWW::Mechanize->new();
 $mech->agent_alias( 'Linux Mozilla' );
 
-my $chart_api    = 'http://chart.apis.google.com/chart?chs=1000x300&cht=lc';
+my $chart_api    = 'http://chart.apis.google.com/chart?chs=640x300&cht=lc';
 my $chart_titles = 'chtt=%s&chdl=%s';
 my $chart_labels = 'chxt=x,x,y,r&chxl=0:|%s|1:|%s|2:|%s|3:|%s';
 my $chart_data   = 'chd=t:%s';
@@ -133,32 +133,44 @@ Method to facilitate the creation of graphs.
 sub create {
     my $self = shift;
     my $directory = $self->{parent}->directory;
+    my $ranges    = $self->{parent}->ranges;
+    my $latest    = $ranges->[-1];
     mkpath($directory);
 
     $self->{parent}->_log("start");
 
     for my $g (@graphs) {
-        $self->{parent}->_log("writing graph - $g->[0]");
+        for my $r (@$ranges) {
+            $self->{parent}->_log("writing graph - $g->[0]-$r");
 
-        my $url = _make_graph("$directory",@$g);
-        $self->{parent}->_log("url - [".(length $url)."] $url");
-#        print "$url\n";
+            my $url = _make_graph("$directory",@$g,$r);
+            $self->{parent}->_log("url - [".(length $url)."] $url");
+    #        print "$url\n";
 
-        $mech->get($url);
-        if(!$mech->success()) {
-            my $file = "$g->[0].html";
-            warn("FAIL: $0 - Cannot access page - see '$file'\n");
-            $mech->save_content($file);
-        } elsif($mech->response->header('Content-Type') =~ /html/) {
-            my $file = "$g->[0].html";
-            warn("FAIL: $0 - request failed - see '$file'\n");
-            $mech->save_content($file);
-        } else {
-            my $file = "$directory/$g->[0].png";
-            my $fh = IO::File->new(">$file") or die "$0 - Cannot write file [$file]: $!\n";
-            binmode($fh);
-            print $fh $mech->content;
-            $fh->close;
+            $mech->get($url);
+            if(!$mech->success()) {
+                my $file = "$g->[0]-$r.html";
+                warn("FAIL: $0 - Cannot access page - see '$file'\n");
+                $mech->save_content($file);
+            } elsif($mech->response->header('Content-Type') =~ /html/) {
+                my $file = "$g->[0]-$r.html";
+                warn("FAIL: $0 - request failed - see '$file'\n");
+                $mech->save_content($file);
+            } else {
+                my $file = "$directory/$g->[0]-$r.png";
+                my $fh = IO::File->new(">$file") or die "$0 - Cannot write file [$file]: $!\n";
+                binmode($fh);
+                print $fh $mech->content;
+                $fh->close;
+
+                if($r eq $latest) {
+                    $file = "$directory/$g->[0].png";
+                    $fh = IO::File->new(">$file") or die "$0 - Cannot write file [$file]: $!\n";
+                    binmode($fh);
+                    print $fh $mech->content;
+                    $fh->close;
+                }
+            }
         }
     }
 
@@ -172,11 +184,11 @@ sub create {
 #=cut
 
 sub _make_graph {
-    my ($dir,$file,$title,$legend) = @_;
+    my ($dir,$file,$title,$legend,$r) = @_;
     my (@dates1,@dates2);
     my $yr = 0;
 
-    my @data = _get_data("$file.txt");
+    my @data = _get_data("$file.txt",$r);
     for my $date (@{$data[0]}) {
         my $year  = substr($date,0,4);
         my $month = substr($date,4,2);
@@ -200,11 +212,11 @@ sub _make_graph {
     for my $inx (1 .. $#data) {
         push @c, shift @colours;
         for(@{$data[$inx]}) {
-#print "pcent = $_ / $max * 100 = ";
+            #print "pcent = $_ / $max * 100 = ";
             $_ = $_ / $max * 100;
-#print "$_ = ";
+            #print "$_ = ";
             $_ = int($_ * 1) / 1;
-#print "$_\n";
+            #print "$_\n";
         }
 
         push @d, join(',',@{$data[$inx]});
@@ -233,16 +245,18 @@ sub _make_graph {
 #=cut
 
 sub _get_data {
-  my $file = shift;
+    my ($file,$range) = @_;
+    my ($fdate,$tdate) = split('-',$range);
 
-  my @data;
-  my $fh = IO::File->new($file) or die "Cannot open data file [$file]: $!\n";
-  while(<$fh>) {
-    chomp;
-    my @values = split(",",$_);
-    push @{$data[$_]}, $values[$_]    for(0..$#values);
-  }
-  return @data;
+    my @data;
+    my $fh = IO::File->new($file) or die "Cannot open data file [$file]: $!\n";
+    while(<$fh>) {
+        chomp;
+        my @values = split(",",$_);
+        next    if($values[0] < $fdate || $values[0] > $tdate);
+        push @{$data[$_]}, $values[$_]    for(0..$#values);
+    }
+    return @data;
 }
 
 sub _dec2hex {

@@ -1,7 +1,7 @@
 [% IF found == 1 %]
 
-<h2>NNTP ID: [% nntpid %]</h2>
 <table class="matrix">
+<tr><th>NNTP ID:</th><td>[% nntpid %]</td></tr>
 <tr><th>Subject:</th><td>[% subject %]</td></tr>
 <tr><th>Address:</th><td>[% from %]</td></tr>
 </table>
@@ -27,3 +27,4 @@
 <p>Sorry, we were unable to retrieve that NNTP ID.</p>
 
 [% END %]
+

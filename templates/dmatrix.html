@@ -1,3 +1,12 @@
+[% 
+    title = 'Distributions' ;
+    box_sites = 1
+
+    crumb2_name = 'Matrices' ;
+    crumb2_href = '/' ;
+    crumb1_name = 'Distributions' ;
+%]
+
 <h2>Platform/Perl Matrix for Distributions prior to [% RUNDATE %]</h2>
 <p>The matrix below represents the distributions that have received at least
 one PASS report submitted to the cpan-testers mailing list, for a particular
@@ -6,4 +15,7 @@ versions of perl are mapped to their major/minor release of perl. All reports
 recorded are from August 1999 until [% RUNDATE %].</p>
 <p>Click on the values in the matrix to see the distribution list that has been
 tested and PASSed for that instance.</p>
+
+<div class="boxer">
 [% CONTENT %]
+</div>

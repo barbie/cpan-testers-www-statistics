@@ -1,5 +1,11 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.63	19/05/2009
+	- change to new layout design.
+	- new style graphs added.
+	- TOCOPY and RANGES added to configuration rather than hardcoded.
+	- removal of updates/blog aspect, which is now part of cpanblog site.
+
 0.62	25/03/2009
 	- updated pre-requisites for test files.
 

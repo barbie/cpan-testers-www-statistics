@@ -24,7 +24,7 @@ for my $config (keys %config) {
 %config = (
     't/data/21config07.ini' => "Template directory not found\n",
     't/data/21config08.ini' => "Must specify the path of the SQL database\n",
-    't/data/21config09.ini' => "SQL database not found\n",
+    't/data/21config09.ini' => "Archive SQLite database not found\n",
     't/data/21config10.ini' => "Must specify the path of the address file\n",
     't/data/21config11.ini' => "Address file not found\n",
 );

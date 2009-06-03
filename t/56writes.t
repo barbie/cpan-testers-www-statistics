@@ -23,7 +23,7 @@ $|=1;
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 142;
+use Test::More tests => 154;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;
@@ -68,15 +68,7 @@ for my $f (@source) {
     my $source = File::Spec->catfile( $SOURCE, $f );
     my $target = File::Spec->catfile( $TARGET, $f );
     mkpath( dirname($target) );
-    copy( $source, $target );
-}
-for my $f ( # fake blog files
-            'updates-index.html','updates-all.html','rss-2.0.xml'
-          ) {
-    my $file = File::Spec->catfile( $TARGET, $f );
-    my $fh = IO::File->new($file,'w+') or next;
-    print $fh "\n";
-    $fh->close;
+    copy( $source, $target )	if(-f $source);
 }
 my $images = File::Spec->catfile( $TARGET, 'images' );
 rmtree($images);
@@ -136,17 +128,20 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 #---------------------------------------
 # Tests for creating graphs
 
-my $graph = CTWS_Testing::getGraphs();
+SKIP: {
+	skip "Can't see a network connection", 4	if(pingtest());
 
-$obj->directory($dir . '/graphs'),
-$graph->create();
-check_dir_contents(
-	"[graphs]",
-	$obj->directory,
-	File::Spec->catfile($EXPECTEDPATH,'56writes.graphs'),
-);
-ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+	my $graph = CTWS_Testing::getGraphs();
 
+	$obj->directory($dir . '/graphs'),
+	$graph->create();
+	check_dir_contents(
+		"[graphs]",
+		$obj->directory,
+		File::Spec->catfile($EXPECTEDPATH,'56writes.graphs'),
+	);
+	ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+};
 
 #---------------------------------------
 # Tests for main API
@@ -161,14 +156,18 @@ check_dir_contents(
 ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
 
-$obj->directory($dir . '/make_graphs'),
-$obj->make_graphs();
-check_dir_contents(
-	"[make_graphs]",
-	$obj->directory,
-	File::Spec->catfile($EXPECTEDPATH,'56writes.make_graphs'),
-);
-ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+SKIP: {
+	skip "Can't see a network connection", 4	if(pingtest());
+
+	$obj->directory($dir . '/make_graphs'),
+	$obj->make_graphs();
+	check_dir_contents(
+		"[make_graphs]",
+		$obj->directory,
+		File::Spec->catfile($EXPECTEDPATH,'56writes.make_graphs'),
+	);
+	ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+};
 
 #---------------------------------------
 # Update Code
@@ -242,4 +241,12 @@ sub check_dir_contents {
     else                { mkpath( dirname($fExpected) ) ; }
     copy( $fGot, $fExpected );
   }
+}
+
+# crude, but it'll hopefully do ;)
+sub pingtest {
+  system("ping -q -c 1 www.google.com >/dev/null");
+  my $retcode = $? >> 8;
+  # ping returns 1 if unable to connect
+  return $retcode;
 }
