@@ -47,8 +47,6 @@ templates/archive.html
 templates/cgi-bin/cpanmail.cgi
 templates/cpanmail.html
 templates/cpanmail-response.html
-templates/css/layout_setup.css
-templates/css/layout_text.css
 templates/distlist.html
 templates/dmatrix.html
 templates/favicon.ico

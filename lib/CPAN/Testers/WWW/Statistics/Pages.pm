@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.63';
+$VERSION = '0.64';
 
 #----------------------------------------------------------------------------
 
@@ -145,7 +145,7 @@ sub _write_basics {
     my $DBSZ_UNCOMPRESSED = int((-s $database        ) / (1024 * 1024));
     my $DBSZ_COMPRESSED   = int((-s $database . '.gz') / (1024 * 1024));
 
-    my $ranges    = $self->{parent}->ranges;
+    my $ranges = $self->{parent}->ranges;
 
     # additional pages not requiring metrics
     my %pages = (
@@ -752,7 +752,7 @@ sub _tester_name {
                 ? $address->{$name}
                 : encode_entities( ($address->{$name} || $name) );
     $addr =~ s/\./ /g if($addr =~ /\@/);
-    $addr =~ s/\@/[]/g;
+    $addr =~ s/\@/ \+ /g;
     $addr =~ s/</&lt;/g;
     return $addr;
 }

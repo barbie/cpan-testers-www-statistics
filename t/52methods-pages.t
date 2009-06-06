@@ -17,7 +17,7 @@ $obj->address('t/data/addresses.txt');
 
 my %names = (
     'barbie@missbarbell.co.uk' => 'Barbie (BARBIE)',
-    'barbie@cpan.org' => 'barbie[]cpan org'
+    'barbie@cpan.org' => 'barbie + cpan org'
 );
 
 for my $name (keys %names) {

@@ -1,5 +1,10 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.64	03/06/2009
+	- added attributions to HTML templates.
+	- fixed CSS issues for IE (thanks to JJ).
+	- rewrote addresses.pl (v0.14) to work with more recent codebase.
+
 0.63	19/05/2009
 	- change to new layout design.
 	- new style graphs added.

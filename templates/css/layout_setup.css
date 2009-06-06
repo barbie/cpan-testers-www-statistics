@@ -29,7 +29,7 @@
 /* HEADER */
 .header {width:900px; font-family:"trebuchet ms",arial,sans-serif;}
 .header-top {width:900px; height:80px; background:rgb(240,240,240) url(/images/layout/bg_head_top.jpg); overflow:visible !important /*Firefox*/; overflow:hidden /*IE6*/;}
-.header-middle {width:900px; height:150px; background:#0000FF url(/images/layout/banner-stats.png); overflow:visible !important /*Firefox*/; overflow:hidden /*IE6*/;}
+.header-middle {width:900px; height:150px; background:#0000FF url(/images/layout/banner-stats.png); overflow:visible !important /*Firefox*/; overflow:hidden /*IE6*/;position: relative;}
 .header-bottom {width:900px; height:40px; background:rgb(255,255,255) url(/images/layout/bg_head_breadcrumbs.jpg) repeat-y;}
 .header-breadcrumbs {clear:both; width:900px; padding:1.0em 0 1.5em 0; background:rgb(255,255,255) url(/images/layout/bg_head_breadcrumbs.jpg) repeat-y;}
 
@@ -37,7 +37,7 @@
 /*  HEADER SECTION  */
 /********************/
 .sitelogo {width:60px; height:40px; position:absolute; z-index:1; margin:22px 0 0 20px; background:url(/images/layout/bg_head_top_logo.jpg); }
-.sitename {width:400px; height:45px; position:absolute; z-index:1; margin:20px 0 0 160px; overflow:visible !important /*Firefox*/; overflow:hidden /*IE6*/;}
+.sitename {width:600px; height:45px; margin:20px 0 0 160px;	position: absolute;}
 .sitename h1 {font-size:240%;}
 .sitename h2 {margin:0px 0 0 0; color:white; font-size:120%;}
 .sitename h3 {margin:0px 0 0 0; color:#0000FF; font-size:120%;}

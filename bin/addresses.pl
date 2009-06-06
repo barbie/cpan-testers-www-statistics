@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 
-my $VERSION = '0.13';
+my $VERSION = '0.14';
 
 #http://www.eurodns.com/search/index.php
 
@@ -13,10 +13,9 @@ addresses.pl - helper script to map tester addresses to real people.
 
 =head1 SYNOPSIS
 
-  perl addresses.pl
-        --database|d=<file> \
-        --address|a=<file>  \
-        --mailrc|m=<file>   \
+  perl addresses.pl --config|c=<file> \
+        [--address|a=<file>]  \
+        [--mailrc|m=<file>]   \
         [--month=<string>] [--match] [--sort]
 
 =head1 DESCRIPTION
@@ -35,23 +34,26 @@ identify similar addresses in the hope they can be manually identified.
 
 use lib qw(./lib ../lib);
 
+use Config::IniFiles;
+use CPAN::Testers::Common::DBUtils;
 use DBI;
 use IO::File;
 use Getopt::ArgvFile default=>1;
 use Getopt::Long;
 
-use CPAN::Testers::WWW::Statistics::Database;
-
 # -------------------------------------
 # Variables
 
-use constant DATABASE => './cpanstats.db';
-use constant ADDRESS  => 'data/addresses.txt';
-use constant MAILRC   => 'data/01mailrc.txt';
-use constant MONTH    => 199000;
+my %defaults = (
+    'address'   => 'data/addresses.txt',
+    'mailrc'    => 'data/01mailrc.txt',
+    'month'     => 199000,
+    'match'     => 0,
+    'sort'      => 0
+);
 
 my (%parsed_map,%cpan_map,%pause_map,%unparsed_map,%address_map,%domain_map);
-my (%result,%options);
+my ($dbi,%result,%options);
 my $parsed = 0;
 
 # -------------------------------------
@@ -60,7 +62,6 @@ my $parsed = 0;
 ##### INITIALISE #####
 
 init_options();
-my $dbi = CPAN::Testers::WWW::Statistics::Database->new(database => $options{database});
 
 
 ##### MAIN #####
@@ -103,6 +104,11 @@ sub load_addresses {
     }
     $fh->close;
 
+    if($options{verbose}) {
+        print STDERR "parsed entries = " . scalar(keys %parsed_map) . "\n";
+        print STDERR "address entries = " . scalar(keys %address_map) . "\n";
+        print STDERR "domain entries = " . scalar(keys %domain_map) . "\n";
+    }
 #    use Data::Dumper;
 #    print STDERR Dumper(\%domain_map);
 
@@ -118,15 +124,28 @@ sub load_addresses {
     }
     $fh->close;
 
+    if($options{verbose}) {
+        print STDERR "pause entries = " . scalar(keys %pause_map) . "\n";
+        print STDERR "cpan entries = " . scalar(keys %cpan_map) . "\n";
+    }
+
     # grab all records for the month
     my $sql = $options{month}
-        ? "SELECT tester UNIQ FROM cpanstats WHERE postdate >= '$options{month}' AND state IN ('pass','fail','na','unknown')"
-        : "SELECT tester UNIQ FROM cpanstats WHERE state IN ('pass','fail','na','unknown')";
-    my @rows = $dbi->get_query($sql);
+        ? "SELECT DISTINCT tester FROM cpanstats WHERE postdate >= '$options{month}' AND state IN ('pass','fail','na','unknown')"
+        : "SELECT DISTINCT tester FROM cpanstats WHERE state IN ('pass','fail','na','unknown')";
+    if($options{verbose}) {
+        print STDERR "sql = $sql\n";
+    }
+    my @rows = $dbi->get_query('array',$sql);
     for my $row (@rows) {
         $parsed++;
         next    if($parsed_map{$row->[0]});
         $unparsed_map{$row->[0]} = "";
+    }
+
+    if($options{verbose}) {
+        print STDERR "rows = " . scalar(@rows) . "\n";
+        print STDERR "unparsed entries = " . scalar(keys %unparsed_map) . "\n";
     }
 }
 
@@ -201,7 +220,7 @@ sub map_pause {
     my ($key,$local,$domain,$email) = @_;
 
     if($domain eq 'cpan.org') {
-        $unparsed_map{$key} = $pause_map{$local} . ' #[PAUSE]';
+        $unparsed_map{$key} = ($pause_map{$local}||'UNKNOWN USER') . ' #[PAUSE]';
         return 1;
     }
     return 0;
@@ -273,31 +292,43 @@ Prepare command line options
 
 sub init_options {
     GetOptions( \%options,
-        'database|d=s',
+        'config=s',
         'address|a=s',
         'mailrc|m=s',
         'month=s',
         'match',
         'sort',
-        'help|h',
-        'version|v'
+        'verbose|v',
+        'help|h'
     );
 
     _help(1) if($options{help});
-    _help(0) if($options{version});
+
+    _help(1,"Must specify the configuration file")               unless(   $options{config});
+    _help(1,"Configuration file [$options{config}] not found")   unless(-f $options{config});
+
+    # load configuration
+    my $cfg = Config::IniFiles->new( -file => $options{config} );
+
+    # configure databases
+    my $db = 'CPANSTATS';
+    die "No configuration for $db database\n"   unless($cfg->SectionExists($db));
+    my %opts = map {$_ => $cfg->val($db,$_);} qw(driver database dbfile dbhost dbport dbuser dbpass);
+    $dbi = CPAN::Testers::Common::DBUtils->new(%opts);
+    die "Cannot configure $db database\n" unless($dbi);
 
     # use defaults if none provided
-    $options{database} ||= DATABASE;
-    $options{address}  ||= ADDRESS;
-    $options{mailrc}   ||= MAILRC;
-    $options{month}    ||= MONTH;
-    $options{match}    ||= 0;
-    $options{'sort'}   ||= 0;
+    for my $opt (qw(address mailrc month match sort verbose)) {
+        $options{$opt} ||= $cfg->val('MASTER',$opt) || $defaults{$opt};
+    }
 
-    for my $opt (qw(database address mailrc)) {
-        _help(1,"No $opt option given, see help below.")                                unless(   $options{$opt});
+    for my $opt (qw(address mailrc)) {
+        _help(1,"No $opt configuration setting given, see help below.")                 unless(   $options{$opt});
         _help(1,"Given $opt file [$options{$opt}] not a valid file, see help below.")   unless(-f $options{$opt});
     }
+
+    return  unless($options{verbose});
+    print STDERR "config: $_ = $options{$_}\n"  for(qw(address mailrc month match sort verbose));
 }
 
 sub _help {
@@ -308,24 +339,24 @@ sub _help {
     if($full) {
         print "\n";
         print "Usage:$0 [--help|h] [--version|v] \\\n";
-        print "         [--database|d=<file>] \\\n";
+        print "          --config|c=<file> \\\n";
         print "         [--address|a=<file>] \\\n";
         print "         [--mailrc|m=<file>] \\\n";
         print "         [--month=<string>] \\\n";
         print "         [--match] \n\n";
 
 #              12345678901234567890123456789012345678901234567890123456789012345678901234567890
-        print "This program builds the CPAN Testers Statistics website.\n";
+        print "This program checks for unknown tester addresses.\n";
 
         print "\nFunctional Options:\n";
-        print "  [--database=<file>]        # path/file to database\n";
+        print "   --config=<file>           # path/file to configuration file\n";
         print "  [--address=<file>]         # path/file to addresses file\n";
         print "  [--mailrc=<file>]          # path/file to mailrc file\n";
         print "  [--month=<string>]         # YYYYMM string to match from\n";
         print "  [--match]                  # display matches only\n";
 
         print "\nOther Options:\n";
-        print "  [--version]                # program version\n";
+        print "  [--verbose]                # turn on verbose messages\n";
         print "  [--help]                   # this screen\n";
 
         print "\nFor further information type 'perldoc $0'\n";
@@ -366,7 +397,7 @@ F<http://stats.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2005-2008 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2009 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.

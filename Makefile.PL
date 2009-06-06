@@ -17,7 +17,7 @@ WriteMakefile(
         HTML::Entities                  => 0,
         IO::File                        => 0,
         Sort::Versions                  => 0,
-        Template                        => 0,
+        Template                        => 2.19,
         WWW::Mechanize                  => 0,
 
         # for the CGI tools

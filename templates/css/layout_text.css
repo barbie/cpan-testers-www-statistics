@@ -143,6 +143,8 @@ p.caption {clear:both; margin:0.5em 0 2.0em 20px; text-align:left; color:rgb(80,
   margin:0;
 }
 
+.emphasis {font-weight: bold;color: #0000ff;}
+
 .ALL      { color: #e76300; }
 .PASS     { color: #009900; }
 .FAIL     { color: #990000; }
@@ -208,7 +210,7 @@ a.tooltip:hover span {
 
 .boxer {max-height: 600px;overflow:auto;}
 
-.nav0 {width:700px; position:absolute; z-index:2; margin:128px 0 0 0; margin-left:200px !important /*Firefox*/; margin-left:203px /*IE6*/; font-size: 90%;}
+.nav0 {z-index: 2; margin-top: 128px; font-size: 8pt; position: absolute; right: 0;}
 .nav0 ul {float:right; padding:4px 0;background-color:#000;}
 .nav0 li {display:inline; list-style:none;margin:0;background-color:#000;padding:3px 5px; }
 .nav0 li a {}
