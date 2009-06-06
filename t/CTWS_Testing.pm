@@ -82,8 +82,6 @@ database=t/_DBDIR/test2.db
 LIST=<<HERE
 cgi-bin/cpanmail.cgi
 favicon.ico
-css/layout_setup.css
-css/layout_text.css
 HERE
 
 [RANGES]

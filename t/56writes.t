@@ -23,7 +23,7 @@ $|=1;
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 154;
+use Test::More tests => 148;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;

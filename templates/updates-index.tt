@@ -1,7 +1,0 @@
-<div class="entry">
-<a name="[% updates.0.ID %]"></a>
-<h2>[% updates.0.PostDate %]</h2>
-<h3>[% updates.0.Title %]</h3>
-[% updates.0.Content %]
-
-</div>
