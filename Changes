@@ -1,5 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.65	06/06/2009
+	- removal of data files into the cpanstats-data package.
+
 0.64	03/06/2009
 	- added attributions to HTML templates.
 	- fixed CSS issues for IE (thanks to JJ).
