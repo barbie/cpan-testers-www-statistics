@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 19;
+use Test::More tests => 18;
 use CPAN::Testers::WWW::Statistics;
 use CPAN::Testers::WWW::Statistics::Pages;
 use CPAN::Testers::WWW::Statistics::Graphs;
@@ -12,10 +12,9 @@ my %config = (
     't/data/21config01.ini' => "Must specify the output directory\n",        # no output directory
     't/data/21config02.ini' => "Must specify the template directory\n",      # no template directory
     't/data/21config03.ini' => "No configuration for CPANSTATS database\n",  # no CPANSTATS database
-    't/data/21config05.ini' => "No configuration for UPLOADS database\n",    # no UPLOADS database
 );
 
-for my $config (keys %config) {
+for my $config (sort keys %config) {
     eval { CPAN::Testers::WWW::Statistics->new(config => $config) };
     is($@, $config{$config}, "config: $config");
 }
@@ -29,7 +28,7 @@ for my $config (keys %config) {
     't/data/21config11.ini' => "Address file not found\n",
 );
 
-for my $config (keys %config) {
+for my $config (sort keys %config) {
     ok( my $obj   = CPAN::Testers::WWW::Statistics->new(config => $config), "got parent object" );
     eval { $obj->make_pages };
     is($@, $config{$config}, "config: $config");

@@ -1,0 +1,33 @@
+[% 
+    title = 'CPAN Statistics' ;
+    box_sites = 1
+
+    crumb2_name = 'CPAN' ;
+    crumb2_href = '/' ;
+    crumb1_name = 'Statistics' ;
+%]
+
+<h2>Authors</h2>
+<div class="boxer">
+<table>
+<tr><th class="top" width="100">COUNT</th><th class="top">NOTES</th></tr>
+<tr><td class="numbers">[% authors.total    %]</td><td>Total registered PAUSE accounts</td></tr>
+<tr><td class="numbers">[% authors.active   %]</td><td>Active Authors - have uploaded at least one distribution</td></tr>
+<tr><td class="numbers">[% authors.inactive %]</td><td>Inactive Authors - have uploaded no distributions</td></tr>
+</table>
+</div>
+
+<h2>Distributions</h2>
+<div class="boxer">
+<table>
+<tr><th class="top" width="100">COUNT</th><th class="top">NOTES</th></tr>
+<tr><td class="numbers">[% distros.uploaded2 %]</td><td>Total Unique Distributions on CPAN & BACKPAN</td></tr>
+<tr><td class="numbers">[% distros.uploaded1 %]</td><td>Total Unique Distributions on CPAN</td></tr>
+<tr><td class="numbers">[% distros.uploaded3 %]</td><td>Total Unique Distributions deletd from CPAN (i.e. on BACKPAN ONLY)</td></tr>
+<tr><th colspan="2"></th></tr>
+<tr><td class="numbers">[% distros.uploaded5 %]</td><td>Total Distribution Releases on CPAN & BACKPAN</td></tr>
+<tr><td class="numbers">[% distros.uploaded4 %]</td><td>Total Distribution Releases on CPAN</td></tr>
+<tr><td class="numbers">[% distros.uploaded6 %]</td><td>Total Distribution Releases deletd from CPAN (i.e. on BACKPAN ONLY)</td></tr>
+</table>
+</div>
+

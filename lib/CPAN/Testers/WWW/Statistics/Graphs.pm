@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.65';
+$VERSION = '0.66';
 
 #----------------------------------------------------------------------------
 
@@ -51,10 +51,12 @@ my %month = (
 my ($backg,$foreg) = ('black','white');
 
 my @graphs = (
-['stats1','CPAN Testers Statistics - Reports',      [qw(UPLOADS REPORTS PASS FAIL)]],
-['stats2','CPAN Testers Statistics - Attributes',   [qw(TESTERS PLATFORMS PERLS)]],
-['stats3','CPAN Testers Statistics - Non-Passes',   [qw(FAIL NA UNKNOWN)]],
-['stats4','CPAN Testers Statistics - Testers',      [qw(ALL FIRST LAST)]],
+['stats1' ,'CPAN Testers Statistics - Reports',     [qw(UPLOADS REPORTS PASS FAIL)],    'TEST_RANGES'],
+['stats2' ,'CPAN Testers Statistics - Attributes',  [qw(TESTERS PLATFORMS PERLS)],      'TEST_RANGES'],
+['stats3' ,'CPAN Testers Statistics - Non-Passes',  [qw(FAIL NA UNKNOWN)],              'TEST_RANGES'],
+['stats4' ,'CPAN Testers Statistics - Testers',     [qw(ALL FIRST LAST)],               'TEST_RANGES'],
+['stats6' ,'CPAN Statistics - Uploads',             [qw(AUTHORS DISTROS)],              'CPAN_RANGES'],
+['stats12','CPAN Statistics - New Uploads',         [qw(AUTHORS DISTROS)],              'CPAN_RANGES'],
 );
 
 my $mech = WWW::Mechanize->new();
@@ -133,17 +135,20 @@ Method to facilitate the creation of graphs.
 sub create {
     my $self = shift;
     my $directory = $self->{parent}->directory;
-    my $ranges    = $self->{parent}->ranges;
-    my $latest    = $ranges->[-1];
     mkpath($directory);
 
     $self->{parent}->_log("start");
 
     for my $g (@graphs) {
+        my $ranges = $self->{parent}->ranges($g->[3]);
+        $self->{parent}->_log("writing graph - got range [$g->[3]] = " . (scalar(@$ranges)) . ", latest=$ranges->[-1]");
+        
+        my $latest = $ranges->[-1];
+
         for my $r (@$ranges) {
             $self->{parent}->_log("writing graph - $g->[0]-$r");
 
-            my $url = _make_graph("$directory",@$g,$r);
+            my $url = $self->_make_graph("$directory",$r,@$g);
             $self->{parent}->_log("url - [".(length $url)."] $url");
     #        print "$url\n";
 
@@ -184,11 +189,11 @@ sub create {
 #=cut
 
 sub _make_graph {
-    my ($dir,$file,$title,$legend,$r) = @_;
+    my ($self,$dir,$r,$file,$title,$legend) = @_;
     my (@dates1,@dates2);
     my $yr = 0;
 
-    my @data = _get_data("$file.txt",$r);
+    my @data = $self->_get_data("$file.txt",$r);
     for my $date (@{$data[0]}) {
         my $year  = substr($date,0,4);
         my $month = substr($date,4,2);
@@ -245,8 +250,10 @@ sub _make_graph {
 #=cut
 
 sub _get_data {
-    my ($file,$range) = @_;
+    my ($self,$file,$range) = @_;
     my ($fdate,$tdate) = split('-',$range);
+
+    #$self->{parent}->_log("get data - range=$range, fdate=$fdate, tdate=$tdate");
 
     my @data;
     my $fh = IO::File->new($file) or die "Cannot open data file [$file]: $!\n";
@@ -268,19 +275,27 @@ sub _dec2hex {
 
 sub _set_max {
     my $max = shift;
+    my ($limit,$max_limit) = (10,10000000);
 #print "max=$max\n";
 
-       if($max <  10)       { $max = 10 }
-    elsif($max <  100)      { $max = ((int($max/10)+1)*10)           }
-#    elsif($max < 500)      { $max = ((int($max/50)+1)*50)           }
-    elsif($max <  1000)     { $max = ((int($max/100)+1)*100)         }
-    elsif($max <  10000)    { $max = ((int($max/1000)+1)*1000)       }
-    elsif($max <  100000)   { $max = ((int($max/10000)+1)*10000)     }
-    elsif($max <  1000000)  { $max = ((int($max/100000)+1)*100000)   }
-    else                    { $max = ((int($max/1000000)+1)*1000000) }
+    return $limit   if($max <= $limit);
+    while($limit < $max_limit) {
+        if($max > $limit) {
+            $limit *= 10;
+            next;
+        }
 
-#print "max=$max\n";
-    return $max;
+        my $inc10 = int($limit / 10);
+        my $inc50 = int($limit / 20);
+        for(my $inc = $inc10 ; $inc < $limit ; $inc += $inc50) {
+            #print STDERR "\n# max=$max, limit=$limit, inc=$inc\n";
+            return $inc if($max <= $inc);
+        }
+
+        return $limit;
+    }
+
+    return $max_limit;
 }
 
 sub _set_range {
@@ -305,7 +320,7 @@ sub _set_range {
     return join('|',@r);
 }
 
-q('This is not a love song!');
+q('Will code for a nice Balti Lamb Tikka Bhuna');
 
 __END__
 

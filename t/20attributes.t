@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 33;
+use Test::More tests => 29;
 use CPAN::Testers::WWW::Statistics;
 
 use lib 't';
@@ -21,7 +21,6 @@ foreach my $k ( qw/
     address
     logclean
     tocopy
-    ranges
 / ){
   my $label = "[$k]";
   SKIP: {

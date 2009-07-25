@@ -1,0 +1,53 @@
+[% 
+    title = 'CPAN Leaderboards' ;
+    box_sites = 1
+
+    crumb2_name = 'CPAN' ;
+    crumb2_href = '/' ;
+    crumb1_name = 'Leaderboards' ;
+%]
+
+<h2>Contents</h2>
+<ul class="contents">
+<li><a href="#top20current">Top 20 Authors - Currently Maintained Distributions</a></li>
+<li><a href="#top20uploads">Top 20 Authors - All Uploaded Distributions</a></li>
+<li><a href="#top20release">Top 20 Authors - All Distribution Releases</a></li>
+<li><a href="#top20distros">Top 20 Distributions - Released to CPAN</a></li>
+</ul>
+
+
+<a name="top20current" />
+<h2>Top 20 Authors - Currently Maintained Distributions</h2>
+<table>
+<tr><th class="top" width="100">#</th><th class="top" width="100">COUNT</th><th class="top">PAUSEID</th></tr>
+[% FOREACH row = allcurrent %]
+<tr><td class="numbers">[% row.inx %]</td><td class="numbers">[% row.count %]</td><td>[% row.name %]</td></tr>
+[% END %]
+</table>
+
+<a name="top20uploads" />
+<h2>Top 20 Authors - All Uploaded Distributions</h2>
+<table>
+<tr><th class="top" width="100">#</th><th class="top" width="100">COUNT</th><th class="top">PAUSEID</th></tr>
+[% FOREACH row = alluploads %]
+<tr><td class="numbers">[% row.inx %]</td><td class="numbers">[% row.count %]</td><td>[% row.name %]</td></tr>
+[% END %]
+</table>
+
+<a name="top20release" />
+<h2>Top 20 Authors - All Distribution Releases</h2>
+<table>
+<tr><th class="top" width="100">#</th><th class="top" width="100">COUNT</th><th class="top">PAUSEID</th></tr>
+[% FOREACH row = allrelease %]
+<tr><td class="numbers">[% row.inx %]</td><td class="numbers">[% row.count %]</td><td>[% row.name %]</td></tr>
+[% END %]
+</table>
+
+<a name="top20distros" />
+<h2>Top 20 Distributions - Released to CPAN</h2>
+<table>
+<tr><th class="top" width="100">#</th><th class="top" width="100">COUNT</th><th class="top">DISTRIBUTION</th></tr>
+[% FOREACH row = alldistros %]
+<tr><td class="numbers">[% row.inx %]</td><td class="numbers">[% row.count %]</td><td>[% row.name %]</td></tr>
+[% END %]
+</table>

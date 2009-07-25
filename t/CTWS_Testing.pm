@@ -74,17 +74,20 @@ templates=templates
 driver=SQLite
 database=t/_DBDIR/test.db
 
-[UPLOADS]
-driver=SQLite
-database=t/_DBDIR/test2.db
-
 [TOCOPY]
 LIST=<<HERE
 cgi-bin/cpanmail.cgi
 favicon.ico
 HERE
 
-[RANGES]
+[TEST_RANGES]
+LIST=<<HERE
+199901-200412
+200301-200712
+200601-200912
+HERE
+
+[CPAN_RANGES]
 LIST=<<HERE
 199901-200412
 200301-200712

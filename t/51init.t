@@ -4,7 +4,7 @@ use strict;
 use warnings;
 $|=1;
 
-use Test::More tests => 15;
+use Test::More tests => 14;
 use File::Spec;
 use lib 't';
 use CTWS_Testing;
@@ -21,8 +21,6 @@ my $db = File::Spec->catfile('t','_DBDIR','test.db');
 isa_ok( $obj->{CPANSTATS},         'CPAN::Testers::Common::DBUtils', 'CPANSTATS' );
 is(     $obj->{CPANSTATS}->{database}, $db,                          'CPANSTATS.database' );
 is(     $obj->{CPANSTATS}->{driver},   'SQLite',                     'CPANSTATS.database' );
-
-isa_ok( $obj->{UPLOADS},         'CPAN::Testers::Common::DBUtils', 'UPLOADS' );
 
 is( $obj->database, $db, 'database' );
 ok( -f $obj->database, 'database exists' );

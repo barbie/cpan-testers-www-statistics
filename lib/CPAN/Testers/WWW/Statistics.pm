@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.65';
+$VERSION = '0.66';
 
 #----------------------------------------------------------------------------
 
@@ -87,9 +87,10 @@ sub new {
     local $SIG{'__WARN__'} = \&_alarm_handler;
     eval { $cfg = Config::IniFiles->new( -file => $hash{config} ); };
     die "Cannot load configuration file [$hash{config}]\n"  unless($cfg && !$@);
+    $self->{cfg} = $cfg;
 
     # configure databases
-    for my $db (qw(CPANSTATS UPLOADS)) {
+    for my $db (qw(CPANSTATS)) {
         die "No configuration for $db database\n"   unless($cfg->SectionExists($db));
         my %opts = map {my $v = $cfg->val($db,$_); defined($v) ? ($_ => $v) : () }
                         qw(driver database dbfile dbhost dbport dbuser dbpass);
@@ -99,8 +100,6 @@ sub new {
 
     my @TOCOPY = split("\n", $cfg->val('TOCOPY','LIST'));
     $self->tocopy(\@TOCOPY);
-    my @RANGES = split("\n", $cfg->val('RANGES','LIST'));
-    $self->ranges(\@RANGES);
 
     $self->templates(_defined_or( $hash{templates}, $cfg->val('MASTER','templates') ));
     $self->database( _defined_or( $hash{database},  $cfg->val('MASTER','database' ) ));
@@ -135,13 +134,18 @@ Method to facilitate the creation of the statistics web pages.
 
 Method to facilitate the creation of the statistics graphs.
 
+=item * ranges
+
+Returns the specific date range array reference, as held in the configuration
+file.
+
 =back
 
 =cut
 
 __PACKAGE__->mk_accessors(
     qw( directory templates database address logfile logclean copyright
-        tocopy ranges));
+        tocopy));
 
 sub make_pages {
     my $self = shift;
@@ -160,6 +164,13 @@ sub make_graphs {
     my $self = shift;
     my $stats = CPAN::Testers::WWW::Statistics::Graphs->new(parent => $self);
     $stats->create();
+}
+
+sub ranges {
+    my ($self,$section) = @_;
+    return  unless($section);
+    my @RANGES = split("\n", $self->{cfg}->val($section,'LIST'));
+    return \@RANGES;
 }
 
 # -------------------------------------
