@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.66';
+$VERSION = '0.67';
 
 #----------------------------------------------------------------------------
 
@@ -604,24 +604,27 @@ sub _report_interesting {
     my (@postersx,@entriesx,@reportsx);
     for my $row (@posters) {
         $row->[0] = $index{posters}{$row->[1]};
+        $row->[2] = uc $row->[2];
         $row->[4] = $self->_tester_name($row->[4])  if($row->[4] =~ /\@/);
         my @this = @$row;
         push @postersx, \@this;
     }
     for my $row (@entries) {
         $row->[0] = $index{entries}{$row->[1]};
+        $row->[2] = uc $row->[2];
         $row->[4] = $self->_tester_name($row->[4])  if($row->[4] =~ /\@/);
         my @this = @$row;
         push @entriesx, \@this;
     }
     for my $row (@reports) {
         $row->[0] = $index{reports}{$row->[1]};
+        $row->[2] = uc $row->[2];
         $row->[4] = $self->_tester_name($row->[4])  if($row->[4] =~ /\@/);
         my @this = @$row;
         push @reportsx, \@this;
     }
 
-    my @headings = ('count','id','state','postdate','tester','dist','version','platform','perl','osname','osvers','fulldate');
+    my @headings = qw( count id grade postdate tester dist version platform perl osname osvers fulldate );
 
     $tvars{HEADINGS} = \@headings;
     $tvars{POSTERS}  = \@postersx;

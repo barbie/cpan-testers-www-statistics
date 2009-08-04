@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.66';
+$VERSION = '0.67';
 
 #----------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ testers, and some backend code to help map tester address to a real identity.
 # -------------------------------------
 # Library Modules
 
-use base qw(Class::Accessor::Chained::Fast);
+use base qw(Class::Accessor::Fast);
 
 use Config::IniFiles;
 use CPAN::Testers::Common::DBUtils;
@@ -79,7 +79,7 @@ sub new {
     bless $self, $class;
 
     # ensure we have a configuration file
-    die "Must specify the configuration file\n"             unless($hash{config});
+    die "Must specify the configuration file\n"             unless(   $hash{config});
     die "Configuration file [$hash{config}] not found\n"    unless(-f $hash{config});
 
     # load configuration file

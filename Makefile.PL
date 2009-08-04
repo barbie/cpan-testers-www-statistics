@@ -5,7 +5,7 @@ WriteMakefile(
     'VERSION_FROM'     => 'lib/CPAN/Testers/WWW/Statistics.pm',
     'PREREQ_PM'        => {
 
-        Class::Accessor::Chained::Fast  => 0,
+        Class::Accessor::Fast           => 0,
         Config::IniFiles                => 0,
         CPAN::Testers::Common::DBUtils  => 0.03,
         GD::Graph::lines                => 0,
@@ -35,9 +35,9 @@ WriteMakefile(
         File::Spec                      => 0,     # for testing
     },
 
-    NO_META            => 1,
+    NO_META         => 1,
 
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
-      (ABSTRACT => 'Scripts to create the cpanstats website',
-       AUTHOR     => 'Barbie <barbie@cpan.org>') : ()),
+      (ABSTRACT     => 'Scripts to create the cpanstats website',
+       AUTHOR       => 'Barbie <barbie@cpan.org>') : ()),
 );

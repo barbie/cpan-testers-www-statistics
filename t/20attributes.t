@@ -27,7 +27,7 @@ foreach my $k ( qw/
     ok( $obj->can($k), "$label can" )
 	or skip "'$k' attribute missing", 3;
     isnt( $obj->$k(), undef, "$label has default" );
-    is( $obj->$k(123), $obj, "$label set" ); # chained, so returns object, not value.
+    is( $obj->$k(123), 123, "$label set" );
     is( $obj->$k, 123, "$label get" );
   };
 }
@@ -41,7 +41,7 @@ foreach my $k ( qw/
     ok( $obj->can($k), "$label can" )
 	or skip "'$k' attribute missing", 3;
     is( $obj->$k(), undef, "$label has no default" );
-    is( $obj->$k(123), $obj, "$label set" ); # chained, so returns object, not value.
+    is( $obj->$k(123), 123, "$label set" );
     is( $obj->$k, 123, "$label get" );
   };
 }

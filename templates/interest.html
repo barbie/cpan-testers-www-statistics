@@ -47,7 +47,7 @@
 <table>
 <tr>[% FOREACH cell = HEADINGS %]<th class="top">[% cell %]</th>[% END %]</tr>
 [% FOREACH row = POSTERS; cnt = 0 %]
-<tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>[% ELSE %]<td>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
+<tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>[% ELSE %]<td[% IF cnt == 2 %] class="[% col %]"[% END %]>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
 [% END %]
 </table>
 </div>
@@ -58,7 +58,7 @@
 <table>
 <tr>[% FOREACH cell = HEADINGS %]<th class="top">[% cell %]</th>[% END %]</tr>
 [% FOREACH row = ENTRIES; cnt = 0 %]
-<tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>[% ELSE %]<td>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
+<tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>[% ELSE %]<td[% IF cnt == 2 %] class="[% col %]"[% END %]>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
 [% END %]
 </table>
 </div>
@@ -69,7 +69,7 @@
 <table>
 <tr>[% FOREACH cell = HEADINGS %]<th class="top">[% cell %]</th>[% END %]</tr>
 [% FOREACH row = REPORTS; cnt = 0 %]
-<tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>[% ELSE %]<td>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
+<tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>[% ELSE %]<td[% IF cnt == 2 %] class="[% col %]"[% END %]>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
 [% END %]
 </table>
 </div>
