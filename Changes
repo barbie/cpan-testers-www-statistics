@@ -1,8 +1,10 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.67	current
+0.67	13/10/2009
 	- improvements to the layout of interesting stats page.
 	- moved from Class::Accessor::Chained::Fast to Class::Accessor::Fast
+	- improved processing logic for interesting stats, with a speed up of
+	  over 20mins.
 
 0.66	25/07/2009
 	- added stats and graphs about CPAN, including extra menu section.

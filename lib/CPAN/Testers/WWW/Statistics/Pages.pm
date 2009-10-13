@@ -194,17 +194,25 @@ creates the HTML pages.
 
 sub _write_stats {
     my $self = shift;
-    my (%stats,%perls,%fails,%pass,%tvars,%testers,%counts);
+    my (%stats,%perls,%fails,%pass,%tvars,%testers,%counts,%dists);
 
     $self->_report_cpan();
     $self->_report_matrix();
-    $self->_report_interesting();
 
 ## BUILD GENERAL STATS
 
+    $self->{parent}->_log("building dist hash");
+
+    my $iterator = $self->{parent}->{CPANSTATS}->iterator('hash',"SELECT dist,version FROM ixlatest");
+    while(my $row = $iterator->()) {
+        $dists{$row->{dist}}->{ALL} = 0;
+        $dists{$row->{dist}}->{IXL} = 0;
+        $dists{$row->{dist}}->{VER} = $row->{version};
+    }
+
     $self->{parent}->_log("building stats hash");
 
-    my $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats");
+    $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats");
     while(my $row = $iterator->()) {
         #insert_report($id,$state,$date,$from,$distvers,$platform);
         $row->[7] =~ s/\s.*//;  # only need to know the main release
@@ -239,12 +247,19 @@ sub _write_stats {
             $testers{$name}->{first} ||= $row->[2];
             $testers{$name}->{last}    = $row->[2];
             $counts{$row->[2]}->{testers}{$name} = 1;
+
+            if(defined $dists{$row->[4]}) {
+                $dists{$row->[4]}->{ALL}++;
+                $dists{$row->[4]}->{IXL}++  if($dists{$row->[4]}->{VER} eq $row->[5]);
+            }
         }
     }
 
     my @versions = sort {versioncmp($b,$a)} keys %perls;
 
     $self->{parent}->_log("stats hash built");
+
+    $self->_report_interesting(\%dists);
 
 ## GENERATE DISTRIBUTION MATRIX
 
@@ -544,94 +559,96 @@ Generates the interesting stats page
 =cut
 
 sub _report_interesting {
-    my $self = shift;
+    my $self  = shift;
+    my $dists = shift;
     my %tvars;
 
     $self->{parent}->_log("building interesting page");
 
-    my @bydist = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT count(id) AS count,dist FROM cpanstats WHERE state != 'cpan' GROUP BY dist ORDER BY count DESC LIMIT 20");
-    my @byvers = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT count(id) AS count,dist,version FROM cpanstats WHERE state != 'cpan' GROUP BY dist,version ORDER BY count DESC LIMIT 20");
+    my (@bydist,@byvers);
+    my $inx = 20;
+    for my $dist (sort {$dists->{$b}{ALL} <=> $dists->{$a}{ALL}} keys %$dists) {
+        push @bydist, [$dists->{$dist}{ALL},$dist];
+        last    if(--$inx <= 0);
+    }
+    $inx = 20;
+    for my $dist (sort {$dists->{$b}{IXL} <=> $dists->{$a}{IXL}} keys %$dists) {
+        push @byvers, [$dists->{$dist}{IXL},$dist,$dists->{$dist}{VER}];
+        last    if(--$inx <= 0);
+    }
+
+    #my @bydist = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT sum(pass + fail + na + unknown) AS count,dist FROM release_data WHERE oncpan=1 GROUP BY dist ORDER BY count DESC LIMIT 10");
+    #my @bydist = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT count(id) AS count,dist FROM cpanstats WHERE state != 'cpan' GROUP BY dist ORDER BY count DESC LIMIT 10");
+    #$self->{parent}->_log(".. built most reports by dist");
+    #my @byvers = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT sum(pass + fail + na + unknown) AS count,dist,version FROM release_data WHERE oncpan=1 GROUP BY dist,version ORDER BY count DESC LIMIT 10");
+    #my @byvers = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT count(id) AS count,dist,version FROM cpanstats WHERE state != 'cpan' GROUP BY dist,version ORDER BY count DESC LIMIT 10");
+    #$self->{parent}->_log(".. built most reports by dist, version");
 
     $tvars{BYDIST} = \@bydist;
     $tvars{BYVERS} = \@byvers;
 
-    my (%index,@posters,@entries,@reports);
-    my %counter = ( posters => 0, entries => 0, reports => 0 );
-    my ($last_posters,$last_entries,$last_reports);
-    my ($posters_count,$entries_count,$reports_count) = (0,0,0);
+    my %index = (
+        count   => { posters => 0,  entries => 0,  reports => 0  },
+        xrefs   => { posters => {}, entries => {}, reports => {} },
+        xlast   => { posters => [], entries => [], reports => [] },
+    );
 
-    my $next = $self->{parent}->{CPANSTATS}->iterator('array','SELECT * FROM cpanstats ORDER BY id');
+    my $last = 0;
+    my @counts = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT i.*,c.* FROM interesting as i inner join cpanstats as c on c.id=i.id ORDER BY i.type,i.count");
+    for my $count (@counts) {
+        my ($type,$index,$id,@row) = @$count;
+        unshift @row, 0;
+
+        $last = $id if($last < $id);
+
+        $index{count}->{$type} = $index;
+        $index{xlast}->{$type} = \@row;
+        $index{xrefs}->{$type}->{$index} = \@row    if($index == 1 || ($index % 500000) == 0);
+    }
+
+    my $next = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats WHERE id > $last ORDER BY id");
     while(my $row = $next->()) {
         my @row = (0, @$row);
-        $counter{posters} = $row[1];
-        if($counter{posters} == 1 || ($counter{posters} % 500000) == 0) {
-            $index{posters}->{$row[1]} = $counter{posters};
-            push @posters, \@row;
-        } else {
-            $posters_count = $counter{posters};
-            $last_posters = \@row;
-        }
 
-        $counter{entries}++;
-        if($counter{entries} == 1 || ($counter{entries} % 500000) == 0) {
-            $index{entries}->{$row[1]} = $counter{entries};
-            push @entries, \@row;
-        } else {
-            $entries_count = $counter{entries};
-            $last_entries = \@row;
-        }
+        $index{count}->{posters} = $row[1];
+        $index{count}->{entries}++;
+        $index{count}->{reports}++  if($row[2] ne 'cpan');
 
-        if($row[2] ne 'cpan') {
-            $counter{reports}++;
-            if(($counter{reports} == 1 || ($counter{reports} % 500000) == 0)) {
-                $index{reports}->{$row[1]} = $counter{reports};
-                push @reports, \@row;
+        for my $type (qw(posters entries reports)) {
+            next    if($type eq 'reports' && $row[2] eq 'cpan');
+            if($index{count}->{$type} == 1 || ($index{count}->{$type} % 500000) == 0) {
+                $index{xrefs}->{$type}->{$index{count}->{$type}} = \@row;
             } else {
-                $reports_count = $counter{reports};
-                $last_reports = \@row;
-            }
+                $index{xlast}->{$type} = \@row;
+            }       
+        }        
+    }
+
+    for my $type (qw(posters entries reports)) {
+        $index{xrefs}->{$type}->{$index{count}->{$type}} = $index{xlast}->{$type};
+
+        for my $key (sort {$a <=> $b} keys %{ $index{xrefs}->{$type} }) {
+            my @row = @{ $index{xrefs}->{$type}{$key} };
+
+            $row[0] = $key;
+            $row[2] = uc $row[2];
+            $row[4] = $self->_tester_name($row[4])  if($row[4] =~ /\@/);
+            push @{ $tvars{ uc($type) } }, \@row;
         }
-    }
-
-    $index{posters}->{$last_posters->[1]} = $posters_count;
-    $index{entries}->{$last_entries->[1]} = $entries_count;
-    $index{reports}->{$last_reports->[1]} = $reports_count;
-
-    push @posters, $last_posters;
-    push @entries, $last_entries;
-    push @reports, $last_reports;
-
-    my (@postersx,@entriesx,@reportsx);
-    for my $row (@posters) {
-        $row->[0] = $index{posters}{$row->[1]};
-        $row->[2] = uc $row->[2];
-        $row->[4] = $self->_tester_name($row->[4])  if($row->[4] =~ /\@/);
-        my @this = @$row;
-        push @postersx, \@this;
-    }
-    for my $row (@entries) {
-        $row->[0] = $index{entries}{$row->[1]};
-        $row->[2] = uc $row->[2];
-        $row->[4] = $self->_tester_name($row->[4])  if($row->[4] =~ /\@/);
-        my @this = @$row;
-        push @entriesx, \@this;
-    }
-    for my $row (@reports) {
-        $row->[0] = $index{reports}{$row->[1]};
-        $row->[2] = uc $row->[2];
-        $row->[4] = $self->_tester_name($row->[4])  if($row->[4] =~ /\@/);
-        my @this = @$row;
-        push @reportsx, \@this;
     }
 
     my @headings = qw( count id grade postdate tester dist version platform perl osname osvers fulldate );
-
     $tvars{HEADINGS} = \@headings;
-    $tvars{POSTERS}  = \@postersx;
-    $tvars{ENTRIES}  = \@entriesx;
-    $tvars{REPORTS}  = \@reportsx;
-
     $self->_writepage('interest',\%tvars);
+
+    # store for future reference
+    $self->{parent}->{CPANSTATS}->do_query("DELETE FROM interesting");
+    for my $type (qw(posters entries reports)) {
+        for my $key (keys %{ $index{xrefs}->{$type} }) {
+            $self->{parent}->{CPANSTATS}->do_query("INSERT INTO interesting (type,count,id) VALUES (?,?,?)",
+                $type, $key, $index{xrefs}{$type}{$key}[1] );
+        }
+    }
 }
 
 =item * _report_cpan
