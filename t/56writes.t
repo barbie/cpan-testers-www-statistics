@@ -74,6 +74,7 @@ my $images = File::Spec->catfile( $TARGET, 'images' );
 rmtree($images);
 $obj->templates($TARGET);
 
+my ($stats,$fails,$pass,$counts,$dists,$index,$versions) = $page->_build_stats();
 
 $obj->directory($dir . '/_write_basics'),
 $page->_write_basics();
@@ -96,7 +97,7 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
 
 $obj->directory($dir . '/_report_interesting'),
-$page->_report_interesting();
+$page->_report_interesting($dists,$index);
 check_dir_contents(
 	"[_report_interesting]",
 	$obj->directory,
