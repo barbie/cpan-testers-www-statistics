@@ -1,5 +1,9 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.68	current
+	- broke out functionality of _write_stats() into more manageable chunks
+	- further reduced SQL calls.
+
 0.67	13/10/2009
 	- improvements to the layout of interesting stats page.
 	- moved from Class::Accessor::Chained::Fast to Class::Accessor::Fast
