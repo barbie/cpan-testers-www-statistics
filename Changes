@@ -3,6 +3,12 @@ Revision history for CPAN-Testers-WWW-Statistics
 0.68	current
 	- broke out functionality of _write_stats() into more manageable chunks
 	- further reduced SQL calls.
+	- added a schema file for all the tables in the cpanstats database in 
+	  examples/cpanstats.sql
+	- added functionality to handle daily graphs.
+	- added performance page and graph
+	- graphs and data files now created in a dedicated stats sub-directory.
+	- made raw data files available.
 
 0.67	13/10/2009
 	- improvements to the layout of interesting stats page.
