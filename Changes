@@ -1,6 +1,6 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.68	current
+0.68	15/10/2009
 	- broke out functionality of _write_stats() into more manageable chunks
 	- further reduced SQL calls.
 	- added a schema file for all the tables in the cpanstats database in 
