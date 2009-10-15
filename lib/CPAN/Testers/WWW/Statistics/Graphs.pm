@@ -51,12 +51,13 @@ my %month = (
 my ($backg,$foreg) = ('black','white');
 
 my @graphs = (
-['stats1' ,'CPAN Testers Statistics - Reports',     [qw(UPLOADS REPORTS PASS FAIL)],    'TEST_RANGES'],
-['stats2' ,'CPAN Testers Statistics - Attributes',  [qw(TESTERS PLATFORMS PERLS)],      'TEST_RANGES'],
-['stats3' ,'CPAN Testers Statistics - Non-Passes',  [qw(FAIL NA UNKNOWN)],              'TEST_RANGES'],
-['stats4' ,'CPAN Testers Statistics - Testers',     [qw(ALL FIRST LAST)],               'TEST_RANGES'],
-['stats6' ,'CPAN Statistics - Uploads',             [qw(AUTHORS DISTROS)],              'CPAN_RANGES'],
-['stats12','CPAN Statistics - New Uploads',         [qw(AUTHORS DISTROS)],              'CPAN_RANGES'],
+['stats1' ,'CPAN Testers Statistics - Reports',     [qw(UPLOADS REPORTS PASS FAIL)],    'TEST_RANGES', 'month'],
+['stats2' ,'CPAN Testers Statistics - Attributes',  [qw(TESTERS PLATFORMS PERLS)],      'TEST_RANGES', 'month'],
+['stats3' ,'CPAN Testers Statistics - Non-Passes',  [qw(FAIL NA UNKNOWN)],              'TEST_RANGES', 'month'],
+['stats4' ,'CPAN Testers Statistics - Testers',     [qw(ALL FIRST LAST)],               'TEST_RANGES', 'month'],
+['stats6' ,'CPAN Statistics - Uploads',             [qw(AUTHORS DISTROS)],              'CPAN_RANGES', 'month'],
+['stats12','CPAN Statistics - New Uploads',         [qw(AUTHORS DISTROS)],              'CPAN_RANGES', 'month'],
+['build1' ,'CPAN Testers Performance Graph',        [qw(REQUESTS PAGES REPORTS)],       'NONE',        'daily'],
 );
 
 my $mech = WWW::Mechanize->new();
@@ -85,7 +86,8 @@ my %COLOURS = (
 );
 
 my @COLOURS = map {sprintf "%s%s%s", _dec2hex($COLOURS{$_}->[0]),_dec2hex($COLOURS{$_}->[1]),_dec2hex($COLOURS{$_}->[2])} qw(red blue green orange purple grey);
-my @MONTH   = qw( - J F M A M J J A S O N D );
+my @MONTH   = qw( - JANUARY FEBURARY MARCH APRIL MAY JUNE JULY AUGUST SEPTEMBER OCTOBER NOVEMBER DECEMBER );
+my @MONTHS  = map {my @x = split(//); my $x = join(' ',@x); [split(//,$x)]} @MONTH;
 
 # -------------------------------------
 # Subroutines
@@ -134,8 +136,10 @@ Method to facilitate the creation of graphs.
 
 sub create {
     my $self = shift;
+
     my $directory = $self->{parent}->directory;
-    mkpath($directory);
+    my $results   = "$directory/stats";
+    mkpath($results);
 
     $self->{parent}->_log("start");
 
@@ -148,28 +152,30 @@ sub create {
         for my $r (@$ranges) {
             $self->{parent}->_log("writing graph - $g->[0]-$r");
 
-            my $url = $self->_make_graph("$directory",$r,@$g);
+            my $url = $self->_make_graph($r,@$g);
+            next    unless($url);
+
             $self->{parent}->_log("url - [".(length $url)."] $url");
     #        print "$url\n";
 
             $mech->get($url);
             if(!$mech->success()) {
-                my $file = "$g->[0]-$r.html";
+                my $file = "$results/$g->[0]-$r.html";
                 warn("FAIL: $0 - Cannot access page - see '$file'\n");
                 $mech->save_content($file);
             } elsif($mech->response->header('Content-Type') =~ /html/) {
-                my $file = "$g->[0]-$r.html";
+                my $file = "$results/$g->[0]-$r.html";
                 warn("FAIL: $0 - request failed - see '$file'\n");
                 $mech->save_content($file);
             } else {
-                my $file = "$directory/$g->[0]-$r.png";
+                my $file = "$results/$g->[0]-$r.png";
                 my $fh = IO::File->new(">$file") or die "$0 - Cannot write file [$file]: $!\n";
                 binmode($fh);
                 print $fh $mech->content;
                 $fh->close;
 
                 if($r eq $latest) {
-                    $file = "$directory/$g->[0].png";
+                    $file = "$results/$g->[0].png";
                     $fh = IO::File->new(">$file") or die "$0 - Cannot write file [$file]: $!\n";
                     binmode($fh);
                     print $fh $mech->content;
@@ -189,17 +195,30 @@ sub create {
 #=cut
 
 sub _make_graph {
-    my ($self,$dir,$r,$file,$title,$legend) = @_;
+    my ($self,$r,$file,$title,$legend,$rcode,$type) = @_;
     my (@dates1,@dates2);
     my $yr = 0;
 
     my @data = $self->_get_data("$file.txt",$r);
+    #use Data::Dumper;
+    #print STDERR "#type=$type, file=$file.txt, data=".Dumper(\@data);
+
+    return  unless(@data);
+
     for my $date (@{$data[0]}) {
-        my $year  = substr($date,0,4);
-        my $month = substr($date,4,2);
-        push @dates1, ($month %2 == 1 ? $MONTH[$month] : '');
-        push @dates2, ($year != $yr ? $year : '');
-        $yr = $year;
+        if($type eq 'month') {
+            my $year  = substr($date,0,4);
+            my $month = substr($date,4,2);
+            push @dates1, ($month % 2 == 1 ? $MONTHS[$month][0] : '');
+            push @dates2, ($year != $yr ? $year : '');
+            $yr = $year;
+        } else {
+            my $year  = substr($date,0,4);
+            my $month = substr($date,4,2);
+            my $day   = substr($date,6,2);
+            push @dates1, ($day % 2 ? sprintf "%d", $day : '');
+            push @dates2, ($MONTHS[$month][$day-1] || '');
+        }
     }
 
     my $max = 0;
@@ -253,12 +272,16 @@ sub _get_data {
     my ($self,$file,$range) = @_;
     my ($fdate,$tdate) = split('-',$range);
 
-    #$self->{parent}->_log("get data - range=$range, fdate=$fdate, tdate=$tdate");
+    $self->{parent}->_log("get data - range=$range, fdate=$fdate, tdate=$tdate");
 
     my @data;
-    my $fh = IO::File->new($file) or die "Cannot open data file [$file]: $!\n";
+    my $fh = IO::File->new($file) 
+        #or return ();
+        or die "Cannot open data file [$file]: $!\n";
     while(<$fh>) {
-        chomp;
+        s/\s*$//;
+        next    unless($_);
+        next    if(/^#/ || /^$/);
         my @values = split(",",$_);
         next    if($values[0] < $fdate || $values[0] > $tdate);
         push @{$data[$_]}, $values[$_]    for(0..$#values);

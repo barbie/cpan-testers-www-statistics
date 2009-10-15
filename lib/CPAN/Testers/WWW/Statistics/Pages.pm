@@ -132,10 +132,11 @@ sub _write_basics {
     my $directory = $self->{parent}->directory;
     my $templates = $self->{parent}->templates;
     my $database  = $self->{parent}->database;
+    my $results   = "$directory/stats";
 
     $self->{parent}->_log("writing basic files");
 
-    mkpath($directory);
+    mkpath($results);
 
     # calculate database metrics
     my $mtime = (stat($database))[9];
@@ -154,6 +155,7 @@ sub _write_basics {
                          DBSZ_COMPRESSED => $DBSZ_COMPRESSED, DBSZ_UNCOMPRESSED => $DBSZ_UNCOMPRESSED},
             cpanmail => {},
             response => {},
+            perform  => {},
             graphs   => {},
             graphs1  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats1' ,TITLE=>'Monthly Report Counts'},
             graphs2  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats2' ,TITLE=>'Testers, Platforms and Perls'},
@@ -212,6 +214,7 @@ sub _write_stats {
     $self->_build_monthly_stats_files($stats,$counts);
     $self->_build_failure_rates($fails);
     $self->_build_monthly_stats($stats);
+    $self->_build_performance_stats($index->{build});
 }
 
 sub _build_stats {
@@ -234,6 +237,19 @@ sub _build_stats {
         xrefs   => { posters => {}, entries => {}, reports => {} },
         xlast   => { posters => [], entries => [], reports => [] },
     );
+
+    my $file = $self->{parent}->builder();
+    if($file && -f $file) {
+        if(my $fh = IO::File->new($file,'r')) {
+            while(<$fh>) {
+                my ($d,$r,$p) = /(\d+),(\d+),(\d+)/;
+                next    unless($d);
+                $index{build}{$d}->{webtotal}  = $r;
+                $index{build}{$d}->{webunique} = $p;
+            }
+            $fh->close;
+        }
+    }
 
     $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats ORDER BY id");
     while(my $row = $iterator->()) {
@@ -275,6 +291,9 @@ sub _build_stats {
                 $dists{$row->[4]}->{ALL}++;
                 $dists{$row->[4]}->{IXL}++  if($dists{$row->[4]}->{VER} eq $row->[5]);
             }
+
+            my $day = substr($row->[10],0,8);
+            $index{build}{$day}->{reports}++    if(defined $index{build}{$day});
         }
 
         my @row = (0, @$row);
@@ -392,7 +411,7 @@ sub _report_interesting {
 
             $row[0] = $key;
             $row[2] = uc $row[2];
-            $row[4] = $self->_tester_name($row[4])  if($row[4] =~ /\@/);
+            $row[4] = $self->_tester_name($row[4])  if($row[4] && $row[4] =~ /\@/);
             push @{ $tvars{ uc($type) } }, \@row;
         }
     }
@@ -431,10 +450,13 @@ sub _report_cpan {
         $counts{$date}{newdistros}++  if($distros{$row->{dist}}{count} == 1);
     }
 
-    my $stat6  = IO::File->new('stats6.txt','w+')     or die "Cannot write to file [stats6.txt]: $!\n";
-#    my $stat7  = IO::File->new('stats7.txt','w+')     or die "Cannot write to file [stats7.txt]: $!\n";
-    my $stat12 = IO::File->new('stats12.txt','w+')    or die "Cannot write to file [stats12.txt]: $!\n";
-#    my $stat13 = IO::File->new('stats13.txt','w+')    or die "Cannot write to file [stats13.txt]: $!\n";
+    my $directory = $self->{parent}->directory;
+    my $results   = "$directory/stats";
+
+    my $stat6  = IO::File->new("$results/stats6.txt",'w+')     or die "Cannot write to file [$results/stats6.txt]: $!\n";
+    print $stat6 "#DATE,AUTHORS,DISTROS\n";
+    my $stat12 = IO::File->new("$results/stats12.txt",'w+')    or die "Cannot write to file [$results/stats12.txt]: $!\n";
+    print $stat12 "#DATE,AUTHORS,DISTROS\n";
 
     for my $date (sort keys %counts) {
         my $authors = scalar(keys %{ $counts{$date}{authors} });
@@ -573,11 +595,18 @@ sub _build_monthly_stats_files {
     my $counts = shift;
     my %tvars;
 
+    my $directory = $self->{parent}->directory;
+    my $results   = "$directory/stats";
+
     $self->{parent}->_log("building monthly stats for graphs - 1,3");
 
     #print "DATE,UPLOADS,REPORTS,NA,PASS,FAIL,UNKNOWN\n";
-    my $fh = IO::File->new(">stats1.txt");
-    my $fh3 = IO::File->new(">stats3.txt");
+    my $fh = IO::File->new(">$results/stats1.txt");
+    print $fh "#DATE,UPLOADS,REPORTS,PASS,FAIL\n";
+
+    my $fh3 = IO::File->new(">$results/stats3.txt");
+    print $fh3 "#DATE,FAIL,NA,UNKNOWN\n";
+    
     for my $date (sort keys %$stats) {
         next    if($date > $LIMIT);
         my @fields = (
@@ -614,7 +643,9 @@ sub _build_monthly_stats_files {
     $self->{parent}->_log("building monthly stats for graphs - 2");
 
     #print "DATE,TESTERS,PLATFORMS,PERLS\n";
-    $fh = IO::File->new(">stats2.txt");
+    $fh = IO::File->new(">$results/stats2.txt");
+    print $fh "#DATE,TESTERS,PLATFORMS,PERLS\n";
+
     for my $date (sort keys %$stats) {
         next    if($date > $LIMIT-1);
         printf $fh "%d,%d,%d,%d\n",
@@ -628,7 +659,9 @@ sub _build_monthly_stats_files {
     $self->{parent}->_log("building monthly stats for graphs - 4");
 
     #print "DATE,ALL,FIRST,LAST\n";
-    $fh = IO::File->new(">stats4.txt");
+    $fh = IO::File->new(">$results/stats4.txt");
+    print $fh "#DATE,ALL,FIRST,LAST\n";
+
     for my $date (sort keys %$stats) {
         next    if($date > $LIMIT-1);
 
@@ -763,6 +796,31 @@ sub _build_monthly_stats {
 
     $self->_writepage('testers',\%tvars);
 }
+
+sub _build_performance_stats {
+    my $self  = shift;
+    my $index = shift;
+
+    my $directory = $self->{parent}->directory;
+    my $results   = "$directory/stats";
+
+    $self->{parent}->_log("building peformance stats for graphs");
+
+    my $fh = IO::File->new(">$results/build1.txt");
+    print $fh "#DATE,REQUESTS,PAGES,REPORTS\n";
+
+    for my $date (sort {$a <=> $b} keys %$index) {
+        #next    if($date > $LIMIT-1);
+
+        printf $fh "%d,%d,%d,%d\n",
+            $date,
+            ($index->{$date}{webtotal}  || 0),
+            ($index->{$date}{webunique} || 0),
+            ($index->{$date}{reports}   || 0);
+    }
+    $fh->close;
+}
+
 
 =item * _writepage
 

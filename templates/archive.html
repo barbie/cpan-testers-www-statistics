@@ -19,7 +19,12 @@
 <h2>Graphs</h2>
 [% FOREACH item = RANGES.reverse %]
 <h3>[% item.substr(0,4) %] - [% item.substr(7,4) %]</h3>
-<p><a name="[% item %]"></a><img src="/[% PREFIX %]-[% item %].png" alt="[% title %] - [% item.substr(0,4) %] to [% item.substr(7,4) %]" /></p>
+<p><a name="[% item %]"></a><img src="/stats/[% PREFIX %]-[% item %].png" alt="[% title %] - [% item.substr(0,4) %] to [% item.substr(7,4) %]" /></p>
 [% END %]
 
+<h2>Raw Data</h2>
+<p>The raw data file is available here:</p>
+<ul>
+<li><a href="/stats/[% PREFIX %].txt">[% title %]</a></li>
+</ul>
 <p>Graphs generated using the <a href="http://code.google.com/apis/chart/">Google Chart API</a>.</p>

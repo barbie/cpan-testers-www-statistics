@@ -8,6 +8,7 @@ bin/cpanstats-writegraphs
 bin/cpanstats-writepages
 bin/getmailrc.pl
 data/01mailrc.txt
+examples/cpanstats.sql
 examples/cpanstats.sh
 examples/example-settings.ini
 lib/CPAN/Testers/WWW/Statistics.pm
@@ -16,7 +17,6 @@ lib/CPAN/Testers/WWW/Statistics/Pages.pm
 t/01base.t
 t/05setup_db-cpanstats.t
 t/05setup_db-uploads.t
-t/05setup_db-interest.t
 t/05setup_db-ixlatest.t
 t/20attributes.t
 t/21dies.t
@@ -60,6 +60,7 @@ templates/mperls.html
 templates/mplatforms.html
 templates/mreports.html
 templates/mtesters.html
+templates/perform.html
 templates/response.html
 templates/rmatrix.html
 templates/statscpan.html

@@ -19,7 +19,7 @@
 
 <a name="top20dist" />
 <h2>Top 20 Distributions with Most Reports</h2>
-<div class="boxer">
+<!--<div class="boxer">-->
 <table>
 <tr><th class="top">#</th><th class="top">COUNT</th><th class="top">DISTRIBUTION</th></tr>
 [% cnt = 1 %]
@@ -27,11 +27,11 @@
 <tr><td>[% cnt; cnt = cnt + 1 %]</td>[% FOREACH col = row %]<td>[% col %]</td>[% END %]</tr>
 [% END %]
 </table>
-</div>
+<!--</div>-->
 
 <a name="top20dver" />
 <h2>Top 20 Distribution/Versions with Most Reports</h2>
-<div class="boxer">
+<!--<div class="boxer">-->
 <table>
 <tr><th class="top">#</th><th class="top">COUNT</th><th class="top">DISTRIBUTION</th><th class="top">VERSION</th></tr>
 [% cnt = 1 %]
@@ -39,7 +39,7 @@
 <tr><td>[% cnt; cnt = cnt + 1 %]</td>[% FOREACH col = row %]<td>[% col %]</td>[% END %]</tr>
 [% END %]
 </table>
-</div>
+<!--</div>-->
 
 <a name="posters" />
 <h2>All Posts to cpan-testers</h2>

@@ -57,6 +57,7 @@ keys.
   templates => path to templates directory
   database  => path to SQLite database file
   address   => path to address file
+  builder   => path to output file from builder log parser
 
   logfile   => path to logfile
   logclean  => will overwrite any existing logfile if set
@@ -108,6 +109,7 @@ sub new {
     $self->logclean( _defined_or( $hash{logclean},  $cfg->val('MASTER','logclean' ), 0 ));
     $self->directory(_defined_or( $hash{directory}, $cfg->val('MASTER','directory') ));
     $self->copyright(                               $cfg->val('MASTER','copyright') );
+    $self->builder(  _defined_or( $hash{builder},   $cfg->val('MASTER','builder'  ) ));
 
     $self->_log("templates=".($self->templates || ''));
     $self->_log("database =".($self->database  || ''));
@@ -115,6 +117,7 @@ sub new {
     $self->_log("logfile  =".($self->logfile   || ''));
     $self->_log("logclean =".($self->logclean  || ''));
     $self->_log("directory=".($self->directory || ''));
+    $self->_log("builder  =".($self->builder   || ''));
 
     die "Must specify the output directory\n"           unless($self->directory);
     die "Must specify the template directory\n"         unless($self->templates);
@@ -144,8 +147,8 @@ file.
 =cut
 
 __PACKAGE__->mk_accessors(
-    qw( directory templates database address logfile logclean copyright
-        tocopy));
+    qw( directory templates database address builder logfile logclean 
+        copyright tocopy));
 
 sub make_pages {
     my $self = shift;
@@ -169,7 +172,8 @@ sub make_graphs {
 sub ranges {
     my ($self,$section) = @_;
     return  unless($section);
-    my @RANGES = split("\n", $self->{cfg}->val($section,'LIST'));
+    my @RANGES = $section eq 'NONE' ? '00000000-99999999'
+                    : split("\n", $self->{cfg}->val($section,'LIST'));
     return \@RANGES;
 }
 
