@@ -133,10 +133,9 @@ sub _write_basics {
     my $templates = $self->{parent}->templates;
     my $database  = $self->{parent}->database;
     my $results   = "$directory/stats";
+    mkpath($results);
 
     $self->{parent}->_log("writing basic files");
-
-    mkpath($results);
 
     # calculate database metrics
     my $mtime = (stat($database))[9];
@@ -452,6 +451,7 @@ sub _report_cpan {
 
     my $directory = $self->{parent}->directory;
     my $results   = "$directory/stats";
+    mkpath($results);
 
     my $stat6  = IO::File->new("$results/stats6.txt",'w+')     or die "Cannot write to file [$results/stats6.txt]: $!\n";
     print $stat6 "#DATE,AUTHORS,DISTROS\n";
@@ -597,6 +597,7 @@ sub _build_monthly_stats_files {
 
     my $directory = $self->{parent}->directory;
     my $results   = "$directory/stats";
+    mkpath($results);
 
     $self->{parent}->_log("building monthly stats for graphs - 1,3");
 
@@ -803,6 +804,7 @@ sub _build_performance_stats {
 
     my $directory = $self->{parent}->directory;
     my $results   = "$directory/stats";
+    mkpath($results);
 
     $self->{parent}->_log("building peformance stats for graphs");
 

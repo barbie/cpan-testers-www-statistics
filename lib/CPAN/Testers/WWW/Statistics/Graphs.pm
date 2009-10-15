@@ -216,7 +216,7 @@ sub _make_graph {
             my $year  = substr($date,0,4);
             my $month = substr($date,4,2);
             my $day   = substr($date,6,2);
-            push @dates1, ($day % 2 ? sprintf "%d", $day : '');
+            push @dates1, ($day == 1 || $day % 7 == 0 ? sprintf "%d", $day : "'");
             push @dates2, ($MONTHS[$month][$day-1] || '');
         }
     }
@@ -269,15 +269,18 @@ sub _make_graph {
 #=cut
 
 sub _get_data {
-    my ($self,$file,$range) = @_;
+    my ($self,$filename,$range) = @_;
     my ($fdate,$tdate) = split('-',$range);
+
+    my $directory = $self->{parent}->directory;
+    my $file   = "$directory/stats/$filename";
 
     $self->{parent}->_log("get data - range=$range, fdate=$fdate, tdate=$tdate");
 
     my @data;
     my $fh = IO::File->new($file) 
-        #or return ();
-        or die "Cannot open data file [$file]: $!\n";
+        or return ();
+        #or die "Cannot open data file [$file]: $!\n";
     while(<$fh>) {
         s/\s*$//;
         next    unless($_);

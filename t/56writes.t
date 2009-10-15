@@ -23,7 +23,7 @@ $|=1;
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 166;
+use Test::More tests => 201;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;
@@ -134,6 +134,8 @@ SKIP: {
 
 	my $graph = CTWS_Testing::getGraphs();
 
+    CTWS_Testing::saveFiles($dir . '/graphs');
+
 	$obj->directory($dir . '/graphs'),
 	$graph->create();
 	check_dir_contents(
@@ -160,7 +162,9 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 SKIP: {
 	skip "Can't see a network connection", 4	if(pingtest());
 
-	$obj->directory($dir . '/make_graphs'),
+    CTWS_Testing::saveFiles($dir . '/make_graphs');
+
+    $obj->directory($dir . '/make_graphs'),
 	$obj->make_graphs();
 	check_dir_contents(
 		"[make_graphs]",
@@ -213,8 +217,8 @@ sub check_dir_contents {
   my ($diz, $dir, $expectedDir) = @_;
   my @files = CTWS_Testing::listFiles( $dir );
   my @expectedFiles = CTWS_Testing::listFiles( $expectedDir );
-  ok( scalar(@files), "got files" );
-  ok( scalar(@expectedFiles), "got expectedFiles" );
+  ok( scalar(@files), "got files [$dir]" );
+  ok( scalar(@expectedFiles), "got expectedFiles [$expectedDir]" );
   eq_or_diff( \@files, \@expectedFiles, "$diz file listings match" );
   foreach my $f ( @files ){
     my $fGot = File::Spec->catfile($dir,$f);
@@ -227,11 +231,14 @@ sub check_dir_contents {
         $fExpected,
         "$diz diff $f",
         sub {
-          $_[0] =~ s/^(\s*)\d+\.\d+(?:_\d+)? at \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.( Comments and design patches)/$1 ==TIMESTAMP== $2/gmi;
-          $_[0] =~ s/\d+(st|nd|rd|th)\s+\w+\s+\d+/==TIMESTAMP==/gmi;
-          $_[0] =~ s!\d{4}/\d{2}/\d{2}!==TIMESTAMP==!gmi;
-          $_[0] =~ s!\w+ \d{4}!==TIMESTAMP==!gmi;
-          $_[0] =~ s!CPAN-Testers-WWW-Statistics-0.\d{2}!==DISTRO==!gmi;
+            if($_[0]) {
+                $_[0] =~ s/^(\s*)\d+\.\d+(?:_\d+)? at \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.( Comments and design patches)/$1 ==TIMESTAMP== $2/gmi;
+                $_[0] =~ s/\d+(st|nd|rd|th)\s+\w+\s+\d+/==TIMESTAMP==/gmi;
+                $_[0] =~ s!\d{4}/\d{2}/\d{2}!==TIMESTAMP==!gmi;
+                $_[0] =~ s!\w+ \d{4}!==TIMESTAMP==!gmi;
+                $_[0] =~ s!CPAN-Testers-WWW-Statistics-0.\d{2}!==DISTRO==!gmi;
+            }
+            $_[0];
         }
         );
         next if $ok;
