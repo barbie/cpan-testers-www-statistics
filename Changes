@@ -1,5 +1,14 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.69	current
+	- hash passing depreciated in favour of object variables.
+	- distribution and reports matrices merged, now split between OS name
+	  and platform name, then further split with all perls or official 
+	  perls, then split again based on last month, or from the first to
+	  the most current.
+	- brought back colour variations to the matrices.
+	- added page anchor to raw data.
+
 0.68	15/10/2009
 	- broke out functionality of _write_stats() into more manageable chunks
 	- further reduced SQL calls.

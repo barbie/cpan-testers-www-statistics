@@ -48,7 +48,6 @@ templates/cgi-bin/cpanmail.cgi
 templates/cpanmail.html
 templates/cpanmail-response.html
 templates/distlist.html
-templates/dmatrix.html
 templates/favicon.ico
 templates/graphs.html
 templates/index.html
@@ -60,7 +59,9 @@ templates/mperls.html
 templates/mplatforms.html
 templates/mreports.html
 templates/mtesters.html
+templates/osmatrix.html
 templates/perform.html
+templates/pmatrix.html
 templates/response.html
 templates/rmatrix.html
 templates/statscpan.html
