@@ -1,20 +1,59 @@
 [% 
-    title = 'Distributions' ;
+    IF FULL ; THEN ; 
+      title = 'Matrices : By Platforms - All Perl Releases' ; 
+    ELSE ; 
+      title = 'Matrices : By Platforms - Official Perl Releases' ; 
+    END ;
+    IF MONTH ; THEN ; 
+      title = title _ ' (Last Month)' ;
+    END ;
     box_sites = 1
 
-    crumb2_name = 'Matrices' ;
+    crumb3_name = 'Matrices' ;
+    crumb3_href = '/' ;
+    crumb2_name = 'By Platforms' ;
     crumb2_href = '/' ;
-    crumb1_name = 'Distributions' ;
+    IF FULL ; THEN ; 
+      crumb1_name = 'All Perl Releases' ; 
+    ELSE ; 
+      crumb1_name = 'Official Perl Releases' ; 
+    END ;
+    IF MONTH ; THEN ; 
+      crumb1_name = crumb1_name _ ' (Last Month)' ;
+    END ;
 %]
 
-<h2>Platform/Perl Matrix for Distributions prior to [% RUNDATE %]</h2>
+[% IF MONTH %]
+<h2>Platform/Perl Matrix for Distributions &amp Reports for [% THATDATE %]</h2>
+[% ELSE %]
+<h2>Platform/Perl Matrix for Distributions &amp Reports prior to [% RUNDATE %]</h2>
+[% END %]
 <p>The matrix below represents the distributions that have received at least
 one PASS report submitted to the cpan-testers mailing list, for a particular
 version of the perl interpreter and a particular platform. Note that patched
-versions of perl are mapped to their major/minor release of perl. All reports
-recorded are from August 1999 until [% RUNDATE %].</p>
-<p>Click on the values in the matrix to see the distribution list that has been
-tested and PASSed for that instance.</p>
+versions of perl are mapped to their major/minor release of perl. 
+[% IF MONTH %]
+All reports recorded are for [% THATDATE %] only.
+[% ELSE %]
+All reports recorded are from August 1999 until [% RUNDATE %].
+[% END %]
+</p>
+
+<p>Where available, the two values in each box represent, firstly the number of 
+distributions with at least one PASS report for that combination, and secondly the 
+total number of reports submitted for that combination. Click on the value 
+representing the distributions, to see the full list of distributions with a PASS
+for that combination.</p>
+
+[% IF FULL %]
+<p>The matrix below includes <i>all released versions of Perl</i> tested. To see a more 
+restricted matrix, listing only the versions of Perl that have had an official release, 
+please <a href="/pmatrix.html">click here</a>.</p>
+[% ELSE %]
+<p>The matrix below includes <i>all <b>officially</b> released versions of Perl</i> tested. To see a
+less restricted matrix, listing all released versions of Perl, please
+<a href="/pmatrix-full.html">click here</a>.</p>
+[% END %]
 
 <div class="boxer">
 [% CONTENT %]
