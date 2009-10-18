@@ -104,8 +104,6 @@ sub new {
         $OSNAMES{$_} = $cfg->val('OSNAMES',$_)  for($cfg->Parameters('OSNAMES'));
     }
 
-    $OSNAMES{'openosname=openbsd'} = 'OpenBSD';
-
     my @rows = $self->{CPANSTATS}->get_query('array',q{SELECT DISTINCT(osname) FROM cpanstats WHERE state IN ('pass','fail','na','unknown') ORDER BY osname});
     for my $row (@rows) {
         my $oscode = lc $row->[0];
@@ -157,6 +155,10 @@ Method to facilitate the creation of the statistics graphs.
 
 Returns the specific date range array reference, as held in the configuration
 file.
+
+=item * osname
+
+Returns the print form of a recorded OS name.
 
 =back
 

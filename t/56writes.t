@@ -23,7 +23,7 @@ $|=1;
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 201;
+use Test::More tests => 337;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;
@@ -82,16 +82,6 @@ check_dir_contents(
 	"[_write_basics]",
 	$obj->directory,
 	File::Spec->catfile($EXPECTEDPATH,'56writes._write_basics'),
-);
-ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
-
-
-$obj->directory($dir . '/_report_matrix'),
-$page->_report_matrix();
-check_dir_contents(
-	"[_report_matrix]",
-	$obj->directory,
-	File::Spec->catfile($EXPECTEDPATH,'56writes._report_matrix'),
 );
 ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
@@ -220,7 +210,7 @@ sub check_dir_contents {
   ok( scalar(@files), "got files [$dir]" );
   ok( scalar(@expectedFiles), "got expectedFiles [$expectedDir]" );
   eq_or_diff( \@files, \@expectedFiles, "$diz file listings match" );
-  foreach my $f ( @files ){
+  for my $f ( @files ){
     my $fGot = File::Spec->catfile($dir,$f);
     my $fExpected = File::Spec->catfile($expectedDir, $f);
 
@@ -248,6 +238,25 @@ sub check_dir_contents {
     if(-f $fExpected)   { unlink($fExpected); }
     else                { mkpath( dirname($fExpected) ) ; }
     copy( $fGot, $fExpected );
+  }
+
+  return unless $UPDATE_ARCHIVE;
+  for my $f ( @expectedFiles ){
+    # remove files no longer expected
+    my $fGot = File::Spec->catfile($dir,$f);
+    my $fExpected = File::Spec->catfile($expectedDir, $f);
+    next    if(-f $fGot);
+    unlink($fExpected);
+
+    # remove directories no longer expected
+    my $dGot = dirname($fGot);
+    my $dExpected = dirname($fExpected);
+    while(!-d $dGot) {
+      last    if($dGot eq $dir);
+      last    if(-d $dGot);
+      $dGot = dirname($dGot);
+      $dExpected = dirname($dExpected);
+    }
   }
 }
 

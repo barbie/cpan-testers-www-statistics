@@ -1,6 +1,6 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.69	current
+0.69	18/10/2009
 	- hash passing depreciated in favour of object variables.
 	- distribution and reports matrices merged, now split between OS name
 	  and platform name, then further split with all perls or official 
