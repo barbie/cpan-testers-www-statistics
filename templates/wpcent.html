@@ -10,12 +10,12 @@
 <h2>HIGHEST FAILURE COUNTS (as of [% DATABASE %])</h2>
 <p>Order by Failure Count or Failure Percentage by clicking the appropriate column headings.</p>
 <table>
-<tr><th class="top">POSITION</th><th class="top"><a href="wdists.html">FAILURES</a></th><th class="top">DISTRIBUTION</th><th class="top">UPLOAD</th><th class="top">PASSES</th><th class="top">TOTAL</th><th class="top">PERCENTAGE</th></tr>
+<tr><th class="top">#</th><th class="top">DISTRIBUTION</th><th class="top">UPLOAD</th><th class="top"><a href="wdists.html">FAILS</a></th><th class="top">PASSES</th><th class="top">TOTAL</th><th class="top">PERCENTAGE</th></tr>
 [% FOREACH row = WORST %]
 <tr><td align="right">[% row.0 %]</td>
-    <td align="right">[% row.1 %]</td>
     <td><a href="http://www.cpantesters.org/distro/[% row.7.substr(0,1) %]/[% row.7 %].html">[% row.2 %]</a></td>
     <td>[% row.3 %]</td>
+    <td align="right">[% row.1 %]</td>
     <td align="right">[% row.4 %]</td>
     <td align="right">[% row.5 %]</td>
     <td align="right">[% row.6 %]</td></tr>

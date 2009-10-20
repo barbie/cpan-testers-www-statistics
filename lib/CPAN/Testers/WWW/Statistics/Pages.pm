@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.69';
+$VERSION = '0.70';
 
 #----------------------------------------------------------------------------
 
@@ -37,6 +37,7 @@ Note that this package should not be called directly, but via its parent as:
 # -------------------------------------
 # Library Modules
 
+use Data::Dumper;
 use File::Basename;
 use File::Copy;
 use File::Path;
@@ -511,25 +512,49 @@ sub _build_osname_matrix {
 
     my %tvars = (template => 'osmatrix', FULL => 1, MONTH => 0);
     $self->{parent}->_log("building OS matrix - 1");
-    $tvars{CONTENT} = $self->_osname_matrix($self->{versions},'all');
+    my $CONTENT = $self->_osname_matrix($self->{versions},'all');
+    $tvars{CONTENT} = $CONTENT;
     $self->_writepage('osmatrix-full',\%tvars);
-
-    %tvars = (template => 'osmatrix', FULL => 1, MONTH => 1);
+ 
+    %tvars = (template => 'osmatrix', FULL => 1, MONTH => 0, layout => 'layout-wide');
+    $tvars{CONTENT} = $CONTENT;
     $self->{parent}->_log("building OS matrix - 2");
-    $tvars{CONTENT} = $self->_osname_matrix($self->{versions},'month');
+    $self->_writepage('osmatrix-full-wide',\%tvars);
+ 
+    %tvars = (template => 'osmatrix', FULL => 1, MONTH => 1);
+    $self->{parent}->_log("building OS matrix - 3");
+    $CONTENT = $self->_osname_matrix($self->{versions},'month');
+    $tvars{CONTENT} = $CONTENT;
     $self->_writepage('osmatrix-full-month',\%tvars);
+
+    %tvars = (template => 'osmatrix', FULL => 1, MONTH => 1, layout => 'layout-wide');
+    $tvars{CONTENT} = $CONTENT;
+    $self->{parent}->_log("building OS matrix - 4");
+    $self->_writepage('osmatrix-full-month-wide',\%tvars);
 
     my @vers = grep {!/^5\.(11|9|7)\./} @{$self->{versions}};
 
     %tvars = (template => 'osmatrix', FULL => 0, MONTH => 0);
-    $self->{parent}->_log("building OS matrix - 3");
-    $tvars{CONTENT} = $self->_osname_matrix(\@vers,'all');
+    $self->{parent}->_log("building OS matrix - 5");
+    $CONTENT = $self->_osname_matrix(\@vers,'all');
+    $tvars{CONTENT} = $CONTENT;
     $self->_writepage('osmatrix',\%tvars);
 
+    %tvars = (template => 'osmatrix', FULL => 0, MONTH => 0, layout => 'layout-wide');
+    $tvars{CONTENT} = $CONTENT;
+    $self->{parent}->_log("building OS matrix - 6");
+    $self->_writepage('osmatrix-wide',\%tvars);
+
     %tvars = (template => 'osmatrix', FULL => 0, MONTH => 1);
-    $self->{parent}->_log("building OS matrix - 4");
-    $tvars{CONTENT} = $self->_osname_matrix(\@vers,'month');
+    $self->{parent}->_log("building OS matrix - 7");
+    $CONTENT = $self->_osname_matrix(\@vers,'month');
+    $tvars{CONTENT} = $CONTENT;
     $self->_writepage('osmatrix-month',\%tvars);
+
+    %tvars = (template => 'osmatrix', FULL => 0, MONTH => 1, layout => 'layout-wide');
+    $tvars{CONTENT} = $CONTENT;
+    $self->{parent}->_log("building OS matrix - 8");
+    $self->_writepage('osmatrix-month-wide',\%tvars);
 }
 
 sub _osname_matrix {
@@ -538,16 +563,33 @@ sub _osname_matrix {
     my $type = shift;
     return ''   unless(@$vers);
 
-    my $index = 0;
-    my $content = '<table class="matrix">';
-    $content .= '<tr><th>OS/Perl</th><th>' . join("</th><th>",@$vers) . '</th></tr>';
+    my %totals;
     for my $osname (sort keys %{$self->{osys}}) {
         if($type eq 'month') {
             my $check = 0;
             for my $perl (@$vers) { $check++ if(defined $self->{osys}{$osname}{$perl}{$type}) }
             next    if($check == 0);
         }
-        $content .= '<tr><th>' . $osname . '</th>';
+        for my $perl (@$vers) {
+            my $count = defined $self->{osys}{$osname}{$perl}{$type}
+                            ? scalar(keys %{$self->{osys}{$osname}{$perl}{$type}})
+                            : 0;
+            $totals{os}{$osname} += $count;
+            $totals{perl}{$perl} += $count;
+        }
+    }
+
+    my $index = 0;
+    my $content = '<table class="matrix">';
+    $content .= '<tr><th>OS/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th></tr>';
+    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}} @$vers) . '</th></tr>';
+    for my $osname (sort {$totals{os}{$b} <=> $totals{os}{$a}} keys %{$totals{os}}) {
+        if($type eq 'month') {
+            my $check = 0;
+            for my $perl (@$vers) { $check++ if(defined $self->{osys}{$osname}{$perl}{$type}) }
+            next    if($check == 0);
+        }
+        $content .= '<tr><th>' . $osname . '</th><th class="totals">' . $totals{os}{$osname} . '</th>';
         for my $perl (@$vers) {
             my $count = defined $self->{osys}{$osname}{$perl}{$type}
                             ? scalar(keys %{$self->{osys}{$osname}{$perl}{$type}})
@@ -589,25 +631,49 @@ sub _build_platform_matrix {
 
     my %tvars = (template => 'pmatrix', FULL => 1, MONTH => 0);
     $self->{parent}->_log("building platform matrix - 1");
-    $tvars{CONTENT} = $self->_platform_matrix($self->{versions},'all');
+    my $CONTENT = $self->_platform_matrix($self->{versions},'all');
+    $tvars{CONTENT} = $CONTENT;
     $self->_writepage('pmatrix-full',\%tvars);
 
-    %tvars = (template => 'pmatrix', FULL => 1, MONTH => 1);
+    %tvars = (template => 'pmatrix', FULL => 1, MONTH => 0, layout => 'layout-wide');
+    $tvars{CONTENT} = $CONTENT;
     $self->{parent}->_log("building platform matrix - 2");
-    $tvars{CONTENT} = $self->_platform_matrix($self->{versions},'month');
+    $self->_writepage('pmatrix-full-wide',\%tvars);
+
+    %tvars = (template => 'pmatrix', FULL => 1, MONTH => 1);
+    $self->{parent}->_log("building platform matrix - 3");
+    $CONTENT = $self->_platform_matrix($self->{versions},'month');
+    $tvars{CONTENT} = $CONTENT;
     $self->_writepage('pmatrix-full-month',\%tvars);
 
-    %tvars = (template => 'pmatrix', FULL => 0, MONTH => 0);
+    %tvars = (template => 'pmatrix', FULL => 1, MONTH => 1, layout => 'layout-wide');
+    $tvars{CONTENT} = $CONTENT;
+    $self->{parent}->_log("building platform matrix - 4");
+    $self->_writepage('pmatrix-full-month-wide',\%tvars);
+
     my @vers = grep {!/^5\.(11|9|7)\./} @{$self->{versions}};
 
-    $self->{parent}->_log("building platform matrix - 3");
-    $tvars{CONTENT} = $self->_platform_matrix(\@vers,'all');
+    %tvars = (template => 'pmatrix', FULL => 0, MONTH => 0);
+    $self->{parent}->_log("building platform matrix - 5");
+    $CONTENT = $self->_platform_matrix(\@vers,'all');
+    $tvars{CONTENT} = $CONTENT;
     $self->_writepage('pmatrix',\%tvars);
 
+    %tvars = (template => 'pmatrix', FULL => 0, MONTH => 0, layout => 'layout-wide');
+    $tvars{CONTENT} = $CONTENT;
+    $self->{parent}->_log("building platform matrix - 6");
+    $self->_writepage('pmatrix-wide',\%tvars);
+
     %tvars = (template => 'pmatrix', FULL => 0, MONTH => 1);
-    $self->{parent}->_log("building platform matrix - 4");
-    $tvars{CONTENT} = $self->_platform_matrix(\@vers,'month');
+    $self->{parent}->_log("building platform matrix - 7");
+    $CONTENT = $self->_platform_matrix(\@vers,'month');
+    $tvars{CONTENT} = $CONTENT;
     $self->_writepage('pmatrix-month',\%tvars);
+
+    %tvars = (template => 'pmatrix', FULL => 0, MONTH => 1, layout => 'layout-wide');
+    $tvars{CONTENT} = $CONTENT;
+    $self->{parent}->_log("building platform matrix - 8");
+    $self->_writepage('pmatrix-month-wide',\%tvars);
 }
 
 sub _platform_matrix {
@@ -616,16 +682,33 @@ sub _platform_matrix {
     my $type = shift;
     return ''   unless(@$vers);
 
-    my $index = 0;
-    my $content = '<table class="matrix">';
-    $content .= '<tr><th>Platform/Perl</th><th>' . join("</th><th>",@$vers) . '</th></tr>';
+    my %totals;
     for my $platform (sort keys %{$self->{pass}}) {
         if($type eq 'month') {
             my $check = 0;
             for my $perl (@$vers) { $check++ if(defined $self->{pass}{$platform}{$perl}{$type}) }
             next    if($check == 0);
         }
-        $content .= '<tr><th>' . $platform . '</th>';
+        for my $perl (@$vers) {
+            my $count = defined $self->{pass}{$platform}{$perl}{$type}
+                            ? scalar(keys %{$self->{pass}{$platform}{$perl}{$type}})
+                            : 0;
+            $totals{platform}{$platform} += $count;
+            $totals{perl}{$perl} += $count;
+        }
+    }
+
+    my $index = 0;
+    my $content = '<table class="matrix">';
+    $content .= '<tr><th>Platform/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th></tr>';
+    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}} @$vers) . '</th></tr>';
+    for my $platform (sort {$totals{platform}{$b} <=> $totals{platform}{$a}} keys %{$totals{platform}}) {
+        if($type eq 'month') {
+            my $check = 0;
+            for my $perl (@$vers) { $check++ if(defined $self->{pass}{$platform}{$perl}{$type}) }
+            next    if($check == 0);
+        }
+        $content .= '<tr><th>' . $platform . '</th><th class="totals">' . $totals{platform}{$platform} . '</th>';
         for my $perl (@$vers) {
             my $count = defined $self->{pass}{$platform}{$perl}{$type}
                             ? scalar(keys %{$self->{pass}{$platform}{$perl}{$type}})
@@ -908,10 +991,10 @@ sub _writepage {
     $self->{parent}->_log("_writepage: page=$page");
 
     my $template = $vars->{template} || $page;
-
-    my $layout = "layout.html";
-    my $source = "$template.html";
-    my $target = "$directory/$page.html";
+    my $tlayout  = $vars->{layout} || 'layout';
+    my $layout   = "$tlayout.html";
+    my $source   = "$template.html";
+    my $target   = "$directory/$page.html";
     mkdir(dirname($target));
 
     $self->{parent}->_log("_writepage: layout=$layout, source=$source, target=$target");

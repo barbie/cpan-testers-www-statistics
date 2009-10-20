@@ -46,6 +46,7 @@ t/expected.zip
 templates/archive.html
 templates/cgi-bin/cpanmail.cgi
 templates/cpanmail.html
+templates/css/layout_wide.css
 templates/cpanmail-response.html
 templates/distlist.html
 templates/favicon.ico
@@ -53,6 +54,7 @@ templates/graphs.html
 templates/index.html
 templates/interest.html
 templates/layout.html
+templates/layout-wide.html
 templates/leadercpan.html
 templates/month.html
 templates/mperls.html
@@ -63,7 +65,6 @@ templates/osmatrix.html
 templates/perform.html
 templates/pmatrix.html
 templates/response.html
-templates/rmatrix.html
 templates/statscpan.html
 templates/testers.html
 templates/trends.html

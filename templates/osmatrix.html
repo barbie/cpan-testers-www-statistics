@@ -1,24 +1,26 @@
 [% 
-    link1 = 'pmatrix' ;
-    link2 = 'pmatrix' ;
+    link1 = 'osmatrix' ;
+    link2 = 'osmatrix' ;
     link3 = '' ;
 
     IF FULL ; THEN ; 
       link1 = link1 _ '-full' ;
-      title = 'Matrices : By Platforms - All Perl Releases' ; 
+      title = 'Matrices : By OS - All Perl Releases' ; 
     ELSE ; 
-      title = 'Matrices : By Platforms - Official Perl Releases' ; 
+      title = 'Matrices : By OS - Official Perl Releases' ; 
     END ;
     IF MONTH ; THEN ; 
       link3 = '-month' ;
       link1 = link1 _ link3 ;
       title = title _ ' (Last Month)' ;
+    ELSE ;
     END ;
+
     box_sites = 1
 
     crumb3_name = 'Matrices' ;
     crumb3_href = '/' ;
-    crumb2_name = 'By Platforms' ;
+    crumb2_name = 'By OS' ;
     crumb2_href = '/' ;
     IF FULL ; THEN ; 
       crumb1_name = 'All Perl Releases' ; 
@@ -31,13 +33,14 @@
 %]
 
 [% IF MONTH %]
-<h2>Platform/Perl Matrix for Distributions &amp Reports for [% THATDATE %]</h2>
+<h2>OS/Perl Matrix for Distributions &amp Reports for [% THATDATE %]</h2>
 [% ELSE %]
-<h2>Platform/Perl Matrix for Distributions &amp Reports prior to [% RUNDATE %]</h2>
+<h2>OS/Perl Matrix for Distributions &amp Reports prior to [% RUNDATE %]</h2>
 [% END %]
 <p>The matrix below represents the distributions that have received at least
 one PASS report submitted to the cpan-testers mailing list, for a particular
-version of the perl interpreter and a particular platform. Note that patched
+version of the perl interpreter and a particular Operating System. Note that 
+patched versions of perl are mapped to their major/minor release of perl. All reports
 versions of perl are mapped to their major/minor release of perl. 
 [% IF MONTH %]
 All reports recorded are for [% THATDATE %] only.

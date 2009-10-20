@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.69';
+$VERSION = '0.70';
 
 #----------------------------------------------------------------------------
 
@@ -100,15 +100,9 @@ sub new {
     }
 
     my %OSNAMES;
-    if($cfg->SectionExists('OSNAMES')) {
-        $OSNAMES{$_} = $cfg->val('OSNAMES',$_)  for($cfg->Parameters('OSNAMES'));
-    }
-
-    my @rows = $self->{CPANSTATS}->get_query('array',q{SELECT DISTINCT(osname) FROM cpanstats WHERE state IN ('pass','fail','na','unknown') ORDER BY osname});
+    my @rows = $self->{CPANSTATS}->get_query('array',q{SELECT osname,ostitle FROM osname});
     for my $row (@rows) {
-        my $oscode = lc $row->[0];
-        $oscode =~ s/[^\w]+//g;
-        $OSNAMES{$oscode} ||= uc($row->[0]);
+        $OSNAMES{lc $row->[0]} = $row->[1];
     }
     $self->osnames( \%OSNAMES );
 
@@ -198,7 +192,7 @@ sub ranges {
 sub osname {
     my ($self,$name) = @_;
     my $osnames = $self->osnames();
-    return $osnames->{$name} || $name;
+    return $osnames->{lc $name} || $name;
 }
 
 # -------------------------------------

@@ -82,3 +82,12 @@ CREATE TABLE `page_requests` (
   `name`	varchar(255)     NOT NULL,
   `weight`	int(2) unsigned  NOT NULL
 ) ENGINE=MyISAM;
+
+DROP TABLE IF EXISTS osname;
+CREATE TABLE osname (
+     id         int(10) unsigned NOT NULL auto_increment,
+     osname     varchar(255),
+     ostitle    varchar(255),
+     PRIMARY KEY (id)
+);
+
