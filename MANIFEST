@@ -60,6 +60,7 @@ templates/leadercpan.html
 templates/month.html
 templates/mperls.html
 templates/mplatforms.html
+templates/mosname.html
 templates/mreports.html
 templates/mtesters.html
 templates/osmatrix.html

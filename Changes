@@ -1,6 +1,6 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.70    current
+0.70    21/10/2009
 	- added functionality to use the new osname table.
 	- further work on matrices:
 	  - added totals to X & Y axis
