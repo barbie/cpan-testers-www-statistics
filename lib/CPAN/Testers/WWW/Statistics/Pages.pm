@@ -265,7 +265,9 @@ sub _build_stats {
             $self->{stats}{$row->[2]}{uploads}{$row->[4]}{$row->[5]}++;
             $self->{fails}{$row->[4]}{$row->[5]}{post} = $row->[2];
         } else {
-            my $name = $self->_tester_name($row->[3]);
+            my $osname = $self->{parent}->osname($row->[8]);
+            my $name   = $self->_tester_name($row->[3]);
+
             $self->{stats}{$row->[2]}{reports}++;
             $self->{stats}{$row->[2]}{state   }{$row->[1]}++;
             $self->{stats}{$row->[2]}{tester  }{$name    }++;
@@ -273,6 +275,7 @@ sub _build_stats {
             $self->{stats}{$row->[2]}{version }{$row->[5]}++;
             $self->{stats}{$row->[2]}{platform}{$row->[6]}++;
             $self->{stats}{$row->[2]}{perl    }{$row->[7]}++;
+            $self->{stats}{$row->[2]}{osname  }{$osname}++;
 
             # check failure rates
             $self->{fails}{$row->[4]}{$row->[5]}{fail}++    if($row->[1] =~ /FAIL|UNKNOWN/i);
@@ -280,7 +283,6 @@ sub _build_stats {
             $self->{fails}{$row->[4]}{$row->[5]}{total}++;
 
             # build matrix stats
-            my $osname = $self->{parent}->osname($row->[8]);
             my $perl = $row->[7];
             $perl =~ s/\s.*//;  # only need to know the main release
             $self->{perls}{$perl} = 1;
@@ -950,6 +952,23 @@ sub _build_monthly_stats {
     push @{$tvars{COUNTS}}, ($count-$known_t),$known_s,($known_s+$count-$known_t),($count-$known_t),$known_t,$count;
 
     $self->_writepage('testers',\%tvars);
+    undef %tvars;
+
+    $self->{parent}->_log("building monthly osname table");
+
+    my %osname;
+    for my $date (sort keys %{ $self->{stats} }) {
+        next    if($date > $LIMIT);
+
+        my ($count,$content) = (0,'');
+        for my $osname (sort {$self->{stats}{$date}{osname}{$b} <=> $self->{stats}{$date}{osname}{$a}} keys %{$self->{stats}{$date}{osname}}) {
+            $content .= ', '    if($content);
+            $content .= "[$self->{stats}{$date}{osname}{$osname}] $osname";
+            $count++;
+        }
+        unshift @{$tvars{STATS}}, [$date,$count,$content];
+    }
+    $self->_writepage('mosname',\%tvars);
 }
 
 sub _build_performance_stats {
