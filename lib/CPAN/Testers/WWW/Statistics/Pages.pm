@@ -584,7 +584,7 @@ sub _osname_matrix {
     my $index = 0;
     my $content = '<table class="matrix">';
     $content .= '<tr><th>OS/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th></tr>';
-    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}} @$vers) . '</th></tr>';
+    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) . '</th></tr>';
     for my $osname (sort {$totals{os}{$b} <=> $totals{os}{$a}} keys %{$totals{os}}) {
         if($type eq 'month') {
             my $check = 0;
@@ -703,7 +703,7 @@ sub _platform_matrix {
     my $index = 0;
     my $content = '<table class="matrix">';
     $content .= '<tr><th>Platform/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th></tr>';
-    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}} @$vers) . '</th></tr>';
+    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) . '</th></tr>';
     for my $platform (sort {$totals{platform}{$b} <=> $totals{platform}{$a}} keys %{$totals{platform}}) {
         if($type eq 'month') {
             my $check = 0;

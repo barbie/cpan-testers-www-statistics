@@ -16,17 +16,17 @@ mkpath( dirname($f) );
 my $dbh = DBI->connect("dbi:SQLite:dbname=$f", '', '', {AutoCommit=>1});
 $dbh->do(q{
   CREATE TABLE cpanstats (
-                          id            INTEGER PRIMARY KEY,
-                          state         TEXT,
-                          postdate      TEXT,
-                          tester        TEXT,
-                          dist          TEXT,
-                          version       TEXT,
-                          platform      TEXT,
-                          perl          TEXT,
-                          osname        TEXT,
-                          osvers        TEXT,
-                          date          TEXT
+    id            INTEGER PRIMARY KEY,
+    state         TEXT,
+    postdate      TEXT,
+    tester        TEXT,
+    dist          TEXT,
+    version       TEXT,
+    platform      TEXT,
+    perl          TEXT,
+    osname        TEXT,
+    osvers        TEXT,
+    date          TEXT
   )
 });
 
