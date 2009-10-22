@@ -58,6 +58,8 @@ my %month = (
     8 => 'September', 9 => 'October', 10 => 'November', 11 => 'December'
 );
 
+my $ADAY = 86400;
+
 my ($LIMIT,%options,%pages);
 my ($THISYEAR,$RUNDATE,$STATDATE,$THISDATE,$THATYEAR,$LASTDATE,$THATDATE,$SHORTDATE);
 my ($DATABASE2);
@@ -143,21 +145,11 @@ sub _write_basics {
 
     $self->{parent}->_log("writing basic files");
 
-    # calculate database metrics
-    my $mtime = (stat($database))[9];
-    my @ltime = localtime($mtime);
-    $DATABASE2 = sprintf "%d%s %s %d", $ltime[3],_ext($ltime[3]),$month{$ltime[4]},$ltime[5]+1900;
-    my $DATABASE1 = sprintf "%04d/%02d/%02d", $ltime[5]+1900,$ltime[4]+1,$ltime[3];
-    my $DBSZ_UNCOMPRESSED = int((-s $database        ) / (1024 * 1024));
-    my $DBSZ_COMPRESSED   = int((-s $database . '.gz') / (1024 * 1024));
-
     my $ranges1 = $self->{parent}->ranges('TEST_RANGES');
     my $ranges2 = $self->{parent}->ranges('CPAN_RANGES');
 
     # additional pages not requiring metrics
     my %pages = (
-            index    => {THISDATE => $THISDATE, DATABASE => $DATABASE1,
-                         DBSZ_COMPRESSED => $DBSZ_COMPRESSED, DBSZ_UNCOMPRESSED => $DBSZ_UNCOMPRESSED},
             cpanmail => {},
             response => {},
             perform  => {},
@@ -192,6 +184,55 @@ sub _write_basics {
     }
 }
 
+=item * _write_index
+
+Writes out the main index page, after all stats have been calculated.
+
+=cut
+
+sub _write_index {
+    my $self = shift;
+    my $directory = $self->{parent}->directory;
+    my $templates = $self->{parent}->templates;
+    my $database  = $self->{parent}->database;
+
+    $self->{parent}->_log("writing index file");
+
+    # calculate database metrics
+    my $mtime = (stat($database))[9];
+    my @ltime = localtime($mtime);
+    $DATABASE2 = sprintf "%d%s %s %d", $ltime[3],_ext($ltime[3]),$month{$ltime[4]},$ltime[5]+1900;
+    my $DATABASE1 = sprintf "%04d/%02d/%02d", $ltime[5]+1900,$ltime[4]+1,$ltime[3];
+    my $DBSZ_UNCOMPRESSED = int((-s $database        ) / (1024 * 1024));
+    my $DBSZ_COMPRESSED   = int((-s $database . '.gz') / (1024 * 1024));
+
+    my ($d1,$d2) = (time(), time() - $ADAY);
+    my @date = localtime($d2);
+    my $date = sprintf "%04d%02d%02d", $date[5]+1900, $date[4]+1, $date[3];
+
+    my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM cpanstats WHERE state!='cpan' AND fulldate like '$date%'");
+    my $report_rate = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 10000 * 1000;
+    @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM uploads WHERE released > $d2 and released < $d1");
+    my $distro_rate = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 60 * 1000;
+
+    $report_rate = 1000 if($report_rate < 1000);
+    $distro_rate = 1000 if($distro_rate < 1000);
+
+    # index page
+    my %pages = (
+        index    => {
+            THISDATE => $THISDATE, DATABASE => $DATABASE1,
+            DBSZ_COMPRESSED => $DBSZ_COMPRESSED, DBSZ_UNCOMPRESSED => $DBSZ_UNCOMPRESSED,
+            report_count => $self->{count}{reports},
+            distro_count => $self->{count}{distros},
+            report_rate  => $report_rate,
+            distro_rate  => $distro_rate
+        },
+    );
+
+    $self->_writepage($_,$pages{$_})    for(keys %pages);
+}
+
 =item * _write_stats
 
 Extracts data, compiles the pages, generates the graph data files and
@@ -201,10 +242,6 @@ creates the HTML pages.
 
 sub _write_stats {
     my $self = shift;
-
-## BUILD INDEPENDENT STATS
-
-    $self->_report_cpan();
 
 ## BUILD GENERAL STATS
 
@@ -219,6 +256,14 @@ sub _write_stats {
     $self->_build_failure_rates();
     $self->_build_monthly_stats();
     $self->_build_performance_stats();
+
+## BUILD INDEPENDENT STATS
+
+    $self->_report_cpan();
+
+## BUILD INDEX PAGE
+
+    $self->_write_index();
 }
 
 sub _build_stats {
@@ -235,7 +280,7 @@ sub _build_stats {
 
     $self->{parent}->_log("building stats hash");
 
-    $self->{count} = { posters => 0,  entries => 0,  reports => 0  },
+    $self->{count} = { posters => 0,  entries => 0,  reports => 0, distros => 0  },
     $self->{xrefs} = { posters => {}, entries => {}, reports => {} },
     $self->{xlast} = { posters => [], entries => [], reports => [] },
 
@@ -495,6 +540,7 @@ sub _report_cpan {
 
     @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(distinct dist) FROM uploads WHERE type != 'backpan'");
     $tvars{distros}{uploaded1} = $rows[0]->[0];
+    $self->{count}{distros}    = $rows[0]->[0];
     @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(distinct dist) FROM uploads");
     $tvars{distros}{uploaded2} = $rows[0]->[0];
     $tvars{distros}{uploaded3} = $tvars{distros}{uploaded2} - $tvars{distros}{uploaded1};

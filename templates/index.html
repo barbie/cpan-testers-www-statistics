@@ -1,11 +1,24 @@
 [% 
-    title = 'Welcome' ;
+    title = 'The Dashboard' ;
     box_sites = 1
 
-    crumb1_name = 'Welcome' ;
+    crumb1_name = 'The Dashboard' ;
 %]
 
-<h2>The Statistics</h2>
+          <div id="watcher">
+          <table>
+          <tr><th colspan="3" width="50%">Number of CPAN Testers Reports:</th>
+              <td colspan="3" id="reportcount">[% report_count %]</td></tr>
+          <tr><th colspan="3">Number of Distrubtions on CPAN:</th>
+              <td colspan="3" id="distrocount">[% distro_count %]</td></tr>
+          <tr><td colspan="2" class="centre"><a href="/graphs.html#stats1"><img src="/stats/stats1.png" alt="" height="75" /></a><br />Report Levels</td>
+              <td colspan="2" class="centre"><a href="/trends.html#stats6"><img src="/stats/stats6.png" alt="" height="75" /></a><br />CPAN Submissions</td>
+              <td colspan="2" class="centre"><a href="/perform.html#build1"><img src="/stats/build1.png" alt="" height="75" /></a><br />System Performance</td></tr>
+          </table>
+          </div>
+          <br />
+
+<h1 class="pagetitle">The Statistics</h1>
 <p>Everyone loves statistics, and here are several more for you to have fun with. I originally produced these statistics to spot trends in any testing of CPAN that was occurring, but I also wanted to see more clearly what platforms and versions of perl were being tested. The results were rather enlightening, so I extended the analysis to look at the complete recorded history of CPAN Testers. The first productive results of this exercise was to submit patches to the <a href='http://search.cpan.org/dist/CPAN-WWW-Testers/'>CPAN::WWW::Testers</a> and <a href='http://search.cpan.org/dist/CPAN-WWW-Testers-Generator/'>CPAN::WWW::Testers::Generator</a> modules, that now include the Perl version and platform in the test report summaries. Hopefully future results will be to inspire others to be involved with CPAN testing.
 </p>
 
@@ -23,3 +36,44 @@
 <li>The Data: <a href="http://devel.cpantesters.org/cpanstats-data-latest.tar.gz">cpanstats-data-latest.tar.gz</a></li>
 <li>The Database: <a href="http://devel.cpantesters.org/cpanstats.db.gz">cpanstats.db.gz</a> ([% DATABASE %]) ([% DBSZ_COMPRESSED %]MB compressed, [% DBSZ_UNCOMPRESSED %]MB uncompressed)</li>
 </ul>
+
+
+<script type="text/javascript" language="javascript">
+//<!-- hide
+//<![CDATA[
+
+var reportscount = [% report_count %];
+var distroscount = [% distro_count %];
+var reportstimeout = [% report_rate %];
+var distrostimeout = [% distro_rate %];
+var dots = '';
+
+function StartTimers() {
+    ReportsCount();
+    DistrosCount();
+    UpdateCounts();
+}
+
+function UpdateCounts() {
+    dots = dots + ' .';
+    if(dots == ' . . . . . .') { dots = ' .' }
+    document.getElementById('reportcount').innerHTML = reportscount + dots;
+    document.getElementById('distrocount').innerHTML = distroscount + dots;
+    window.setTimeout("UpdateCounts()",1000);
+}
+
+function ReportsCount() {
+    reportscount = reportscount + 1;
+    window.setTimeout("ReportsCount()",reportstimeout);
+}
+
+function DistrosCount() {
+    distroscount = distroscount + 1;
+    window.setTimeout("DistrosCount()",distrostimeout);
+}
+
+StartTimers();
+
+//]]>
+// stop hiding -->
+</script>
