@@ -1,5 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.71    26/10/2009
+	- added links for Excel downloads.
+
 0.70    21/10/2009
 	- added functionality to use the new osname table.
 	- further work on matrices:

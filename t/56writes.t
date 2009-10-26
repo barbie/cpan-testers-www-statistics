@@ -11,7 +11,7 @@ $|=1;
 # required. In order to regenerate the archive enter the following
 # commands:
 #
-# $> prove -Ilib t/05setup_db-*
+# $> prove -Ilib t/05setup_db-*.t
 # $> perl -Ilib t/56writes.t --update-archive
 #
 # This will assume that any failing tests are actually correct, and

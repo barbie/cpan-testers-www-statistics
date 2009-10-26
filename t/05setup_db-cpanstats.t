@@ -26,13 +26,13 @@ $dbh->do(q{
     perl          TEXT,
     osname        TEXT,
     osvers        TEXT,
-    date          TEXT
+    fulldate      TEXT
   )
 });
 
 while(<DATA>){
   chomp;
-  $dbh->do('INSERT INTO cpanstats ( id, state, postdate, tester, dist, version, platform, perl, osname, osvers, date ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )', {}, split(/\|/,$_) );
+  $dbh->do('INSERT INTO cpanstats ( id, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )', {}, split(/\|/,$_) );
 }
 
 $dbh->do(q{ CREATE INDEX distverstate ON cpanstats (dist, version, state) });
