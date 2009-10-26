@@ -1,7 +1,12 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.72    26/10/2009
+	- moved DB process for submission rates earlier to avoid losing DB 
+	  connection.
+
 0.71    26/10/2009
 	- added links for Excel downloads.
+	- added dashboard.
 
 0.70    21/10/2009
 	- added functionality to use the new osname table.

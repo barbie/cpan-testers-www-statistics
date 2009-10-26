@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.71';
+$VERSION = '0.72';
 
 #----------------------------------------------------------------------------
 
@@ -206,18 +206,6 @@ sub _write_index {
     my $DBSZ_UNCOMPRESSED = int((-s $database        ) / (1024 * 1024));
     my $DBSZ_COMPRESSED   = int((-s $database . '.gz') / (1024 * 1024));
 
-    my ($d1,$d2) = (time(), time() - $ADAY);
-    my @date = localtime($d2);
-    my $date = sprintf "%04d%02d%02d", $date[5]+1900, $date[4]+1, $date[3];
-
-    my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM cpanstats WHERE state!='cpan' AND fulldate like '$date%'");
-    my $report_rate = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 10000 * 1000;
-    @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM uploads WHERE released > $d2 and released < $d1");
-    my $distro_rate = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 60 * 1000;
-
-    $report_rate = 1000 if($report_rate < 1000);
-    $distro_rate = 1000 if($distro_rate < 1000);
-
     # index page
     my %pages = (
         index    => {
@@ -225,8 +213,8 @@ sub _write_index {
             DBSZ_COMPRESSED => $DBSZ_COMPRESSED, DBSZ_UNCOMPRESSED => $DBSZ_UNCOMPRESSED,
             report_count => $self->{count}{reports},
             distro_count => $self->{count}{distros},
-            report_rate  => $report_rate,
-            distro_rate  => $distro_rate
+            report_rate  => $self->{rates}{report},
+            distro_rate  => $self->{rates}{distro}
         },
     );
 
@@ -381,6 +369,19 @@ sub _build_stats {
 
     my @versions = sort {versioncmp($b,$a)} keys %{$self->{perls}};
     $self->{versions} = \@versions;
+
+    my ($d1,$d2) = (time(), time() - $ADAY);
+    my @date = localtime($d2);
+    my $date = sprintf "%04d%02d%02d", $date[5]+1900, $date[4]+1, $date[3];
+
+    my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM cpanstats WHERE state!='cpan' AND fulldate like '$date%'");
+    $self->{rates}{report} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 10000 * 1000;
+    @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM uploads WHERE released > $d2 and released < $d1");
+    $self->{rates}{distro} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 60 * 1000;
+
+    $self->{rates}{report} = 1000 if($self->{rates}{report} < 1000);
+    $self->{rates}{distro} = 1000 if($self->{rates}{distro} < 1000);
+
 
     $self->{parent}->_log("stats hash built");
 }
