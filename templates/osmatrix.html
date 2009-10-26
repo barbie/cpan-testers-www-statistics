@@ -9,6 +9,7 @@
     ELSE ; 
       title = 'Matrices : By OS - Official Perl Releases' ; 
     END ;
+
     IF MONTH ; THEN ; 
       link3 = '-month' ;
       link1 = link1 _ link3 ;
@@ -64,6 +65,8 @@ please <a href="/[% link2 %][% link3 %].html">click here</a>.</p>
 less restricted matrix, listing all released versions of Perl, please
 <a href="/[% link2 %]-full[% link3 %].html">click here</a>.</p>
 [% END %]
+
+<p><a href="/[% link1 %].xls">Click Here</a> to download an Excel formatted version of this page.</p>
 
 [% IF layout == 'layout-wide' %]
 <p><a href="/[% link1 %].html">Click Here</a> to return to the regular version of this page.</p>
