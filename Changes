@@ -1,5 +1,10 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.73	current
+	- further reorganisation to avoid losing DB connection
+	- fix to allow for counts that are set before main stats build.
+	- added header/total cells to left and bottom parts of all matrices.
+
 0.72    26/10/2009
 	- moved DB process for submission rates earlier to avoid losing DB 
 	  connection.

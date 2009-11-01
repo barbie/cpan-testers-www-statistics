@@ -231,6 +231,10 @@ creates the HTML pages.
 sub _write_stats {
     my $self = shift;
 
+## BUILD INDEPENDENT STATS
+
+    $self->_report_cpan();
+
 ## BUILD GENERAL STATS
 
     $self->_build_stats();
@@ -245,10 +249,6 @@ sub _write_stats {
     $self->_build_monthly_stats();
     $self->_build_performance_stats();
 
-## BUILD INDEPENDENT STATS
-
-    $self->_report_cpan();
-
 ## BUILD INDEX PAGE
 
     $self->_write_index();
@@ -256,6 +256,20 @@ sub _write_stats {
 
 sub _build_stats {
     my $self = shift;
+
+    $self->{parent}->_log("building rate hash");
+
+    my ($d1,$d2) = (time(), time() - $ADAY);
+    my @date = localtime($d2);
+    my $date = sprintf "%04d%02d%02d", $date[5]+1900, $date[4]+1, $date[3];
+
+    my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM cpanstats WHERE state!='cpan' AND fulldate like '$date%'");
+    $self->{rates}{report} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 10000 * 1000;
+    @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM uploads WHERE released > $d2 and released < $d1");
+    $self->{rates}{distro} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 60 * 1000;
+
+    $self->{rates}{report} = 1000 if($self->{rates}{report} < 1000);
+    $self->{rates}{distro} = 1000 if($self->{rates}{distro} < 1000);
 
     $self->{parent}->_log("building dist hash");
 
@@ -268,7 +282,8 @@ sub _build_stats {
 
     $self->{parent}->_log("building stats hash");
 
-    $self->{count} = { posters => 0,  entries => 0,  reports => 0, distros => 0  },
+    $self->{count}{$_} ||= 0    for(qw(posters entries reports distros));
+    #$self->{count} = { posters => 0,  entries => 0,  reports => 0, distros => 0  },
     $self->{xrefs} = { posters => {}, entries => {}, reports => {} },
     $self->{xlast} = { posters => [], entries => [], reports => [] },
 
@@ -369,19 +384,6 @@ sub _build_stats {
 
     my @versions = sort {versioncmp($b,$a)} keys %{$self->{perls}};
     $self->{versions} = \@versions;
-
-    my ($d1,$d2) = (time(), time() - $ADAY);
-    my @date = localtime($d2);
-    my $date = sprintf "%04d%02d%02d", $date[5]+1900, $date[4]+1, $date[3];
-
-    my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM cpanstats WHERE state!='cpan' AND fulldate like '$date%'");
-    $self->{rates}{report} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 10000 * 1000;
-    @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM uploads WHERE released > $d2 and released < $d1");
-    $self->{rates}{distro} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 60 * 1000;
-
-    $self->{rates}{report} = 1000 if($self->{rates}{report} < 1000);
-    $self->{rates}{distro} = 1000 if($self->{rates}{distro} < 1000);
-
 
     $self->{parent}->_log("stats hash built");
 }
@@ -630,8 +632,8 @@ sub _osname_matrix {
 
     my $index = 0;
     my $content = '<table class="matrix">';
-    $content .= '<tr><th>OS/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th></tr>';
-    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) . '</th></tr>';
+    $content .= '<tr><th>OS/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th><th></th><th>OS/Perl</th></tr>';
+    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) . '</th><th class="totals">Totals</th><th></th></tr>';
     for my $osname (sort {$totals{os}{$b} <=> $totals{os}{$a}} keys %{$totals{os}}) {
         if($type eq 'month') {
             my $check = 0;
@@ -667,8 +669,11 @@ sub _osname_matrix {
                         . ($count ? qq|<a href="matrix/osys-$index.html">$count</a><br />$self->{osname}{$osname}{$perl}{$type}| : '-')
                         . '</td>';
         }
+        $content .= '<th class="totals">' . $totals{os}{$osname} . '</th><th>' . $osname . '</th>';
         $content .= '</tr>';
     }
+    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) . '</th><th class="totals">Totals</th><th></th></tr>';
+    $content .= '<tr><th>OS/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th><th></th><th>OS/Perl</th></tr>';
     $content .= '</table>';
 
     $self->{parent}->_log("written $index list pages");
@@ -749,8 +754,8 @@ sub _platform_matrix {
 
     my $index = 0;
     my $content = '<table class="matrix">';
-    $content .= '<tr><th>Platform/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th></tr>';
-    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) . '</th></tr>';
+    $content .= '<tr><th>Platform/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th><th></th><th>Platform/Perl</th></tr>';
+    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) . '</th><th class="totals">Totals</th><th></th></tr>';
     for my $platform (sort {$totals{platform}{$b} <=> $totals{platform}{$a}} keys %{$totals{platform}}) {
         if($type eq 'month') {
             my $check = 0;
@@ -786,8 +791,11 @@ sub _platform_matrix {
                         . ($count ? qq|<a href="matrix/list-$index.html">$count</a><br />$self->{platform}{$platform}{$perl}{$type}| : '-')
                         . '</td>';
         }
+        $content .= '<th class="totals">' . $totals{platform}{$platform} . '</th><th>' . $platform . '</th>';
         $content .= '</tr>';
     }
+    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) . '</th><th class="totals">Totals</th><th></th></tr>';
+    $content .= '<tr><th>Platform/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th><th></th><th>Platform/Perl</th></tr>';
     $content .= '</table>';
 
     $self->{parent}->_log("written $index list pages");
