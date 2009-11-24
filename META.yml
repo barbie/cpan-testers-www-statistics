@@ -54,6 +54,9 @@ provides:
     file:     lib/CPAN/Testers/WWW/Statistics/Pages.pm
     version:  0.73
 
+resources:
+  repository: http://github.com/barbie/cpan-testers-www-statistics
+
 meta-spec:
    version:   1.4
    url:       http://module-build.sourceforge.net/META-spec-v1.4.html
