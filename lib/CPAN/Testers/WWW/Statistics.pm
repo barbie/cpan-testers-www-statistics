@@ -1,5 +1,6 @@
 package CPAN::Testers::WWW::Statistics;
 
+use 5.006; #due to 'warnings' pragma
 use warnings;
 use strict;
 use vars qw($VERSION);

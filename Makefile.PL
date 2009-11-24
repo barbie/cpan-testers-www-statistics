@@ -1,3 +1,4 @@
+use 5.006; #due to 'warnings' pragma
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
