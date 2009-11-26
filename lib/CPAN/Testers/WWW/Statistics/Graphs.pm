@@ -58,6 +58,7 @@ my @graphs = (
 ['stats6' ,'CPAN Statistics - Uploads',             [qw(AUTHORS DISTROS)],              'CPAN_RANGES', 'month'],
 ['stats12','CPAN Statistics - New Uploads',         [qw(AUTHORS DISTROS)],              'CPAN_RANGES', 'month'],
 ['build1' ,'CPAN Testers Performance Graph',        [qw(REQUESTS PAGES REPORTS)],       'NONE',        'daily'],
+['pcent1' ,'CPAN Testers Statistics - Percentages', [qw(PASS FAIL OTHER)],              'TEST_RANGES', 'month'],
 );
 
 my $mech = WWW::Mechanize->new();

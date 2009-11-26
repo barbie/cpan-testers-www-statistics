@@ -1,5 +1,9 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.74	current
+	- merged fixes from Alex Chorny (thanks Alex).
+	- added new percentage graph, at the suggestion of Slave J. Nielsen
+
 0.73	01/11/2009
 	- further reorganisation to avoid losing DB connection
 	- fix to allow for counts that are set before main stats build.

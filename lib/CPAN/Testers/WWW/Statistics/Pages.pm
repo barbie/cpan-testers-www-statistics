@@ -158,6 +158,7 @@ sub _write_basics {
             graphs2  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats2' ,TITLE=>'Testers, Platforms and Perls'},
             graphs3  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats3' ,TITLE=>'Monthly Non-Passing Reports Counts'},
             graphs4  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats4' ,TITLE=>'Monthly Tester Fluctuations'},
+            graphs5  => {RANGES => $ranges1, template=>'archive',PREFIX=>'pcent1' ,TITLE=>'Monthly Report Percentages'},
             graphs6  => {RANGES => $ranges2, template=>'archive',PREFIX=>'stats6' ,TITLE=>'All Distribution Uploads per Month'},
             graphs12 => {RANGES => $ranges2, template=>'archive',PREFIX=>'stats12',TITLE=>'New Distribution Uploads per Month'}
     );
@@ -810,23 +811,36 @@ sub _build_monthly_stats_files {
     my $results   = "$directory/stats";
     mkpath($results);
 
-    $self->{parent}->_log("building monthly stats for graphs - 1,3");
+    $self->{parent}->_log("building monthly stats for graphs - 1,3,pcent1");
 
     #print "DATE,UPLOADS,REPORTS,NA,PASS,FAIL,UNKNOWN\n";
-    my $fh = IO::File->new(">$results/stats1.txt");
-    print $fh "#DATE,UPLOADS,REPORTS,PASS,FAIL\n";
+    my $fh1 = IO::File->new(">$results/stats1.txt");
+    print $fh1 "#DATE,UPLOADS,REPORTS,PASS,FAIL\n";
+
+    my $fh2 = IO::File->new(">$results/pcent1.txt");
+    print $fh2 "#DATE,PASS,FAIL,OTHER\n";
 
     my $fh3 = IO::File->new(">$results/stats3.txt");
     print $fh3 "#DATE,FAIL,NA,UNKNOWN\n";
     
     for my $date (sort keys %{$self->{stats}}) {
         next    if($date > $LIMIT);
+
+        my $uploads = ($self->{stats}{$date}{pause}       || 0);
+        my $reports = ($self->{stats}{$date}{reports}     || 0);
+        my $passes  = ($self->{stats}{$date}{state}{pass} || 0);
+        my $fails   = ($self->{stats}{$date}{state}{fail} || 0);
+        my $others  = $reports - $passes - $fails;
+
         my @fields = (
-            $date,
-            ($self->{stats}{$date}{pause}         || 0),
-            ($self->{stats}{$date}{reports}       || 0),
-            ($self->{stats}{$date}{state}{pass} || 0),
-            ($self->{stats}{$date}{state}{fail} || 0)
+            $date, $uploads, $reports, $passes, $fails
+        );
+
+        my @pcent = (
+            $date, 
+            ($reports > 0 ? int($passes / $reports * 100) : 0),
+            ($reports > 0 ? int($fails  / $reports * 100) : 0),
+            ($reports > 0 ? int($others / $reports * 100) : 0)
         );
 
         unshift @{$tvars{STATS}},
@@ -838,7 +852,10 @@ sub _build_monthly_stats_files {
         next    if($date > $LIMIT-1);
 
         my $content = sprintf "%d,%d,%d,%d,%d\n", @fields;
-        print $fh $content;
+        print $fh1 $content;
+
+        $content = sprintf "%d,%d,%d,%d\n", @pcent;
+        print $fh2 $content;
 
         $content = sprintf "%d,%d,%d,%d\n",
             $date,
@@ -847,7 +864,8 @@ sub _build_monthly_stats_files {
             ($self->{stats}{$date}{state}{unknown} || 0);
         print $fh3 $content;
     }
-    $fh->close;
+    $fh1->close;
+    $fh2->close;
     $fh3->close;
 
     $self->_writepage('mreports',\%tvars);
@@ -855,24 +873,24 @@ sub _build_monthly_stats_files {
     $self->{parent}->_log("building monthly stats for graphs - 2");
 
     #print "DATE,TESTERS,PLATFORMS,PERLS\n";
-    $fh = IO::File->new(">$results/stats2.txt");
-    print $fh "#DATE,TESTERS,PLATFORMS,PERLS\n";
+    $fh2 = IO::File->new(">$results/stats2.txt");
+    print $fh2 "#DATE,TESTERS,PLATFORMS,PERLS\n";
 
     for my $date (sort keys %{$self->{stats}}) {
         next    if($date > $LIMIT-1);
-        printf $fh "%d,%d,%d,%d\n",
+        printf $fh2 "%d,%d,%d,%d\n",
             $date,
             scalar(keys %{$self->{stats}{$date}{tester}}),
             scalar(keys %{$self->{stats}{$date}{platform}}),
             scalar(keys %{$self->{stats}{$date}{perl}});
     }
-    $fh->close;
+    $fh2->close;
 
     $self->{parent}->_log("building monthly stats for graphs - 4");
 
     #print "DATE,ALL,FIRST,LAST\n";
-    $fh = IO::File->new(">$results/stats4.txt");
-    print $fh "#DATE,ALL,FIRST,LAST\n";
+    $fh1 = IO::File->new(">$results/stats4.txt");
+    print $fh1 "#DATE,ALL,FIRST,LAST\n";
 
     for my $date (sort keys %{ $self->{stats} }) {
         next    if($date > $LIMIT-1);
@@ -885,13 +903,13 @@ sub _build_monthly_stats_files {
         $self->{counts}{$date}{last}  ||= 0;
         $self->{counts}{$date}{last}    = ''  if($date > $THISDATE);
 
-        printf $fh "%d,%s,%s,%s\n",
+        printf $fh1 "%d,%s,%s,%s\n",
             $date,
             $self->{counts}{$date}{all},
             $self->{counts}{$date}{first},
             $self->{counts}{$date}{last};
     }
-    $fh->close;
+    $fh1->close;
 }
 
 sub _build_failure_rates {
