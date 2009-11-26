@@ -2,7 +2,7 @@ Revision history for CPAN-Testers-WWW-Statistics
 
 0.74	26/11/2009
 	- merged fixes from Alex Chorny (thanks Alex).
-	- added new percentage graph, at the suggestion of Slave J. Nielsen
+	- added new percentage graph, at the suggestion of Slave J. Nilsen
 
 0.73	01/11/2009
 	- further reorganisation to avoid losing DB connection
