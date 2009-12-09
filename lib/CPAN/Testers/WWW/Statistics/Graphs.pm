@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.74';
+$VERSION = '0.75';
 
 #----------------------------------------------------------------------------
 
@@ -159,8 +159,9 @@ sub create {
             $self->{parent}->_log("url - [".(length $url)."] $url");
     #        print "$url\n";
 
-            $mech->get($url);
-            if(!$mech->success()) {
+            eval { $mech->get($url); };
+
+            if($@ || !$mech->success()) {
                 my $file = "$results/$g->[0]-$r.html";
                 warn("FAIL: $0 - Cannot access page - see '$file'\n");
                 $mech->save_content($file);

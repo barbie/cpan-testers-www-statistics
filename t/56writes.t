@@ -106,21 +106,21 @@ check_dir_contents(
 ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
 
-$obj->directory($dir . '/create'),
-$page->create();
-check_dir_contents(
-	"[create]",
-	$obj->directory,
-	File::Spec->catfile($EXPECTEDPATH,'56writes.create'),
-);
-ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
-
-
 #---------------------------------------
 # Tests for creating graphs
 
 SKIP: {
-	skip "Can't see a network connection", 4	if(pingtest());
+	skip "Can't see a network connection", 88	if(pingtest());
+
+    $obj->directory($dir . '/create'),
+    $page->create();
+    check_dir_contents(
+        "[create]",
+        $obj->directory,
+        File::Spec->catfile($EXPECTEDPATH,'56writes.create'),
+    );
+    ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+
 
 	my $graph = CTWS_Testing::getGraphs();
 
@@ -150,7 +150,7 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
 
 SKIP: {
-	skip "Can't see a network connection", 4	if(pingtest());
+	skip "Can't see a network connection", 45	if(pingtest());
 
     CTWS_Testing::saveFiles($dir . '/make_graphs');
 
