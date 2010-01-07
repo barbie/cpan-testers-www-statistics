@@ -11,9 +11,7 @@
 <ul class="contents">
 <li><a href="#top20dist">Top 20 Distributions with Most Reports</a></li>
 <li><a href="#top20dver">Top 20 Distribution/Versions with Most Reports</a></li>
-<li><a href="#posters">All Posts to cpan-testers</a></li>
-<li><a href="#entries">Notable Entries posted to cpan-testers</a></li>
-<li><a href="#reports">Notable Reports posted to cpan-testers</a></li>
+<li><a href="#reports">Notable Reports submitted by CPAN Testers</a></li>
 </ul>
 
 
@@ -41,41 +39,18 @@
 </table>
 <!--</div>-->
 
-<a name="posters"></a>
-<h2>All Posts to cpan-testers</h2>
-<div class="boxer flat">
-<table>
-<tr>[% FOREACH cell = HEADINGS %]<th class="top">[% cell %]</th>[% END %]</tr>
-[% FOREACH row = POSTERS; cnt = 0 %]
-<tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>
-[% ELSIF cnt == 2 %]<td class="[% col | upper %]">[% col | upper %]</td>
-[% ELSE %]<td>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
-[% END %]
-</table>
-</div>
-
-<a name="entries"></a>
-<h2>Notable Entries posted to cpan-testers</h2>
-<div class="boxer flat">
-<table>
-<tr>[% FOREACH cell = HEADINGS %]<th class="top">[% cell %]</th>[% END %]</tr>
-[% FOREACH row = ENTRIES; cnt = 0 %]
-<tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>
-[% ELSIF cnt == 2 %]<td class="[% col | upper %]">[% col | upper %]</td>
-[% ELSE %]<td[% IF cnt == 2 %] class="[% col %]"[% END %]>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
-[% END %]
-</table>
-</div>
-
 <a name="reports"></a>
-<h2>Notable Reports posted to cpan-testers</h2>
+<h2>Notable Reports submitted by CPAN Testers</h2>
 <div class="boxer flat">
 <table>
-<tr>[% FOREACH cell = HEADINGS %]<th class="top">[% cell %]</th>[% END %]</tr>
+<tr>[% FOREACH cell = HEADINGS ; cnt = 0 %]
+[% IF    cnt == 1 ; THEN ; id = col %]
+[% ELSE %]<th class="top">[% cell %]</th>[% END ; cnt = cnt + 1 ; END %]</tr>
 [% FOREACH row = REPORTS; cnt = 0 %]
-<tr>[% FOREACH col = row; IF cnt == 1 %]<td><a href="http://nntp.x.perl.org/group/perl.cpan.testers/[% col %]">[% col %]</a></td>
-[% ELSIF cnt == 2 %]<td class="[% col | upper %]">[% col | upper %]</td>
-[% ELSE %]<td[% IF cnt == 2 %] class="[% col %]"[% END %]>[% col %]</td>[% END; cnt = cnt + 1; END %]</tr>
+<tr>[% FOREACH col = row %]
+[% IF    cnt == 1 ; THEN ; id = col %]
+[% ELSIF cnt == 2 %]<td class="[% col | upper %]"><a href="http://www.cpantesters.org/cpan/report/[% id %]">[% col | upper %]</a></td>
+[% ELSE %]<td>[% col %]</td>[% END ; cnt = cnt + 1 ; END %]</tr>
 [% END %]
 </table>
 </div>

@@ -1,5 +1,13 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.76	07/01/2010
+	- added quote.html.
+	- added Analysis to site family lists.
+	- upped copyright date
+	- updated interesting stats page, removing references to posts to the
+	  cpan-testers mailing list, now listing only report counts, and hiding
+	  the ID link to actual report.
+
 0.75	09/12/2009
 	- fixed skip test counts.
 	- added eval over get request in the event of timeout.

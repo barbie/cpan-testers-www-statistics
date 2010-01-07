@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.75';
+$VERSION = '0.76';
 
 #----------------------------------------------------------------------------
 
@@ -237,6 +237,7 @@ sub _make_graph {
     my @colours = @COLOURS;
     for my $inx (1 .. $#data) {
         push @c, shift @colours;
+        # data needs to be expressed as a percentage of the max
         for(@{$data[$inx]}) {
             #print "pcent = $_ / $max * 100 = ";
             $_ = $_ / $max * 100;
@@ -380,7 +381,7 @@ F<http://wiki.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2005-2009 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2010 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.

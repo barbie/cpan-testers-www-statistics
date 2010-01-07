@@ -76,3 +76,4 @@ t/56writes-update.txt
 templates/public/box-menus.html
 templates/public/box-sites.html
 templates/public/footer.html
+templates/public/quote.html
