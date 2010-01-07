@@ -442,7 +442,7 @@ Generates the statistic pages that relate specifically to CPAN.
 
 sub _report_cpan {
     my $self = shift;
-    my (%authors,%distros,%counts,%tvars);
+    my (%authors,%distros,%tvars);
 
     $self->{parent}->_log("building cpan trends page");
 
@@ -472,7 +472,7 @@ sub _report_cpan {
     my $stat12 = IO::File->new("$results/stats12.txt",'w+')    or die "Cannot write to file [$results/stats12.txt]: $!\n";
     print $stat12 "#DATE,AUTHORS,DISTROS\n";
 
-    for my $date (sort keys %counts) {
+    for my $date (sort keys %{ $self->{counts} }) {
         my $authors = scalar(keys %{ $self->{counts}{$date}{authors} });
         my $distros = scalar(keys %{ $self->{counts}{$date}{distros} });
 
