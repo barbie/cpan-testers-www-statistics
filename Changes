@@ -1,5 +1,9 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.77	18/01/2010
+	- added code and SQL to ignore invalid reports.
+	- added CSS files to MANIFEST.
+
 0.76	07/01/2010
 	- added quote.html.
 	- added Analysis to site family lists.

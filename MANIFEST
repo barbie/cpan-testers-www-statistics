@@ -47,6 +47,8 @@ t/expected.zip
 templates/archive.html
 templates/cgi-bin/cpanmail.cgi
 templates/cpanmail.html
+templates/css/layout_setup.css
+templates/css/layout_text.css
 templates/css/layout_wide.css
 templates/cpanmail-response.html
 templates/distlist.html

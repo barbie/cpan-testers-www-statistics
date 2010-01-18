@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.76';
+$VERSION = '0.77';
 
 #----------------------------------------------------------------------------
 
@@ -264,7 +264,7 @@ sub _build_stats {
     my @date = localtime($d2);
     my $date = sprintf "%04d%02d%02d", $date[5]+1900, $date[4]+1, $date[3];
 
-    my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM cpanstats WHERE state!='cpan' AND fulldate like '$date%'");
+    my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM cpanstats WHERE state IN ('pass','fail','na','unknown') AND fulldate like '$date%'");
     $self->{rates}{report} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 10000 * 1000;
     @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM uploads WHERE released > $d2 and released < $d1");
     $self->{rates}{distro} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 60 * 1000;
@@ -304,6 +304,8 @@ sub _build_stats {
     my %testers;
     $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats ORDER BY id");
     while(my $row = $iterator->()) {
+        next    if($row->[1] =~ /:invalid/);
+
         # 0,  1,     2,        3,      4,    5        6,        7,    8,      9,      10
         # id, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate
 
