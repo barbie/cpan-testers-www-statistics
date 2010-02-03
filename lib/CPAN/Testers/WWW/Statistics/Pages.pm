@@ -878,9 +878,9 @@ sub _build_monthly_stats_files {
         next    if($date > $LIMIT-1);
         printf $fh2 "%d,%d,%d,%d\n",
             $date,
-            $self->{stats}{$date}{tester},
-            $self->{stats}{$date}{platform},
-            $self->{stats}{$date}{perl};
+            ($self->{stats}{$date}{tester}   || 0),
+            ($self->{stats}{$date}{platform} || 0),
+            ($self->{stats}{$date}{perl}     || 0);
     }
     $fh2->close;
 
