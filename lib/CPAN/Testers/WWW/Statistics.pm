@@ -101,7 +101,7 @@ sub new {
     }
 
     my %OSNAMES;
-    my @rows = $self->{CPANSTATS}->get_query('array',q{SELECT osname,ostitle FROM osname});
+    my @rows = $self->{CPANSTATS}->get_query('array',q{SELECT osname,ostitle FROM osname ORDER BY id});
     for my $row (@rows) {
         $OSNAMES{lc $row->[0]} ||= $row->[1];
     }

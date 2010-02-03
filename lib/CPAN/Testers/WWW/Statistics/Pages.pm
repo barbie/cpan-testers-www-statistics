@@ -325,8 +325,8 @@ sub _build_stats {
             #$self->{stats}{$row->[3]}{version }{$row->[6]}++;
 
             # check failure rates
-            $self->{fails}{$row->[5]}{$row->[6]}{fail}++    if($row->[2] =~ /FAIL|UNKNOWN/i);
-            $self->{fails}{$row->[5]}{$row->[6]}{pass}++    if($row->[2] =~ /PASS/i);
+            $self->{fails}{$row->[5]}{$row->[6]}{fail}++    if($row->[2] eq 'fail');
+            $self->{fails}{$row->[5]}{$row->[6]}{pass}++    if($row->[2] eq 'pass');
             $self->{fails}{$row->[5]}{$row->[6]}{total}++;
 
             # build matrix stats
@@ -558,7 +558,6 @@ sub _report_cpan {
 
 sub _build_osname_matrix {
     my $self = shift;
-    $self->{list}{count} = 0;
 
     my %tvars = (template => 'osmatrix', FULL => 1, MONTH => 0);
     $self->{parent}->_log("building OS matrix - 1");
@@ -645,17 +644,20 @@ sub _osname_matrix {
                             ? scalar(keys %{$self->{osys}{$osname}{$perl}{$type}})
                             : 0;
             if($count) {
-                if($self->{list}{osname}{$osname}{$perl}) {
-                    $index = $self->{list}{osname}{$osname}{$perl};
+                if($self->{list}{osname}{$osname}{$perl}{$type}) {
+                    $index = $self->{list}{osname}{$osname}{$perl}{$type};
                 } else {
-                    $index = $self->{list}{count}++;
                     my %tvars = (template => 'distlist');
                     my @list = sort keys %{$self->{osys}{$osname}{$perl}{$type}};
                     $tvars{dists}     = \@list;
                     $tvars{vplatform} = $osname;
                     $tvars{vperl}     = $perl;
                     $tvars{count}     = $count;
-                    $self->_writepage('matrix/osys-'.$index,\%tvars);
+
+                    $index = join('-','matrix/osys', $type, $osname, $perl);
+                    $index =~ s/[^-.\w]/-/g;
+                    $self->{list}{osname}{$osname}{$perl}{$type} = $index;
+                    $self->_writepage($index,\%tvars);
                 }
             }
 
@@ -665,7 +667,7 @@ sub _osname_matrix {
             $class = 'more' if($number > $matrix_limits{$type}->[0]);
             $class = 'lots' if($number > $matrix_limits{$type}->[1]);
             $content .= qq{<td class="$class">}
-                        . ($count ? qq|<a href="matrix/osys-$index.html">$count</a><br />$self->{osname}{$osname}{$perl}{$type}| : '-')
+                        . ($count ? qq|<a href="$index.html">$count</a><br />$self->{osname}{$osname}{$perl}{$type}| : '-')
                         . '</td>';
         }
         $content .= '<th class="totals">' . $totals{os}{$osname} . '</th><th>' . $osname . '</th>';
@@ -767,17 +769,20 @@ sub _platform_matrix {
                             ? scalar(keys %{$self->{pass}{$platform}{$perl}{$type}})
                             : 0;
             if($count) {
-                if($self->{list}{platform}{$platform}{$perl}) {
-                    $index = $self->{list}{platform}{$platform}{$perl};
+                if($self->{list}{platform}{$platform}{$perl}{$type}) {
+                    $index = $self->{list}{platform}{$platform}{$perl}{$type};
                 } else {
-                    $index = $self->{list}{count}++;
                     my %tvars = (template => 'distlist');
                     my @list = sort keys %{$self->{pass}{$platform}{$perl}{$type}};
                     $tvars{dists}     = \@list;
                     $tvars{vplatform} = $platform;
                     $tvars{vperl}     = $perl;
                     $tvars{count}     = $count;
-                    $self->_writepage('matrix/list-'.$index,\%tvars);
+
+                    $index = join('-','matrix/platform', $type, $platform, $perl);
+                    $index =~ s/[^-.\w]/-/g;
+                    $self->{list}{platform}{$platform}{$perl}{$type} = $index;
+                    $self->_writepage($index,\%tvars);
                 }
             }
 
@@ -787,7 +792,7 @@ sub _platform_matrix {
             $class = 'more' if($number > $matrix_limits{$type}->[0]);
             $class = 'lots' if($number > $matrix_limits{$type}->[1]);
             $content .= qq{<td class="$class">}
-                        . ($count ? qq|<a href="matrix/list-$index.html">$count</a><br />$self->{platform}{$platform}{$perl}{$type}| : '-')
+                        . ($count ? qq|<a href="$index.html">$count</a><br />$self->{platform}{$platform}{$perl}{$type}| : '-')
                         . '</td>';
         }
         $content .= '<th class="totals">' . $totals{platform}{$platform} . '</th><th>' . $platform . '</th>';
@@ -799,6 +804,85 @@ sub _platform_matrix {
 
     $self->{parent}->_log("written $index list pages");
     return $content;
+}
+
+sub _build_monthly_stats {
+    my $self  = shift;
+    my (%tvars,%stats,%testers);
+    my %templates = (
+        platform    => 'mplatforms',
+        osname      => 'mosname',
+        perl        => 'mperls',
+        tester      => 'mtesters'
+    );
+
+    $self->{parent}->_log("building monthly tables");
+
+    my $query = q!SELECT postdate,%s,count(id) AS count FROM cpanstats ! .
+                q!WHERE state IN ('pass','fail','unknown','na') ! .
+                q!GROUP BY postdate,%s ORDER BY postdate,count DESC!;
+    for my $type (qw(platform osname perl)) {
+        $self->{parent}->_log("building monthly $type table");
+        (%tvars,%stats) = ();
+        my $sql = sprintf $query, $type, $type;
+        my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
+        while(my $row = $next->()) {
+            $stats{$row->{postdate}}{count}         += $row->{count};
+            $self->{stats}{$row->{postdate}}{$type} += $row->{count};
+            $row->{$type} = $self->{parent}->osname($row->{$type})  if($type eq 'osname');
+            push @{$stats{$row->{postdate}}{list}}, "[$row->{count}] $row->{$type}";
+        }
+
+        for my $date (sort {$b <=> $a} keys %stats) {
+            push @{$tvars{STATS}}, [$date,$stats{$date}{count},join(', ',@{$stats{$date}{list}})];
+        }
+        $self->_writepage($templates{$type},\%tvars);
+    }
+
+    {
+        my $type = 'tester';
+        $self->{parent}->_log("building monthly $type table");
+        (%tvars,%stats) = ();
+        my $sql = sprintf $query, $type, $type;
+        my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
+        while(my $row = $next->()) {
+            my $name = $self->_tester_name($row->{tester});
+            $testers{$name}                         += $row->{count};
+            $stats{$row->{postdate}}{count}         += $row->{count};
+            $stats{$row->{postdate}}{list}{$name}   += $row->{count};
+            $self->{stats}{$row->{postdate}}{$type} += $row->{count};
+        }
+
+        for my $date (sort {$b <=> $a} keys %stats) {
+            push @{$tvars{STATS}}, [$date,$stats{$date}{count},
+                join(', ',  
+                    map {"[$stats{$date}{list}{$_}] $_"} 
+                        sort {$stats{$date}{list}{$b} <=> $stats{$date}{list}{$a}}
+                            keys %{$stats{$date}{list}})];
+        }
+        $self->_writepage($templates{$type},\%tvars);
+    }
+
+    $self->{parent}->_log("building leader board");
+    (%tvars,%stats) = ();
+
+    my $count = 1;
+    for my $tester (sort {$testers{$b} <=> $testers{$a}} keys %testers) {
+        push @{$tvars{STATS}}, [$count++, $testers{$tester}, $tester];
+    }
+
+    $count--;
+    print "Unknown Addresses: ".($count-$known_t)."\n";
+    print "Known Addresses:   ".($known_s)."\n";
+    print "Listed Addresses:  ".($known_s+$count-$known_t)."\n";
+    print "\n";
+    print "Unknown Testers:   ".($count-$known_t)."\n";
+    print "Known Testers:     ".($known_t)."\n";
+    print "Listed Testers:    ".($count)."\n";
+
+    push @{$tvars{COUNTS}}, ($count-$known_t),$known_s,($known_s+$count-$known_t),($count-$known_t),$known_t,$count;
+
+    $self->_writepage('testers',\%tvars);
 }
 
 sub _build_monthly_stats_files {
@@ -952,84 +1036,6 @@ sub _build_failure_rates {
     $tvars{DATABASE} = $DATABASE2;
     $self->_writepage('wpcent',\%tvars);
     undef %tvars;
-}
-
-sub _build_monthly_stats {
-    my $self  = shift;
-    my (%tvars,%stats,%testers);
-    my %templates = (
-        platform    => 'mplatforms',
-        osname      => 'mosname',
-        perl        => 'mperls',
-        tester      => 'mtesters'
-    );
-
-    $self->{parent}->_log("building monthly tables");
-
-    my $query = q!SELECT postdate,%s,count(id) AS count FROM cpanstats ! .
-                q!WHERE state IN ('pass','fail','unknown','na') ! .
-                q!GROUP BY postdate,%s ORDER BY postdate,count DESC!;
-    for my $type (qw(platform osname perl)) {
-        $self->{parent}->_log("building monthly $type table");
-        (%tvars,%stats) = ();
-        my $sql = sprintf $query, $type, $type;
-        my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
-        while(my $row = $next->()) {
-            $stats{$row->{postdate}}{count}         += $row->{count};
-            $self->{stats}{$row->{postdate}}{$type} += $row->{count};
-            push @{$stats{$row->{postdate}}{list}}, "[$row->{count}] $row->{$type}";
-        }
-
-        for my $date (sort {$b <=> $a} keys %stats) {
-            push @{$tvars{STATS}}, [$date,$stats{$date}{count},join(', ',@{$stats{$date}{list}})];
-        }
-        $self->_writepage($templates{$type},\%tvars);
-    }
-
-    {
-        my $type = 'tester';
-        $self->{parent}->_log("building monthly $type table");
-        (%tvars,%stats) = ();
-        my $sql = sprintf $query, $type, $type;
-        my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
-        while(my $row = $next->()) {
-            my $name = $self->_tester_name($row->{tester});
-            $testers{$name}                         += $row->{count};
-            $stats{$row->{postdate}}{count}         += $row->{count};
-            $stats{$row->{postdate}}{list}{$name}   += $row->{count};
-            $self->{stats}{$row->{postdate}}{$type} += $row->{count};
-        }
-
-        for my $date (sort {$b <=> $a} keys %stats) {
-            push @{$tvars{STATS}}, [$date,$stats{$date}{count},
-                join(', ',  
-                    map {"[$stats{$date}{list}{$_}] $_"} 
-                        sort {$stats{$date}{list}{$b} <=> $stats{$date}{list}{$a}}
-                            keys %{$stats{$date}{list}})];
-        }
-        $self->_writepage($templates{$type},\%tvars);
-    }
-
-    $self->{parent}->_log("building leader board");
-    (%tvars,%stats) = ();
-
-    my $count = 1;
-    for my $tester (sort {$testers{$b} <=> $testers{$a}} keys %testers) {
-        push @{$tvars{STATS}}, [$count++, $testers{$tester}, $tester];
-    }
-
-    $count--;
-    print "Unknown Addresses: ".($count-$known_t)."\n";
-    print "Known Addresses:   ".($known_s)."\n";
-    print "Listed Addresses:  ".($known_s+$count-$known_t)."\n";
-    print "\n";
-    print "Unknown Testers:   ".($count-$known_t)."\n";
-    print "Known Testers:     ".($known_t)."\n";
-    print "Listed Testers:    ".($count)."\n";
-
-    push @{$tvars{COUNTS}}, ($count-$known_t),$known_s,($known_s+$count-$known_t),($count-$known_t),$known_t,$count;
-
-    $self->_writepage('testers',\%tvars);
 }
 
 sub _build_performance_stats {
