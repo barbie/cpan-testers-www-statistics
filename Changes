@@ -1,9 +1,13 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.79	03/02/2010
+	- updates from live.
+
 0.78	03/02/2010
 	- added support for new guid & type fields.
 	- implemented more efficient monthly stats calculations.
 	- fix for runaway osnames.
+	- matrix files named by platform/os and perl
 
 0.77	18/01/2010
 	- added code and SQL to ignore invalid reports.

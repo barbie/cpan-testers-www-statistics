@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.78';
+$VERSION = '0.79';
 
 #----------------------------------------------------------------------------
 
@@ -62,7 +62,6 @@ my $ADAY = 86400;
 
 my ($LIMIT,%options,%pages);
 my ($THISYEAR,$RUNDATE,$STATDATE,$THISDATE,$THATYEAR,$LASTDATE,$THATDATE,$SHORTDATE);
-my ($DATABASE2);
 
 my %matrix_limits = (   
     all     => [ 1000, 5000 ], 
@@ -202,7 +201,7 @@ sub _write_index {
     # calculate database metrics
     my $mtime = (stat($database))[9];
     my @ltime = localtime($mtime);
-    $DATABASE2 = sprintf "%d%s %s %d", $ltime[3],_ext($ltime[3]),$month{$ltime[4]},$ltime[5]+1900;
+    $self->{DATABASE2} = sprintf "%d%s %s %d", $ltime[3],_ext($ltime[3]),$month{$ltime[4]},$ltime[5]+1900;
     my $DATABASE1 = sprintf "%04d/%02d/%02d", $ltime[5]+1900,$ltime[4]+1,$ltime[3];
     my $DBSZ_UNCOMPRESSED = int((-s $database        ) / (1024 * 1024));
     my $DBSZ_COMPRESSED   = int((-s $database . '.gz') / (1024 * 1024));
@@ -301,14 +300,14 @@ sub _build_stats {
         }
     }
 
+    # 0,  1,    2,     3,        4,      5     6,       7,        8,    9,      10      11        12
+    # id, guid, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate, type
+
     my %testers;
     $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats ORDER BY id");
     while(my $row = $iterator->()) {
         next    if($row->[2] =~ /:invalid/);
         next    if($row->[12] > 2);
-
-        # 0,  1,    2,     3,        4,      5     6,       7,        8,    9,      10      11        12
-        # id, guid, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate, type
 
         $row->[8] =~ s/\s.*//;  # only need to know the main release
 
@@ -366,13 +365,12 @@ sub _build_stats {
         $self->{count}{entries}++;
         $self->{count}{reports}++   if($row[3] ne 'cpan');
 
-        for my $type (qw(posters entries reports)) {
-            next    if($type eq 'reports' && $row[3] eq 'cpan');
-            if($self->{count}{$type} == 1 || ($self->{count}->{$type} % 500000) == 0) {
-                $self->{xrefs}{$type}->{$self->{count}->{$type}} = \@row;
-            } else {
-                $self->{xlast}{$type} = \@row;
-            }       
+        next    if($row[3] eq 'cpan');
+        my $type = 'reports';
+        if($self->{count}{$type} == 1 || ($self->{count}->{$type} % 500000) == 0) {
+            $self->{xrefs}{$type}->{$self->{count}->{$type}} = \@row;
+        } else {
+            $self->{xlast}{$type} = \@row;
         }
     }
 
@@ -414,17 +412,16 @@ sub _report_interesting {
     $tvars{BYDIST} = \@bydist;
     $tvars{BYVERS} = \@byvers;
 
-    for my $type (qw(posters entries reports)) {
-        $self->{xrefs}{$type}{$self->{count}{$type}} = $self->{xlast}{$type};
+    my $type = 'reports';
+    $self->{xrefs}{$type}{$self->{count}{$type}} = $self->{xlast}{$type};
 
-        for my $key (sort {$a <=> $b} keys %{ $self->{xrefs}{$type} }) {
-            my @row = @{ $self->{xrefs}{$type}{$key} };
+    for my $key (sort {$a <=> $b} keys %{ $self->{xrefs}{$type} }) {
+        my @row = @{ $self->{xrefs}{$type}{$key} };
 
-            $row[0] = $key;
-            $row[4] = uc $row[4];
-            $row[6] = $self->_tester_name($row[6])  if($row[6] && $row[6] =~ /\@/);
-            push @{ $tvars{ uc($type) } }, \@row;
-        }
+        $row[0] = $key;
+        $row[3] = uc $row[3];
+        $row[5] = $self->_tester_name($row[5])  if($row[5] && $row[5] =~ /\@/);
+        push @{ $tvars{ uc($type) } }, \@row;
     }
 
     my @headings = qw( count id grade postdate tester dist version platform perl osname osvers fulldate );
@@ -1020,7 +1017,12 @@ sub _build_failure_rates {
         last    if($count > 100);
     }
 
-    $tvars{DATABASE} = $DATABASE2;
+    my $database  = $self->{parent}->database;
+    my $mtime = (stat($database))[9];
+    my @ltime = localtime($mtime);
+    $self->{DATABASE2} = sprintf "%d%s %s %d", $ltime[3],_ext($ltime[3]),$month{$ltime[4]},$ltime[5]+1900;
+
+    $tvars{DATABASE} = $self->{DATABASE2};
     $self->_writepage('wdists',\%tvars);
     undef %tvars;
 
@@ -1033,7 +1035,7 @@ sub _build_failure_rates {
         last    if($count > 100);
     }
 
-    $tvars{DATABASE} = $DATABASE2;
+    $tvars{DATABASE} = $self->{DATABASE2};
     $self->_writepage('wpcent',\%tvars);
     undef %tvars;
 }
