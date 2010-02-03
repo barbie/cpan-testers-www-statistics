@@ -5,7 +5,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.77';
+$VERSION = '0.78';
 
 #----------------------------------------------------------------------------
 
@@ -103,7 +103,7 @@ sub new {
     my %OSNAMES;
     my @rows = $self->{CPANSTATS}->get_query('array',q{SELECT osname,ostitle FROM osname});
     for my $row (@rows) {
-        $OSNAMES{lc $row->[0]} = $row->[1];
+        $OSNAMES{lc $row->[0]} ||= $row->[1];
     }
     $self->osnames( \%OSNAMES );
 

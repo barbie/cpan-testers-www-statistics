@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.77';
+$VERSION = '0.78';
 
 #----------------------------------------------------------------------------
 
@@ -127,7 +127,7 @@ sub create {
 =head2 Private Methods
 
 =over 4
-
+ 
 =item * _write_basics
 
 Write out basic pages, all of which are simply built from the templates,
@@ -235,6 +235,7 @@ sub _write_stats {
 ## BUILD INDEPENDENT STATS
 
     $self->_report_cpan();
+    $self->_build_monthly_stats();
 
 ## BUILD GENERAL STATS
 
@@ -247,7 +248,6 @@ sub _write_stats {
     $self->_build_platform_matrix();
     $self->_build_monthly_stats_files();
     $self->_build_failure_rates();
-    $self->_build_monthly_stats();
     $self->_build_performance_stats();
 
 ## BUILD INDEX PAGE
@@ -304,63 +304,59 @@ sub _build_stats {
     my %testers;
     $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats ORDER BY id");
     while(my $row = $iterator->()) {
-        next    if($row->[1] =~ /:invalid/);
+        next    if($row->[2] =~ /:invalid/);
+        next    if($row->[12] > 2);
 
-        # 0,  1,     2,        3,      4,    5        6,        7,    8,      9,      10
-        # id, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate
+        # 0,  1,    2,     3,        4,      5     6,       7,        8,    9,      10      11        12
+        # id, guid, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate, type
 
-        $row->[7] =~ s/\s.*//;  # only need to know the main release
+        $row->[8] =~ s/\s.*//;  # only need to know the main release
 
-        if($row->[1] eq 'cpan') {
-            $self->{stats}{$row->[2]}{pause}++;
-            $self->{stats}{$row->[2]}{uploads}{$row->[4]}{$row->[5]}++;
-            $self->{fails}{$row->[4]}{$row->[5]}{post} = $row->[2];
+        if($row->[2] eq 'cpan') {
+            $self->{stats}{$row->[3]}{pause}++;
+            $self->{fails}{$row->[5]}{$row->[6]}{post} = $row->[3];
         } else {
-            my $osname = $self->{parent}->osname($row->[8]);
-            my $name   = $self->_tester_name($row->[3]);
+            my $osname = $self->{parent}->osname($row->[9]);
+            my $name   = $self->_tester_name($row->[4]);
 
-            $self->{stats}{$row->[2]}{reports}++;
-            $self->{stats}{$row->[2]}{state   }{$row->[1]}++;
-            $self->{stats}{$row->[2]}{tester  }{$name    }++;
-            $self->{stats}{$row->[2]}{dist    }{$row->[4]}++;
-            $self->{stats}{$row->[2]}{version }{$row->[5]}++;
-            $self->{stats}{$row->[2]}{platform}{$row->[6]}++;
-            $self->{stats}{$row->[2]}{perl    }{$row->[7]}++;
-            $self->{stats}{$row->[2]}{osname  }{$osname}++;
+            $self->{stats}{$row->[3]}{reports}++;
+            $self->{stats}{$row->[3]}{state   }{$row->[2]}++;
+            #$self->{stats}{$row->[3]}{dist    }{$row->[5]}++;
+            #$self->{stats}{$row->[3]}{version }{$row->[6]}++;
 
             # check failure rates
-            $self->{fails}{$row->[4]}{$row->[5]}{fail}++    if($row->[1] =~ /FAIL|UNKNOWN/i);
-            $self->{fails}{$row->[4]}{$row->[5]}{pass}++    if($row->[1] =~ /PASS/i);
-            $self->{fails}{$row->[4]}{$row->[5]}{total}++;
+            $self->{fails}{$row->[5]}{$row->[6]}{fail}++    if($row->[2] =~ /FAIL|UNKNOWN/i);
+            $self->{fails}{$row->[5]}{$row->[6]}{pass}++    if($row->[2] =~ /PASS/i);
+            $self->{fails}{$row->[5]}{$row->[6]}{total}++;
 
             # build matrix stats
-            my $perl = $row->[7];
+            my $perl = $row->[8];
             $perl =~ s/\s.*//;  # only need to know the main release
             $self->{perls}{$perl} = 1;
 
-            $self->{pass}    {$row->[6]}{$perl}{all}{$row->[4]} = 1;
-            $self->{platform}{$row->[6]}{$perl}{all}++;
-            $self->{osys}    {$osname}  {$perl}{all}{$row->[4]} = 1;
+            $self->{pass}    {$row->[7]}{$perl}{all}{$row->[5]} = 1;
+            $self->{platform}{$row->[7]}{$perl}{all}++;
+            $self->{osys}    {$osname}  {$perl}{all}{$row->[5]} = 1;
             $self->{osname}  {$osname}  {$perl}{all}++;
 
-            if($row->[2] == $LASTDATE) {
-                $self->{pass}    {$row->[6]}{$perl}{month}{$row->[4]} = 1;
-                $self->{platform}{$row->[6]}{$perl}{month}++;
-                $self->{osys}    {$osname}  {$perl}{month}{$row->[4]} = 1;
+            if($row->[3] == $LASTDATE) {
+                $self->{pass}    {$row->[7]}{$perl}{month}{$row->[5]} = 1;
+                $self->{platform}{$row->[7]}{$perl}{month}++;
+                $self->{osys}    {$osname}  {$perl}{month}{$row->[5]} = 1;
                 $self->{osname}  {$osname}  {$perl}{month}++;
             }
 
             # record tester activity
-            $testers{$name}{first} ||= $row->[2];
-            $testers{$name}{last}    = $row->[2];
-            $self->{counts}{$row->[2]}{testers}{$name} = 1;
+            $testers{$name}{first} ||= $row->[3];
+            $testers{$name}{last}    = $row->[3];
+            $self->{counts}{$row->[3]}{testers}{$name} = 1;
 
-            if(defined $self->{dists}{$row->[4]}) {
-                $self->{dists}{$row->[4]}{ALL}++;
-                $self->{dists}{$row->[4]}{IXL}++  if($self->{dists}{$row->[4]}{VER} eq $row->[5]);
+            if(defined $self->{dists}{$row->[5]}) {
+                $self->{dists}{$row->[5]}{ALL}++;
+                $self->{dists}{$row->[5]}{IXL}++  if($self->{dists}{$row->[5]}{VER} eq $row->[6]);
             }
 
-            my $day = substr($row->[10],0,8);
+            my $day = substr($row->[11],0,8);
             $self->{build}{$day}{reports}++ if(defined $self->{build}{$day});
         }
 
@@ -368,10 +364,10 @@ sub _build_stats {
 
         $self->{count}{posters} = $row[1];
         $self->{count}{entries}++;
-        $self->{count}{reports}++   if($row[2] ne 'cpan');
+        $self->{count}{reports}++   if($row[3] ne 'cpan');
 
         for my $type (qw(posters entries reports)) {
-            next    if($type eq 'reports' && $row[2] eq 'cpan');
+            next    if($type eq 'reports' && $row[3] eq 'cpan');
             if($self->{count}{$type} == 1 || ($self->{count}->{$type} % 500000) == 0) {
                 $self->{xrefs}{$type}->{$self->{count}->{$type}} = \@row;
             } else {
@@ -425,8 +421,8 @@ sub _report_interesting {
             my @row = @{ $self->{xrefs}{$type}{$key} };
 
             $row[0] = $key;
-            $row[2] = uc $row[2];
-            $row[4] = $self->_tester_name($row[4])  if($row[4] && $row[4] =~ /\@/);
+            $row[4] = uc $row[4];
+            $row[6] = $self->_tester_name($row[6])  if($row[6] && $row[6] =~ /\@/);
             push @{ $tvars{ uc($type) } }, \@row;
         }
     }
@@ -882,9 +878,9 @@ sub _build_monthly_stats_files {
         next    if($date > $LIMIT-1);
         printf $fh2 "%d,%d,%d,%d\n",
             $date,
-            scalar(keys %{$self->{stats}{$date}{tester}}),
-            scalar(keys %{$self->{stats}{$date}{platform}}),
-            scalar(keys %{$self->{stats}{$date}{perl}});
+            $self->{stats}{$date}{tester},
+            $self->{stats}{$date}{platform},
+            $self->{stats}{$date}{perl};
     }
     $fh2->close;
 
@@ -960,55 +956,62 @@ sub _build_failure_rates {
 
 sub _build_monthly_stats {
     my $self  = shift;
-    my %tvars;
+    my (%tvars,%stats,%testers);
+    my %templates = (
+        platform    => 'mplatforms',
+        osname      => 'mosname',
+        perl        => 'mperls',
+        tester      => 'mtesters'
+    );
 
     $self->{parent}->_log("building monthly tables");
 
-    for my $date (sort keys %{ $self->{stats} }) {
-        next    if($date > $LIMIT);
-
-        my ($count,$content) = (0,'');
-        for my $platform (sort {$self->{stats}{$date}{platform}{$b} <=> $self->{stats}{$date}{platform}{$a}} keys %{$self->{stats}{$date}{platform}}) {
-            $content .= ', '    if($content);
-            $content .= "[$self->{stats}{$date}{platform}{$platform}] $platform";
-            $count++;
+    my $query = q!SELECT postdate,%s,count(id) AS count FROM cpanstats ! .
+                q!WHERE state IN ('pass','fail','unknown','na') ! .
+                q!GROUP BY postdate,%s ORDER BY postdate,count DESC!;
+    for my $type (qw(platform osname perl)) {
+        $self->{parent}->_log("building monthly $type table");
+        (%tvars,%stats) = ();
+        my $sql = sprintf $query, $type, $type;
+        my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
+        while(my $row = $next->()) {
+            $stats{$row->{postdate}}{count}         += $row->{count};
+            $self->{stats}{$row->{postdate}}{$type} += $row->{count};
+            push @{$stats{$row->{postdate}}{list}}, "[$row->{count}] $row->{$type}";
         }
-        unshift @{$tvars{STATS}}, [$date,$count,$content];
-    }
-    $self->_writepage('mplatforms',\%tvars);
-    undef %tvars;
 
-    for my $date (sort keys %{ $self->{stats} }) {
-        next    if($date > $LIMIT);
-
-        my ($count,$content) = (0,'');
-        for my $perl (sort {$self->{stats}{$date}{perl}{$b} <=> $self->{stats}{$date}{perl}{$a}} keys %{$self->{stats}{$date}{perl}}) {
-            $content .= ', '    if($content);
-            $content .= "[$self->{stats}{$date}{perl}{$perl}] $perl";
-            $count++;
+        for my $date (sort {$b <=> $a} keys %stats) {
+            push @{$tvars{STATS}}, [$date,$stats{$date}{count},join(', ',@{$stats{$date}{list}})];
         }
-        unshift @{$tvars{STATS}}, [$date,$count,$content];
+        $self->_writepage($templates{$type},\%tvars);
     }
-    $self->_writepage('mperls',\%tvars);
-    undef %tvars;
 
-    my %testers;
-    for my $date (sort keys %{ $self->{stats} }) {
-        next    if($date > $LIMIT);
-
-        my ($count,$content) = (0,'');
-        for my $tester (sort {$self->{stats}{$date}{tester}{$b} <=> $self->{stats}{$date}{tester}{$a}} keys %{$self->{stats}{$date}{tester}}) {
-            $content .= ', '    if($content);
-            $content .= "[$self->{stats}{$date}{tester}{$tester}] $tester";
-            $testers{$tester} += $self->{stats}{$date}{tester}{$tester};
-            $count++;
+    {
+        my $type = 'tester';
+        $self->{parent}->_log("building monthly $type table");
+        (%tvars,%stats) = ();
+        my $sql = sprintf $query, $type, $type;
+        my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
+        while(my $row = $next->()) {
+            my $name = $self->_tester_name($row->{tester});
+            $testers{$name}                         += $row->{count};
+            $stats{$row->{postdate}}{count}         += $row->{count};
+            $stats{$row->{postdate}}{list}{$name}   += $row->{count};
+            $self->{stats}{$row->{postdate}}{$type} += $row->{count};
         }
-        unshift @{$tvars{STATS}}, [$date,$count,$content];
+
+        for my $date (sort {$b <=> $a} keys %stats) {
+            push @{$tvars{STATS}}, [$date,$stats{$date}{count},
+                join(', ',  
+                    map {"[$stats{$date}{list}{$_}] $_"} 
+                        sort {$stats{$date}{list}{$b} <=> $stats{$date}{list}{$a}}
+                            keys %{$stats{$date}{list}})];
+        }
+        $self->_writepage($templates{$type},\%tvars);
     }
-    $self->_writepage('mtesters',\%tvars);
-    undef %tvars;
 
     $self->{parent}->_log("building leader board");
+    (%tvars,%stats) = ();
 
     my $count = 1;
     for my $tester (sort {$testers{$b} <=> $testers{$a}} keys %testers) {
@@ -1027,23 +1030,6 @@ sub _build_monthly_stats {
     push @{$tvars{COUNTS}}, ($count-$known_t),$known_s,($known_s+$count-$known_t),($count-$known_t),$known_t,$count;
 
     $self->_writepage('testers',\%tvars);
-    undef %tvars;
-
-    $self->{parent}->_log("building monthly osname table");
-
-    my %osname;
-    for my $date (sort keys %{ $self->{stats} }) {
-        next    if($date > $LIMIT);
-
-        my ($count,$content) = (0,'');
-        for my $osname (sort {$self->{stats}{$date}{osname}{$b} <=> $self->{stats}{$date}{osname}{$a}} keys %{$self->{stats}{$date}{osname}}) {
-            $content .= ', '    if($content);
-            $content .= "[$self->{stats}{$date}{osname}{$osname}] $osname";
-            $count++;
-        }
-        unshift @{$tvars{STATS}}, [$date,$count,$content];
-    }
-    $self->_writepage('mosname',\%tvars);
 }
 
 sub _build_performance_stats {

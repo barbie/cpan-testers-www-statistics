@@ -1,5 +1,10 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.78	current
+	- added support for new guid & type fields.
+	- implemented more efficient monthly stats calculations.
+	- fix for runaway osnames.
+
 0.77	18/01/2010
 	- added code and SQL to ignore invalid reports.
 	- added CSS files to MANIFEST.
