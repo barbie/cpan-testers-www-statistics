@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.79';
+$VERSION = '0.80';
 
 #----------------------------------------------------------------------------
 
@@ -424,7 +424,7 @@ sub _report_interesting {
         push @{ $tvars{ uc($type) } }, \@row;
     }
 
-    my @headings = qw( count id grade postdate tester dist version platform perl osname osvers fulldate );
+    my @headings = qw( count grade postdate tester dist version platform perl osname osvers fulldate );
     $tvars{HEADINGS} = \@headings;
     $self->_writepage('interest',\%tvars);
 }
@@ -825,7 +825,7 @@ sub _build_monthly_stats {
         my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
         while(my $row = $next->()) {
             $stats{$row->{postdate}}{count}         += $row->{count};
-            $self->{stats}{$row->{postdate}}{$type} += $row->{count};
+            $self->{stats}{$row->{postdate}}{$type}{$row->{$type}} = 1;
             $row->{$type} = $self->{parent}->osname($row->{$type})  if($type eq 'osname');
             push @{$stats{$row->{postdate}}{list}}, "[$row->{count}] $row->{$type}";
         }
@@ -847,7 +847,7 @@ sub _build_monthly_stats {
             $testers{$name}                         += $row->{count};
             $stats{$row->{postdate}}{count}         += $row->{count};
             $stats{$row->{postdate}}{list}{$name}   += $row->{count};
-            $self->{stats}{$row->{postdate}}{$type} += $row->{count};
+            $self->{stats}{$row->{postdate}}{$type}{$row->{$type}} = 1;
         }
 
         for my $date (sort {$b <=> $a} keys %stats) {
@@ -959,9 +959,9 @@ sub _build_monthly_stats_files {
         next    if($date > $LIMIT-1);
         printf $fh2 "%d,%d,%d,%d\n",
             $date,
-            ($self->{stats}{$date}{tester}   || 0),
-            ($self->{stats}{$date}{platform} || 0),
-            ($self->{stats}{$date}{perl}     || 0);
+            ($self->{stats}{$date}{tester}   ? scalar( keys %{$self->{stats}{$date}{tester}}   ) : 0),
+            ($self->{stats}{$date}{platform} ? scalar( keys %{$self->{stats}{$date}{platform}} ) : 0),
+            ($self->{stats}{$date}{perl}     ? scalar( keys %{$self->{stats}{$date}{perl}}     ) : 0);
     }
     $fh2->close;
 

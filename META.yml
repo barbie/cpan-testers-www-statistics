@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                CPAN::Testers::WWW::Statistics
-version:             0.79
+version:             0.80
 abstract:            Scripts to create the cpanstats website
 author:
   - Barbie <barbie@cpan.org>
@@ -46,13 +46,13 @@ build_requires:
 provides:
   CPAN::Testers::WWW::Statistics:
     file:     lib/CPAN/Testers/WWW/Statistics.pm
-    version:  0.79
+    version:  0.80
   CPAN::Testers::WWW::Statistics::Graphs:
     file:     lib/CPAN/Testers/WWW/Statistics/Graphs.pm
-    version:  0.79
+    version:  0.80
   CPAN::Testers::WWW::Statistics::Pages:
     file:     lib/CPAN/Testers/WWW/Statistics/Pages.pm
-    version:  0.79
+    version:  0.80
 
 resources:
   repository: http://github.com/barbie/cpan-testers-www-statistics

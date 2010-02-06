@@ -1,5 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.80	06/02/2010
+	- fixes to stats2 graph data.
+
 0.79	03/02/2010
 	- updates from live.
 
