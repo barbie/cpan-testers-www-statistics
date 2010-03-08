@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.80';
+$VERSION = '0.81';
 
 #----------------------------------------------------------------------------
 
@@ -1016,6 +1016,7 @@ sub _build_failure_rates {
                                                 : 0.00;
         $worst{"$dist-$version"}->{pass} ||= 0;
         $worst{"$dist-$version"}->{fail} ||= 0;
+        next    if($worst{"$dist-$version"}->{post} && !$rows[0]->{released});
 
         my @post = localtime($rows[0]->{released});
         $worst{"$dist-$version"}->{post} = sprintf "%04d%02d", $post[5]+1900, $post[4]+1;
@@ -1070,7 +1071,7 @@ sub _build_failure_rates {
     $self->{parent}->_log("building recent failure counts");
 
     # calculate worst failure rates - by failure count
-    my $count = 1;
+    $count = 1;
     for my $dist (sort {$worst{$b}->{fail} <=> $worst{$a}->{fail} || $worst{$b}->{pcent} <=> $worst{$a}->{pcent}} keys %worst) {
         last unless($worst{$dist}->{fail});
         my $pcent = sprintf "%3.2f%%", $worst{$dist}->{pcent};
@@ -1078,9 +1079,9 @@ sub _build_failure_rates {
         last    if($count > 100);
     }
 
-    my $database  = $self->{parent}->database;
-    my $mtime = (stat($database))[9];
-    my @ltime = localtime($mtime);
+    $database  = $self->{parent}->database;
+    $mtime = (stat($database))[9];
+    @ltime = localtime($mtime);
     $self->{DATABASE2} = sprintf "%d%s %s %d", $ltime[3],_ext($ltime[3]),$month{$ltime[4]},$ltime[5]+1900;
 
     $tvars{DATABASE} = $self->{DATABASE2};
