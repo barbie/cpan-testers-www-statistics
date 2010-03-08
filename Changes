@@ -1,5 +1,10 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.81	current
+	- added check feature to addresses.pl.
+	- ignore BACKPAN only distributions in failure rates.
+	- Win32 fixes in tests.
+
 0.80	06/02/2010
 	- fixes to stats2 graph data.
 

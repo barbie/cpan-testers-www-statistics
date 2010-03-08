@@ -17,7 +17,7 @@ isa_ok( $page, 'CPAN::Testers::WWW::Statistics::Pages', "Pages object type" );
 ok( my $graph = CTWS_Testing::getGraphs(), "got object" );
 isa_ok( $graph, 'CPAN::Testers::WWW::Statistics::Graphs', "Graphs object type" );
 
-my $db = File::Spec->catfile('t','_DBDIR','test.db');
+my $db = 't/_DBDIR/test.db';
 isa_ok( $obj->{CPANSTATS},         'CPAN::Testers::Common::DBUtils', 'CPANSTATS' );
 is(     $obj->{CPANSTATS}->{database}, $db,                          'CPANSTATS.database' );
 is(     $obj->{CPANSTATS}->{driver},   'SQLite',                     'CPANSTATS.database' );
@@ -26,6 +26,6 @@ is( $obj->database, $db, 'database' );
 ok( -f $obj->database, 'database exists' );
 
 ok( $obj->directory, 'directory' );
-is( $obj->directory, File::Spec->catfile('t','_TMPDIR'), 'directory' );
+is( $obj->directory, 't/_TMPDIR', 'directory' );
 ok( -d $obj->directory, 'directory exists' );
 
