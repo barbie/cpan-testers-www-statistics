@@ -1016,6 +1016,9 @@ sub _build_failure_rates {
                                                 : 0.00;
         $worst{"$dist-$version"}->{pass} ||= 0;
         $worst{"$dist-$version"}->{fail} ||= 0;
+
+        my @post = localtime($rows[0]->{released});
+        $worst{"$dist-$version"}->{post} = sprintf "%04d%02d", $post[5]+1900, $post[4]+1;
     }
 
     $self->{parent}->_log("worst = " . scalar(keys %worst) . " entries");
@@ -1054,10 +1057,51 @@ sub _build_failure_rates {
     $self->_writepage('wpcent',\%tvars);
     undef %tvars;
 
-    $self->{parent}->_log("done building failure rates");
+    # now we do as above but for the last 6 months
 
-# TODO:
-# 1. as above but for the last 6 months
+    my @recent = localtime(time() - 15778463); # 6 months ago
+    my $recent = sprintf "%04d%02d", $recent[5]+1900, $recent[4]+1;
+    
+    for my $dist (keys %worst) {
+        next    if($worst{$dist}->{post} ge $recent);
+        delete $worst{$dist};
+    }
+
+    $self->{parent}->_log("building recent failure counts");
+
+    # calculate worst failure rates - by failure count
+    my $count = 1;
+    for my $dist (sort {$worst{$b}->{fail} <=> $worst{$a}->{fail} || $worst{$b}->{pcent} <=> $worst{$a}->{pcent}} keys %worst) {
+        last unless($worst{$dist}->{fail});
+        my $pcent = sprintf "%3.2f%%", $worst{$dist}->{pcent};
+        push @{$tvars{WORST}}, [$count++, $worst{$dist}->{fail}, $dist, $worst{$dist}->{post}, $worst{$dist}->{pass}, $worst{$dist}->{total}, $pcent, $worst{$dist}->{dist}];
+        last    if($count > 100);
+    }
+
+    my $database  = $self->{parent}->database;
+    my $mtime = (stat($database))[9];
+    my @ltime = localtime($mtime);
+    $self->{DATABASE2} = sprintf "%d%s %s %d", $ltime[3],_ext($ltime[3]),$month{$ltime[4]},$ltime[5]+1900;
+
+    $tvars{DATABASE} = $self->{DATABASE2};
+    $self->_writepage('wdists-recent',\%tvars);
+    undef %tvars;
+
+    $self->{parent}->_log("building recent failure pecentages");
+
+    # calculate worst failure rates - by percentage
+    $count = 1;
+    for my $dist (sort {$worst{$b}->{pcent} <=> $worst{$a}->{pcent} || $worst{$b}->{fail} <=> $worst{$a}->{fail}} keys %worst) {
+        last unless($worst{$dist}->{fail});
+        my $pcent = sprintf "%3.2f%%", $worst{$dist}->{pcent};
+        push @{$tvars{WORST}}, [$count++, $worst{$dist}->{fail}, $dist, $worst{$dist}->{post}, $worst{$dist}->{pass}, $worst{$dist}->{total}, $pcent, $worst{$dist}->{dist}];
+        last    if($count > 100);
+    }
+
+    $tvars{DATABASE} = $self->{DATABASE2};
+    $self->_writepage('wpcent-recent',\%tvars);
+
+    $self->{parent}->_log("done building failure rates");
 }
 
 sub _build_performance_stats {

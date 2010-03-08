@@ -73,7 +73,9 @@ templates/statscpan.html
 templates/testers.html
 templates/trends.html
 templates/wdists.html
+templates/wdists-recent.html
 templates/wpcent.html
+templates/wpcent-recent.html
 t/56writes-update.txt
 templates/public/box-menus.html
 templates/public/box-sites.html
