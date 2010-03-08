@@ -16,6 +16,7 @@ addresses.pl - helper script to map tester addresses to real people.
   perl addresses.pl --config|c=<file> \
         [--address|a=<file>]  \
         [--mailrc|m=<file>]   \
+        [--check=<file>]   \
         [--month=<string>] [--match] [--sort]
 
 =head1 DESCRIPTION
@@ -52,7 +53,7 @@ my %defaults = (
     'sort'      => 0
 );
 
-my (%parsed_map,%cpan_map,%pause_map,%unparsed_map,%address_map,%domain_map);
+my (%parsed_map,%cpan_map,%pause_map,%unparsed_map,%address_map,%domain_map,%target_map,%author_map);
 my ($dbi,%result,%options);
 my $parsed = 0;
 
@@ -67,8 +68,12 @@ init_options();
 ##### MAIN #####
 
 load_addresses();
-match_addresses();
-print_addresses();
+if($options{check}) {
+    check_addresses();
+} else {
+    match_addresses();
+    print_addresses();
+}
 
 # -------------------------------------
 # Subroutines
@@ -99,15 +104,20 @@ sub load_addresses {
         my ($local,$domain) = split(/\@/,$email);
         $address_map{$email} = $target;
         $domain_map{$domain} = $target;
+        $target_map{$target} = $email;
+        my ($author) = ($target =~ /\(([A-Z0-9]+)\)/);
+        $author_map{$author} = $email if($author);
 #print STDERR "$source => $local => $domain\n"   unless($domain);
 
     }
     $fh->close;
 
+    return if($options{check});
+
     if($options{verbose}) {
-        print STDERR "parsed entries = " . scalar(keys %parsed_map) . "\n";
+        print STDERR "parsed entries  = " . scalar(keys %parsed_map)  . "\n";
         print STDERR "address entries = " . scalar(keys %address_map) . "\n";
-        print STDERR "domain entries = " . scalar(keys %domain_map) . "\n";
+        print STDERR "domain entries  = " . scalar(keys %domain_map)  . "\n";
     }
 #    use Data::Dumper;
 #    print STDERR Dumper(\%domain_map);
@@ -126,7 +136,7 @@ sub load_addresses {
 
     if($options{verbose}) {
         print STDERR "pause entries = " . scalar(keys %pause_map) . "\n";
-        print STDERR "cpan entries = " . scalar(keys %cpan_map) . "\n";
+        print STDERR "cpan entries  = " . scalar(keys %cpan_map)  . "\n";
     }
 
     # grab all records for the month
@@ -147,6 +157,40 @@ sub load_addresses {
         print STDERR "rows = " . scalar(@rows) . "\n";
         print STDERR "unparsed entries = " . scalar(keys %unparsed_map) . "\n";
     }
+}
+
+sub check_addresses {
+    my ($match,$pause,$new) = (0,0,0);
+    my $fh = IO::File->new($options{check})    or die "Cannot open check file [$options{check}]: $!";
+    while(<$fh>) {
+    #print STDERR "line=$_\n";
+        s/\s+$//;
+        next    if(/^$/);
+        my ($email,$name) = split(/,/,$_,2);
+        next	unless($email && $name);
+    #print STDERR "name=[$name]\n";
+	my ($author) = ($name =~ /\(([A-Z0-9]+)\)/);
+
+        my ($type,$extra);
+        if($target_map{$name}) {
+            $type = 'MATCH';
+            $match++;
+            $extra = "[$target_map{$name},$name]";
+        } elsif($author && $author_map{$author}) {
+            $type = 'PAUSE';
+            $pause++;
+            $extra = "[$author_map{$author},$name]";
+        } else {
+            $type = 'NEW  ';
+            $new++;
+            $extra = '';
+        }
+
+        print "$type $email,$name $extra\n";
+    }
+    $fh->close;
+
+    print "\nMATCH = $match\nPAUSE = $pause\nNEW   = $new\n";
 }
 
 sub match_addresses {
@@ -295,6 +339,7 @@ sub init_options {
         'config=s',
         'address|a=s',
         'mailrc|m=s',
+        'check=s',
         'month=s',
         'match',
         'sort',
@@ -342,6 +387,7 @@ sub _help {
         print "          --config|c=<file> \\\n";
         print "         [--address|a=<file>] \\\n";
         print "         [--mailrc|m=<file>] \\\n";
+        print "         [--check=<file>] \\\n";
         print "         [--month=<string>] \\\n";
         print "         [--match] \n\n";
 
@@ -352,6 +398,7 @@ sub _help {
         print "   --config=<file>           # path/file to configuration file\n";
         print "  [--address=<file>]         # path/file to addresses file\n";
         print "  [--mailrc=<file>]          # path/file to mailrc file\n";
+        print "  [--check=<file>]           # path/file to check file\n";
         print "  [--month=<string>]         # YYYYMM string to match from\n";
         print "  [--match]                  # display matches only\n";
 
