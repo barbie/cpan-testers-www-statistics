@@ -824,13 +824,13 @@ sub _build_monthly_stats {
         my $sql = sprintf $query, $type, $type;
         my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
         while(my $row = $next->()) {
-            $stats{$row->{postdate}}{count}         += $row->{count};
             $self->{stats}{$row->{postdate}}{$type}{$row->{$type}} = 1;
             $row->{$type} = $self->{parent}->osname($row->{$type})  if($type eq 'osname');
             push @{$stats{$row->{postdate}}{list}}, "[$row->{count}] $row->{$type}";
         }
 
         for my $date (sort {$b <=> $a} keys %stats) {
+            $stats{$date}{count} = scalar(@{$stats{$date}{list}});
             push @{$tvars{STATS}}, [$date,$stats{$date}{count},join(', ',@{$stats{$date}{list}})];
         }
         $self->_writepage($templates{$type},\%tvars);
@@ -845,12 +845,12 @@ sub _build_monthly_stats {
         while(my $row = $next->()) {
             my $name = $self->_tester_name($row->{tester});
             $testers{$name}                         += $row->{count};
-            $stats{$row->{postdate}}{count}         += $row->{count};
             $stats{$row->{postdate}}{list}{$name}   += $row->{count};
             $self->{stats}{$row->{postdate}}{$type}{$row->{$type}} = 1;
         }
 
         for my $date (sort {$b <=> $a} keys %stats) {
+            $stats{$date}{count} = keys %{$stats{$date}{list}};
             push @{$tvars{STATS}}, [$date,$stats{$date}{count},
                 join(', ',  
                     map {"[$stats{$date}{list}{$_}] $_"} 
@@ -997,10 +997,18 @@ sub _build_failure_rates {
 
     $self->{parent}->_log("building failure rates");
 
-    # calculate worst failure rates - by failure count
+    # select worst failure rates - latest version, and ignoring backpan only.
     my %worst;
     for my $dist (keys %{ $self->{fails} }) {
         my ($version) = sort {versioncmp($b,$a)} keys %{$self->{fails}{$dist}};
+
+        my $query = 
+		    'SELECT x.author FROM ixlatest AS x '. 
+            'INNER JOIN uploads AS u ON u.dist=x.dist AND u.version=x.version '.
+		    "WHERE u.type != 'backpan' AND x.dist=? AND x.version=?";
+    	my @rows = $self->{parent}->{CPANSTATS}->get_query('hash',$query,$dist,$version);
+	    next	unless(@rows);
+
         $worst{"$dist-$version"} = $self->{fails}->{$dist}{$version};
         $worst{"$dist-$version"}->{dist}   = $dist;
         $worst{"$dist-$version"}->{pcent}  = $self->{fails}{$dist}{$version}{fail} 
@@ -1009,6 +1017,11 @@ sub _build_failure_rates {
         $worst{"$dist-$version"}->{pass} ||= 0;
         $worst{"$dist-$version"}->{fail} ||= 0;
     }
+
+    $self->{parent}->_log("worst = " . scalar(keys %worst) . " entries");
+    $self->{parent}->_log("building failure counts");
+
+    # calculate worst failure rates - by failure count
     my $count = 1;
     for my $dist (sort {$worst{$b}->{fail} <=> $worst{$a}->{fail} || $worst{$b}->{pcent} <=> $worst{$a}->{pcent}} keys %worst) {
         last unless($worst{$dist}->{fail});
@@ -1026,6 +1039,8 @@ sub _build_failure_rates {
     $self->_writepage('wdists',\%tvars);
     undef %tvars;
 
+    $self->{parent}->_log("building failure pecentages");
+
     # calculate worst failure rates - by percentage
     $count = 1;
     for my $dist (sort {$worst{$b}->{pcent} <=> $worst{$a}->{pcent} || $worst{$b}->{fail} <=> $worst{$a}->{fail}} keys %worst) {
@@ -1038,6 +1053,11 @@ sub _build_failure_rates {
     $tvars{DATABASE} = $self->{DATABASE2};
     $self->_writepage('wpcent',\%tvars);
     undef %tvars;
+
+    $self->{parent}->_log("done building failure rates");
+
+# TODO:
+# 1. as above but for the last 6 months
 }
 
 sub _build_performance_stats {
