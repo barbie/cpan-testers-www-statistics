@@ -1,5 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.82	27/03/2010
+	- reworked _build_failure_rates()
+
 0.81	08/03/2010
 	- added check feature to addresses.pl.
 	- ignore BACKPAN only distributions in failure rates.

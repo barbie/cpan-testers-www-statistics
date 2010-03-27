@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.81';
+$VERSION = '0.82';
 
 #----------------------------------------------------------------------------
 
@@ -993,21 +993,26 @@ sub _build_monthly_stats_files {
 
 sub _build_failure_rates {
     my $self  = shift;
-    my %tvars;
+    my (%tvars,%dists);
 
     $self->{parent}->_log("building failure rates");
+
+    my $query = 
+	'SELECT x.dist,x.version,u.released FROM ixlatest AS x '. 
+    'INNER JOIN uploads AS u ON u.dist=x.dist AND u.version=x.version '.
+	"WHERE u.type != 'backpan'";
+    my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$query);
+    while(my $row = $next->()) {
+        $dists{$row->{dist}}{$row->{version}} = $row->{released};
+    }
+
+    $self->{parent}->_log("selecting failure rates");
 
     # select worst failure rates - latest version, and ignoring backpan only.
     my %worst;
     for my $dist (keys %{ $self->{fails} }) {
-        my ($version) = sort {versioncmp($b,$a)} keys %{$self->{fails}{$dist}};
-
-        my $query = 
-		    'SELECT x.author FROM ixlatest AS x '. 
-            'INNER JOIN uploads AS u ON u.dist=x.dist AND u.version=x.version '.
-		    "WHERE u.type != 'backpan' AND x.dist=? AND x.version=?";
-    	my @rows = $self->{parent}->{CPANSTATS}->get_query('hash',$query,$dist,$version);
-	    next	unless(@rows);
+	next	unless($dists{$dist});
+        my ($version) = sort {$dists{$dist}{$b} <=> $dists{$dist}{$a}} keys %{$dists{$dist}};
 
         $worst{"$dist-$version"} = $self->{fails}->{$dist}{$version};
         $worst{"$dist-$version"}->{dist}   = $dist;
@@ -1016,9 +1021,8 @@ sub _build_failure_rates {
                                                 : 0.00;
         $worst{"$dist-$version"}->{pass} ||= 0;
         $worst{"$dist-$version"}->{fail} ||= 0;
-        next    if($worst{"$dist-$version"}->{post} && !$rows[0]->{released});
 
-        my @post = localtime($rows[0]->{released});
+        my @post = localtime($dists{$dist}{$version});
         $worst{"$dist-$version"}->{post} = sprintf "%04d%02d", $post[5]+1900, $post[4]+1;
     }
 
@@ -1058,6 +1062,8 @@ sub _build_failure_rates {
     $self->_writepage('wpcent',\%tvars);
     undef %tvars;
 
+    $self->{parent}->_log("done building failure rates");
+
     # now we do as above but for the last 6 months
 
     my @recent = localtime(time() - 15778463); # 6 months ago
@@ -1067,8 +1073,6 @@ sub _build_failure_rates {
         next    if($worst{$dist}->{post} ge $recent);
         delete $worst{$dist};
     }
-
-    $self->{parent}->_log("building recent failure counts");
 
     # calculate worst failure rates - by failure count
     $count = 1;
@@ -1088,7 +1092,7 @@ sub _build_failure_rates {
     $self->_writepage('wdists-recent',\%tvars);
     undef %tvars;
 
-    $self->{parent}->_log("building recent failure pecentages");
+    $self->{parent}->_log("building failure pecentages");
 
     # calculate worst failure rates - by percentage
     $count = 1;
@@ -1101,8 +1105,6 @@ sub _build_failure_rates {
 
     $tvars{DATABASE} = $self->{DATABASE2};
     $self->_writepage('wpcent-recent',\%tvars);
-
-    $self->{parent}->_log("done building failure rates");
 }
 
 sub _build_performance_stats {
@@ -1141,7 +1143,7 @@ sub _writepage {
     my $directory = $self->{parent}->directory;
     my $templates = $self->{parent}->templates;
 
-    $self->{parent}->_log("_writepage: page=$page");
+    #$self->{parent}->_log("_writepage: page=$page");
 
     my $template = $vars->{template} || $page;
     my $tlayout  = $vars->{layout} || 'layout';
@@ -1150,7 +1152,7 @@ sub _writepage {
     my $target   = "$directory/$page.html";
     mkdir(dirname($target));
 
-    $self->{parent}->_log("_writepage: layout=$layout, source=$source, target=$target");
+    #$self->{parent}->_log("_writepage: layout=$layout, source=$source, target=$target");
 
     $vars->{SOURCE}    = $source;
     $vars->{VERSION}   = $VERSION;
