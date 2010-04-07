@@ -2,13 +2,13 @@
 use strict;
 $|++;
 
-my $VERSION = '0.04';
+my $VERSION = '0.05';
 
 #----------------------------------------------------------------------------
 
 =head1 NAME
 
-cpanmail.cgi - script to access the NNTP server and retrieve a mail address.
+cpanmail.cgi - script to access a tester's email address for a given report.
 
 =head1 SYNOPSIS
 
@@ -16,19 +16,20 @@ cpanmail.cgi - script to access the NNTP server and retrieve a mail address.
 
 =head1 DESCRIPTION
 
-Using the CPAN Testers NNTP interface, retrieve the given article, and return
-the email address in a non-spam form.
+Given a report identifier, either as a report ID or a Metabase GUID, will
+perform a look up to retrieve the tester's email address for the given report
+identifier.
 
 =cut
 
 # -------------------------------------
 # Library Modules
 
-
 use CGI;
 #use CGI::Carp qw(fatalsToBrowser);
 use Config::IniFiles;
 use CPAN::Testers::Common::DBUtils;
+use CPAN::Testers::Common::Utils        qw(nntp_to_guid guid_to_nntp);
 use Email::Simple;
 use Net::NNTP;
 use Template;
@@ -45,17 +46,37 @@ my %tvars;
 # Program
 
 my $cgi = CGI->new();
-$tvars{nntpid} = $cgi->param('nntpid');
-$tvars{nntpid} =~ s/\D+//g  if($tvars{nntpid});
+my $nntpid  = $cgi->param('nntpid');    # old style
+my $id      = $cgi->param('id');        # new style
+
+if($nntpid && $nntpid =~ /^(\d+)$/) {
+    $tvars{guid} = nntp_to_guid($1);
+} elsif($id && $id =~ /^(\d+)$/) {
+    $tvars{id} = $1;
+} elsif($id && $id =~ /^([-\w]+)$/) {
+    $tvars{guid} = $1;
+}
+
+#$tvars{nntpid} = $cgi->param('nntpid');
+#$tvars{nntpid} =~ s/\D+//g  if($tvars{nntpid});
 
 my $found = 0;
-if($tvars{nntpid}) {
+if($tvars{id} || $tvars{guid}) {
     if(-f $CONFIG) {
-        $found = retrieve_from_db($tvars{nntpid});
+        $found = retrieve_from_db(
+            id      => $tvars{id},
+            guid    => $tvars{guid}
+        );
     }
 
-    if(!$found) {
+    # currently fallback is only an NNTP lookup, may want to add
+    # a Metabase lookup at some point.
+
+    if(!$found && $tvars{guid}) {
+        $tvars{nntpid} = guid_to_nntp($tvars{guid});
         $found = retrieve_from_nntp($tvars{nntpid});
+    } else {
+        $found = 5;
     }
 } else {
     $found = 3;
@@ -74,7 +95,7 @@ Access the database and retrieve the required article data.
 =cut
 
 sub retrieve_from_db {
-    my $id = shift;
+    my %hash = @_;
     my $cfg;
 
     # load configuration file
@@ -90,23 +111,33 @@ sub retrieve_from_db {
     my $dbh = CPAN::Testers::Common::DBUtils->new(%opts);
     return 0    unless($dbh);
 
-    my @rows = $dbh->get_query('array',"SELECT * FROM cpanstats WHERE id=$id");
+    my $sql;
+    if(defined $hash{id}) {
+        $sql = "SELECT * FROM cpanstats WHERE id=$hash{id}";
+    } elsif(defined $hash{guid}) {
+        $sql = "SELECT * FROM cpanstats WHERE guid=$hash{guid}";
+    }
+
+    my @rows = $dbh->get_query('hash',$sql);
     return 0    unless(@rows);
 
-    $tvars{subject} = sprintf "%s %s-%s %s %s", $rows[0]->[1], $rows[0]->[4], $rows[0]->[5], $rows[0]->[6], $rows[0]->[7];
-    $tvars{from}    = $rows[0]->[3];
+    $tvars{id}      = $rows[0]->{id};
+    $tvars{guid}    = $rows[0]->{guid};
+    $tvars{subject} = sprintf "%s %s-%s %s %s", uc $rows[0]->{state}, $rows[0]->{dist}, $rows[0]->{version}, $rows[0]->{perl}, $rows[0]->{osname};
+    $tvars{from}    = $rows[0]->{tester};
 
     return 1;
 }
 
 =item retrieve_from_nntp
 
-Access the NNTP server and parse the required article.
+Very simplistic NNTP server look up to parse the required article.
 
 =cut
 
 sub retrieve_from_nntp {
     my $id = shift;
+    return 5    unless($id);
 
     my $nntp = Net::NNTP->new("nntp.perl.org")
         || return 9; #die "Cannot connect to nntp.perl.org";
@@ -183,7 +214,7 @@ F<http://stats.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2005-2009 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2010 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.

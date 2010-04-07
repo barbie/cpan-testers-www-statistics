@@ -1,5 +1,10 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.83	07/04/2010
+	- upgrade to cpanmail.cgi script to perform report ID and Metabase 
+	  GUID lookups by default. Still provides support for nntpid lookups if
+	  called correct API.
+
 0.82	27/03/2010
 	- reworked _build_failure_rates()
 

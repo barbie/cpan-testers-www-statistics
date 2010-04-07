@@ -1,7 +1,8 @@
 [% IF found == 1 %]
 
 <table class="matrix">
-<tr><th>NNTP ID:</th><td>[% nntpid %]</td></tr>
+<tr><th>ID:</th><td>[% id %]</td></tr>
+<tr><th>GUID:</th><td>[% guid %]</td></tr>
 <tr><th>Subject:</th><td>[% subject %]</td></tr>
 <tr><th>Address:</th><td>[% from %]</td></tr>
 </table>
@@ -9,22 +10,22 @@
 [% ELSIF found == 3 %]
 
 <h2>ERROR</h2>
-<p>No NNTP ID provided.</p>
+<p>No ID/GUID provided.</p>
 
 [% ELSIF found == 4 %]
 
 <h2>ERROR</h2>
-<p>Invalid NNTP ID provided.</p>
+<p>Invalid ID/GUID provided.</p>
 
 [% ELSIF found == 9 %]
 
 <h2>ERROR</h2>
-<p>Sorry, the NNTP is currently unavailable, please try again shortly.</p>
+<p>Sorry, the lookup is currently unavailable, please try again shortly.</p>
 
 [% ELSE %]
 
 <h2>ERROR</h2>
-<p>Sorry, we were unable to retrieve that NNTP ID.</p>
+<p>Sorry, we were unable to retrieve that ID/GUID.</p>
 
 [% END %]
 
