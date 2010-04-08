@@ -7,7 +7,6 @@ bin/addresses.pl
 bin/cpanstats-writegraphs
 bin/cpanstats-writepages
 bin/getmailrc.pl
-data/01mailrc.txt
 examples/cpanstats.sql
 examples/cpanstats.sh
 examples/example-settings.ini

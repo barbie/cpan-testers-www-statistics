@@ -4,6 +4,8 @@ Revision history for CPAN-Testers-WWW-Statistics
 	- upgrade to cpanmail.cgi script to perform report ID and Metabase 
 	  GUID lookups by default. Still provides support for nntpid lookups if
 	  called correct API.
+	- updated addresses.pl script (0.05).
+	- removed data/01mailrc.txt from distribution.
 
 0.82	27/03/2010
 	- reworked _build_failure_rates()
