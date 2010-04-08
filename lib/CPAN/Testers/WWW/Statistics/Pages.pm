@@ -495,7 +495,7 @@ sub _report_cpan {
 
     my $query = 'SELECT x.author,COUNT(x.dist) AS count FROM ixlatest AS x '.
                 'INNER JOIN uploads AS u ON u.dist=x.dist AND u.version=x.version '.
-		"WHERE u.type != 'backpan' GROUP BY x.author";
+        "WHERE u.type != 'backpan' GROUP BY x.author";
     my @latest = $self->{parent}->{CPANSTATS}->get_query('hash',$query);
     my (@allcurrent,@alluploads,@allrelease,@alldistros);
     my $inx = 1;
@@ -998,9 +998,9 @@ sub _build_failure_rates {
     $self->{parent}->_log("building failure rates");
 
     my $query = 
-	'SELECT x.dist,x.version,u.released FROM ixlatest AS x '. 
-    'INNER JOIN uploads AS u ON u.dist=x.dist AND u.version=x.version '.
-	"WHERE u.type != 'backpan'";
+        'SELECT x.dist,x.version,u.released FROM ixlatest AS x '. 
+        'INNER JOIN uploads AS u ON u.dist=x.dist AND u.version=x.version '.
+        "WHERE u.type != 'backpan'";
     my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$query);
     while(my $row = $next->()) {
         $dists{$row->{dist}}{$row->{version}} = $row->{released};
@@ -1011,7 +1011,7 @@ sub _build_failure_rates {
     # select worst failure rates - latest version, and ignoring backpan only.
     my %worst;
     for my $dist (keys %{ $self->{fails} }) {
-	next	unless($dists{$dist});
+    next    unless($dists{$dist});
         my ($version) = sort {$dists{$dist}{$b} <=> $dists{$dist}{$a}} keys %{$dists{$dist}};
 
         $worst{"$dist-$version"} = $self->{fails}->{$dist}{$version};
@@ -1288,7 +1288,7 @@ sub _count_mailrc {
 
     my $fh  = IO::File->new('data/01mailrc.txt','r')     or die "Cannot read file [data/01mailrc.txt]: $!\n";
     while(<$fh>) {
-        last	if(/^alias\s*DBIML/);
+        last    if(/^alias\s*DBIML/);
         $count++;
     }
     $fh->close;

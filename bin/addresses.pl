@@ -168,6 +168,7 @@ sub check_addresses {
         next    if(/^$/);
         my ($email,$name) = split(/,/,$_,2);
         next	unless($email && $name);
+        $name =~ s/ #.*$//;
     #print STDERR "name=[$name]\n";
 	my ($author) = ($name =~ /\(([A-Z0-9]+)\)/);
 
@@ -184,6 +185,7 @@ sub check_addresses {
             $type = 'NEW  ';
             $new++;
             $extra = '';
+            $target_map{$name} = $email;
         }
 
         print "$type $email,$name $extra\n";
@@ -301,11 +303,12 @@ sub map_domain {
                     $domain =~ /^(web|gmx)\.de$/        ||
                     $domain =~ /^(aacom|free)\.fr$/     ||
                     $domain =~ /^(xs4all|demon)\.nl$/   ||
+                    $domain =~ /^(ne)\.jp$/   ||
 
                     $domain =~ /^(nasa|nih)\.gov$/                                  ||
                     $domain =~ /^(ieee|no-ip|dyndns|cpan|perl|freebsd)\.org$/       ||
                     $domain =~ /^(verizon|gmx|comcast|earthlink|cox|usa)\.net$/     ||
-                    $domain =~ /^(yahoo|google|gmail|mac|pair|rr|sun|aol)\.com$/    ||
+                    $domain =~ /^(yahoo|google|gmail|googlemail|mac|pair|rr|sun|aol)\.com$/    ||
                     $domain =~ /^(pobox|hotmail|ibm|onlinehome-server)\.com$/       ||
 
                     $domain =~ /^(net|org|com)\.(br|au|tw)$/        ||
