@@ -1,5 +1,11 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.84	20/04/2010
+	- fixed ranges() to return correct ranges for a range ending on or 
+	  after the current month, and ignore any that start on or after the
+	  current month.
+	- fixed path of matrix output files.
+
 0.83	07/04/2010
 	- upgrade to cpanmail.cgi script to perform report ID and Metabase 
 	  GUID lookups by default. Still provides support for nntpid lookups if

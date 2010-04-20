@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.83';
+$VERSION = '0.84';
 
 #----------------------------------------------------------------------------
 
@@ -495,7 +495,7 @@ sub _report_cpan {
 
     my $query = 'SELECT x.author,COUNT(x.dist) AS count FROM ixlatest AS x '.
                 'INNER JOIN uploads AS u ON u.dist=x.dist AND u.version=x.version '.
-        "WHERE u.type != 'backpan' GROUP BY x.author";
+                "WHERE u.type != 'backpan' GROUP BY x.author";
     my @latest = $self->{parent}->{CPANSTATS}->get_query('hash',$query);
     my (@allcurrent,@alluploads,@allrelease,@alldistros);
     my $inx = 1;
@@ -651,8 +651,9 @@ sub _osname_matrix {
                     $tvars{vperl}     = $perl;
                     $tvars{count}     = $count;
 
-                    $index = join('-','matrix/osys', $type, $osname, $perl);
+                    $index = join('-','osys', $type, $osname, $perl);
                     $index =~ s/[^-.\w]/-/g;
+                    $index = 'matrix/' . $index;
                     $self->{list}{osname}{$osname}{$perl}{$type} = $index;
                     $self->_writepage($index,\%tvars);
                 }
@@ -674,7 +675,6 @@ sub _osname_matrix {
     $content .= '<tr><th>OS/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th><th></th><th>OS/Perl</th></tr>';
     $content .= '</table>';
 
-    $self->{parent}->_log("written $index list pages");
     return $content;
 }
 
@@ -776,8 +776,9 @@ sub _platform_matrix {
                     $tvars{vperl}     = $perl;
                     $tvars{count}     = $count;
 
-                    $index = join('-','matrix/platform', $type, $platform, $perl);
+                    $index = join('-','platform', $type, $platform, $perl);
                     $index =~ s/[^-.\w]/-/g;
+                    $index = 'matrix/' . $index;
                     $self->{list}{platform}{$platform}{$perl}{$type} = $index;
                     $self->_writepage($index,\%tvars);
                 }
@@ -799,7 +800,6 @@ sub _platform_matrix {
     $content .= '<tr><th>Platform/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th><th></th><th>Platform/Perl</th></tr>';
     $content .= '</table>';
 
-    $self->{parent}->_log("written $index list pages");
     return $content;
 }
 
@@ -1011,7 +1011,7 @@ sub _build_failure_rates {
     # select worst failure rates - latest version, and ignoring backpan only.
     my %worst;
     for my $dist (keys %{ $self->{fails} }) {
-    next    unless($dists{$dist});
+        next    unless($dists{$dist});
         my ($version) = sort {$dists{$dist}{$b} <=> $dists{$dist}{$a}} keys %{$dists{$dist}};
 
         $worst{"$dist-$version"} = $self->{fails}->{$dist}{$version};

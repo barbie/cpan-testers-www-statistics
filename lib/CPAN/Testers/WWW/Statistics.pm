@@ -5,7 +5,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.83';
+$VERSION = '0.84';
 
 #----------------------------------------------------------------------------
 
@@ -185,8 +185,23 @@ sub make_graphs {
 sub ranges {
     my ($self,$section) = @_;
     return  unless($section);
-    my @RANGES = $section eq 'NONE' ? '00000000-99999999'
-                    : split("\n", $self->{cfg}->val($section,'LIST'));
+    my @now = localtime(time);
+    if($now[4]==0) { $now[5]--; $now[4]=11; }
+    my $now = sprintf "%04d%02d", $now[5]+1900, $now[4]+1;
+
+    my @RANGES;
+    if($section eq 'NONE') {
+	@RANGES = ('00000000-99999999');
+    } else {
+        my @ranges = split("\n", $self->{cfg}->val($section,'LIST'));
+        for my $range (@ranges) {
+            my ($fdate,$tdate) = split('-',$range,2);
+            next		if($fdate > $now);
+            $tdate = $now	if($tdate > $now);
+            push @RANGES, "$fdate-$tdate";
+        }
+    }
+        
     return \@RANGES;
 }
 
