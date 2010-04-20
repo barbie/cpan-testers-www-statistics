@@ -1,202 +1,203 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.84	20/04/2010
-	- fixed ranges() to return correct ranges for a range ending on or 
-	  after the current month, and ignore any that start on or after the
-	  current month.
-	- fixed path of matrix output files.
+0.84    20/04/2010
+        - fixed ranges() to return correct ranges for a range ending on or 
+          after the current month, and ignore any that start on or after the
+          current month.
+        - fixed path of matrix output files.
+        - reinstated a doctored data/01mailrc.txt into distribution.
 
-0.83	07/04/2010
-	- upgrade to cpanmail.cgi script to perform report ID and Metabase 
-	  GUID lookups by default. Still provides support for nntpid lookups if
-	  called correct API.
-	- updated addresses.pl script (0.05).
-	- removed data/01mailrc.txt from distribution.
+0.83    07/04/2010
+        - upgrade to cpanmail.cgi script to perform report ID and Metabase 
+          GUID lookups by default. Still provides support for nntpid lookups if
+          called correct API.
+        - updated addresses.pl script (0.05).
+        - removed data/01mailrc.txt from distribution.
 
-0.82	27/03/2010
-	- reworked _build_failure_rates()
+0.82    27/03/2010
+        - reworked _build_failure_rates()
 
-0.81	08/03/2010
-	- added check feature to addresses.pl.
-	- ignore BACKPAN only distributions in failure rates.
-	- Win32 fixes in tests.
-	- added recent failure rate tables.
+0.81    08/03/2010
+        - added check feature to addresses.pl.
+        - ignore BACKPAN only distributions in failure rates.
+        - Win32 fixes in tests.
+        - added recent failure rate tables.
 
-0.80	06/02/2010
-	- fixes to stats2 graph data.
+0.80    06/02/2010
+        - fixes to stats2 graph data.
 
-0.79	03/02/2010
-	- updates from live.
+0.79    03/02/2010
+        - updates from live.
 
-0.78	03/02/2010
-	- added support for new guid & type fields.
-	- implemented more efficient monthly stats calculations.
-	- fix for runaway osnames.
-	- matrix files named by platform/os and perl
+0.78    03/02/2010
+        - added support for new guid & type fields.
+        - implemented more efficient monthly stats calculations.
+        - fix for runaway osnames.
+        - matrix files named by platform/os and perl
 
-0.77	18/01/2010
-	- added code and SQL to ignore invalid reports.
-	- added CSS files to MANIFEST.
+0.77    18/01/2010
+        - added code and SQL to ignore invalid reports.
+        - added CSS files to MANIFEST.
 
-0.76	07/01/2010
-	- added quote.html.
-	- added Analysis to site family lists.
-	- upped copyright date
-	- updated interesting stats page, removing references to posts to the
-	  cpan-testers mailing list, now listing only report counts, and hiding
-	  the ID link to actual report.
+0.76    07/01/2010
+        - added quote.html.
+        - added Analysis to site family lists.
+        - upped copyright date
+        - updated interesting stats page, removing references to posts to the
+          cpan-testers mailing list, now listing only report counts, and hiding
+          the ID link to actual report.
 
-0.75	09/12/2009
-	- fixed skip test counts.
-	- added eval over get request in the event of timeout.
+0.75    09/12/2009
+        - fixed skip test counts.
+        - added eval over get request in the event of timeout.
 
-0.74	26/11/2009
-	- merged fixes from Alex Chorny (thanks Alex).
-	- added new percentage graph, at the suggestion of Slave J. Nilsen
+0.74    26/11/2009
+        - merged fixes from Alex Chorny (thanks Alex).
+        - added new percentage graph, at the suggestion of Slave J. Nilsen
 
-0.73	01/11/2009
-	- further reorganisation to avoid losing DB connection
-	- fix to allow for counts that are set before main stats build.
-	- added header/total cells to left and bottom parts of all matrices.
+0.73    01/11/2009
+        - further reorganisation to avoid losing DB connection
+        - fix to allow for counts that are set before main stats build.
+        - added header/total cells to left and bottom parts of all matrices.
 
 0.72    26/10/2009
-	- moved DB process for submission rates earlier to avoid losing DB 
-	  connection.
+        - moved DB process for submission rates earlier to avoid losing DB 
+          connection.
 
 0.71    26/10/2009
-	- added links for Excel downloads.
-	- added dashboard.
+        - added links for Excel downloads.
+        - added dashboard.
 
 0.70    21/10/2009
-	- added functionality to use the new osname table.
-	- further work on matrices:
-	  - added totals to X & Y axis
-	  - sorted on Y axis values
-	  - added wide format pages to each matrix
-	- slight reorganisation of failure tables.
-	- changed named anchors as some browsers don't rendering them 
-	  correctly.
-	- added table for monthly OS counts.
+        - added functionality to use the new osname table.
+        - further work on matrices:
+          - added totals to X & Y axis
+          - sorted on Y axis values
+          - added wide format pages to each matrix
+        - slight reorganisation of failure tables.
+        - changed named anchors as some browsers don't rendering them 
+          correctly.
+        - added table for monthly OS counts.
 
-0.69	18/10/2009
-	- hash passing depreciated in favour of object variables.
-	- distribution and reports matrices merged, now split between OS name
-	  and platform name, then further split with all perls or official 
-	  perls, then split again based on last month, or from the first to
-	  the most current.
-	- brought back colour variations to the matrices.
-	- added page anchor to raw data.
+0.69    18/10/2009
+        - hash passing depreciated in favour of object variables.
+        - distribution and reports matrices merged, now split between OS name
+          and platform name, then further split with all perls or official 
+          perls, then split again based on last month, or from the first to
+          the most current.
+        - brought back colour variations to the matrices.
+        - added page anchor to raw data.
 
-0.68	15/10/2009
-	- broke out functionality of _write_stats() into more manageable chunks
-	- further reduced SQL calls.
-	- added a schema file for all the tables in the cpanstats database in 
-	  examples/cpanstats.sql
-	- added functionality to handle daily graphs.
-	- added performance page and graph
-	- graphs and data files now created in a dedicated stats sub-directory.
-	- made raw data files available.
+0.68    15/10/2009
+        - broke out functionality of _write_stats() into more manageable chunks
+        - further reduced SQL calls.
+        - added a schema file for all the tables in the cpanstats database in 
+          examples/cpanstats.sql
+        - added functionality to handle daily graphs.
+        - added performance page and graph
+        - graphs and data files now created in a dedicated stats sub-directory.
+        - made raw data files available.
 
-0.67	13/10/2009
-	- improvements to the layout of interesting stats page.
-	- moved from Class::Accessor::Chained::Fast to Class::Accessor::Fast
-	- improved processing logic for interesting stats, with a speed up of
-	  over 20mins.
+0.67    13/10/2009
+        - improvements to the layout of interesting stats page.
+        - moved from Class::Accessor::Chained::Fast to Class::Accessor::Fast
+        - improved processing logic for interesting stats, with a speed up of
+          over 20mins.
 
-0.66	25/07/2009
-	- added stats and graphs about CPAN, including extra menu section.
+0.66    25/07/2009
+        - added stats and graphs about CPAN, including extra menu section.
 
-0.65	06/06/2009
-	- removal of data files into the cpanstats-data package.
+0.65    06/06/2009
+        - removal of data files into the cpanstats-data package.
 
-0.64	03/06/2009
-	- added attributions to HTML templates.
-	- fixed CSS issues for IE (thanks to JJ).
-	- rewrote addresses.pl (v0.14) to work with more recent codebase.
+0.64    03/06/2009
+        - added attributions to HTML templates.
+        - fixed CSS issues for IE (thanks to JJ).
+        - rewrote addresses.pl (v0.14) to work with more recent codebase.
 
-0.63	19/05/2009
-	- change to new layout design.
-	- new style graphs added.
-	- TOCOPY and RANGES added to configuration rather than hardcoded.
-	- removal of updates/blog aspect, which is now part of cpanblog site.
+0.63    19/05/2009
+        - change to new layout design.
+        - new style graphs added.
+        - TOCOPY and RANGES added to configuration rather than hardcoded.
+        - removal of updates/blog aspect, which is now part of cpanblog site.
 
-0.62	25/03/2009
-	- updated pre-requisites for test files.
+0.62    25/03/2009
+        - updated pre-requisites for test files.
 
-0.61	24/03/2009
-	- template headers updated.
-	- added further release test file - 95changedate.t
-	- added further version tests to 94metatest.t
-	- updated cpanmail.cgi (v0.04) to use CPAN::Testers::Common::DBUtils 
-	  and a config file contain the database connection settings.
+0.61    24/03/2009
+        - template headers updated.
+        - added further release test file - 95changedate.t
+        - added further version tests to 94metatest.t
+        - updated cpanmail.cgi (v0.04) to use CPAN::Testers::Common::DBUtils 
+          and a config file contain the database connection settings.
 
-0.60	02/02/2009
-	- added sponsor message to templates/layout.html.
-	- added missing DBD dependencies.
+0.60    02/02/2009
+        - added sponsor message to templates/layout.html.
+        - added missing DBD dependencies.
 
-0.59	30/01/2009
-	- updated addresses.pl (v0.13) to ignore further generic domains.
-	- updated test to ignore minor distro version changes.
-	- added missing Class::Accessor::Chained::Fast dependency.
+0.59    30/01/2009
+        - updated addresses.pl (v0.13) to ignore further generic domains.
+        - updated test to ignore minor distro version changes.
+        - added missing Class::Accessor::Chained::Fast dependency.
 
-0.58	26/01/2009
-	- added missing Config::IniFiles dependency.
+0.58    26/01/2009
+        - added missing Config::IniFiles dependency.
 
-0.57	25/01/2009
-	- reworked 56writes.t with a test version of the templates directory.
+0.57    25/01/2009
+        - reworked 56writes.t with a test version of the templates directory.
 
-0.56	25/01/2009
-	- added new testers graph.
-	- removed Database.pm and replaced with new prerequisite 
-	  CPAN::Testers::Common::DBUtils
-	- redesigned API so that Statistics.pm now handles common code pieces.
-	- changes to scripts to use new interface:
+0.56    25/01/2009
+        - added new testers graph.
+        - removed Database.pm and replaced with new prerequisite 
+          CPAN::Testers::Common::DBUtils
+        - redesigned API so that Statistics.pm now handles common code pieces.
+        - changes to scripts to use new interface:
             bin/cpanstats-writegraphs   (v0.49)
             bin/cpanstats-writepages    (v0.49)
-	- added new test suite
+        - added new test suite
 
-0.55	20/01/2009
-	- wording fix in interesting.html.
-	- URL fixes in templates.
+0.55    20/01/2009
+        - wording fix in interesting.html.
+        - URL fixes in templates.
 
-0.54	12/01/2009
-	- updated addresses.pl (v0.12) to ignore further generic domains. Also
-	  added ability to sort patterns, without including reversed strings.
-	- fix to previous month calculation when it's January (D'oh!).
-	- added postings to cpan-testers to the interesting stats page.
+0.54    12/01/2009
+        - updated addresses.pl (v0.12) to ignore further generic domains. Also
+          added ability to sort patterns, without including reversed strings.
+        - fix to previous month calculation when it's January (D'oh!).
+        - added postings to cpan-testers to the interesting stats page.
 
-0.53	19/11/2008
-	- fixed template navigation links (thanks to Steffen Kaiser)
-	- cpanmail.cgi (0.03) fix to stop apache error log entries.
-	- added script name reference to warnings
-	- reduced length of request string to Google Graphs by only using the
-	  first letter of every other month, and removing '000' and replacing
-	  with 'k' to represent values of over 1000.
+0.53    19/11/2008
+        - fixed template navigation links (thanks to Steffen Kaiser)
+        - cpanmail.cgi (0.03) fix to stop apache error log entries.
+        - added script name reference to warnings
+        - reduced length of request string to Google Graphs by only using the
+          first letter of every other month, and removing '000' and replacing
+          with 'k' to represent values of over 1000.
 
-0.52	09/10/2008
-	- added interesting stats page (thanks to JJ for the suggestion)..
+0.52    09/10/2008
+        - added interesting stats page (thanks to JJ for the suggestion)..
 
-0.51	01/10/2008
-	- updated index template with correct links.
+0.51    01/10/2008
+        - updated index template with correct links.
 
-0.50	26/09/2008
-	- removed dependency of CPAN::WWW::Testers::Generator::Article from
-	  cpanmail.cgi (v0.02) and used Email::Simple directly.
-	- fixed style sheet references in some templates.
-	- fixed a number of warnings about undefined values in numeric 
-	  comparisons.
-	- fixed XHTML errors in templates.
-	- fixed cpanmail.cgi to ignore non-numeric characters, this is
-	  to ignore the 'msg' part if anyone enters that.
-	- added text to cpanmail.html giving examples of what the NNTP ID is.
+0.50    26/09/2008
+        - removed dependency of CPAN::WWW::Testers::Generator::Article from
+          cpanmail.cgi (v0.02) and used Email::Simple directly.
+        - fixed style sheet references in some templates.
+        - fixed a number of warnings about undefined values in numeric 
+          comparisons.
+        - fixed XHTML errors in templates.
+        - fixed cpanmail.cgi to ignore non-numeric characters, this is
+          to ignore the 'msg' part if anyone enters that.
+        - added text to cpanmail.html giving examples of what the NNTP ID is.
 
 
-0.49	18/09/2008
+0.49    18/09/2008
         - amended bin/addresses.pl (v0.11) to only check reports.
-	- added further domains in matching to be ignored
-	- switched to Sort::Versions rather than version
+        - added further domains in matching to be ignored
+        - switched to Sort::Versions rather than version
 
-0.48	03/09/2008
+0.48    03/09/2008
         - complete abstraction of scripts into modules.
         - removal of cpanstats database scripts and code into
           CPAN-WWW-Testers-Generator code base.
@@ -205,248 +206,248 @@ Revision history for CPAN-Testers-WWW-Statistics
         - data files removed from the distribution, as they will have their own
           release only from the stats site.
         - changed all grango.org domains to the correct cpantesters.org domains.
-	- added RSS feed creation code.
-	- added RRS Feed and Blog links to navigation.
-	- added Perl Community AdServer links
+        - added RSS feed creation code.
+        - added RRS Feed and Blog links to navigation.
+        - added Perl Community AdServer links
         - First release to CPAN.
-	- consistently provided help|h and version|V options to all scripts:
+        - consistently provided help|h and version|V options to all scripts:
             bin/addresses.pl            (v0.10)
             bin/cpanstats-writegraphs   (v0.48)
             bin/cpanstats-writepages    (v0.48)
             bin/updates.pl              (v0.01)
 
-0.47	18/08/2008
-	- allow database to be a command line option (writestats.pl v0.47)
-	- added use of Getopt::ArgvFile.
-	- added Getopt dependencies.
-	- added more email => name translations.
-	- moved addresses.txt to ./data directory.
-	- moved addresses.pl (v0.10) to ./bin directory and updated paths.
+0.47    18/08/2008
+        - allow database to be a command line option (writestats.pl v0.47)
+        - added use of Getopt::ArgvFile.
+        - added Getopt dependencies.
+        - added more email => name translations.
+        - moved addresses.txt to ./data directory.
+        - moved addresses.pl (v0.10) to ./bin directory and updated paths.
 
-0.46	05/08/2008
-	- fixed compressed database size display in writestats.pl (v0.46).
-	- removed current month stats from latest graphs (writestats.pl).
+0.46    05/08/2008
+        - fixed compressed database size display in writestats.pl (v0.46).
+        - removed current month stats from latest graphs (writestats.pl).
 
-0.45	04/08/2008
-	- added more email => name translations.
-	- added better domain detection in addresses.pl (v0.09).
-	- fixed database size display in writestats.pl (v0.45).
+0.45    04/08/2008
+        - added more email => name translations.
+        - added better domain detection in addresses.pl (v0.09).
+        - fixed database size display in writestats.pl (v0.45).
 
-0.44	02/07/2008
-	- added more email => name translations.
-	- reordered address file.
-	- selectstats.pl (v0.04) adds the facility to search for entries with
-	  an empty string in the platform and perl fields by using a dash, '-'
-	  as the value to the command line option.
-	- added nntpid select option to selectstats.pl.
-	- added support for Base64 encoded articles to Article.pm (v0.11).
-	- updated index.html/updates.html in templates
+0.44    02/07/2008
+        - added more email => name translations.
+        - reordered address file.
+        - selectstats.pl (v0.04) adds the facility to search for entries with
+          an empty string in the platform and perl fields by using a dash, '-'
+          as the value to the command line option.
+        - added nntpid select option to selectstats.pl.
+        - added support for Base64 encoded articles to Article.pm (v0.11).
+        - updated index.html/updates.html in templates
 
-0.43	26/06/2008
-	- added more email => name translations.
-	- bug fix to include 'edu', 'mil', and 'museum' as TLD in the address 
-	  searching script, addresses.pl (v0.08).
-	- favicon.ico added to the MANIFEST.
-	- minor syntax fix in cpanstats.pl (v0.13).
+0.43    26/06/2008
+        - added more email => name translations.
+        - bug fix to include 'edu', 'mil', and 'museum' as TLD in the address 
+          searching script, addresses.pl (v0.08).
+        - favicon.ico added to the MANIFEST.
+        - minor syntax fix in cpanstats.pl (v0.13).
 
-0.42	24/06/2008
-	- added more email => name translations.
-	- fixed bug in Article.pm, where 'archname=' was being found in the
-	  test report and not the perl -V output.
-	- fixed bug for printing HTML entities written in hex.
-	- fixed reparse.pl (v0.05) logging bug.
-	- date parsing now looks at the last date contained in the received
-	  headers or the date header, in case bogus date stamps are given.
-	  Article.pm (v0.10), reparse.pl and cpanstats.pl (0.12) updated.
-	- added viewarticle.pl (v0.01) tool to retrieve and view a complete 
-	  article, for one or more articles.
+0.42    24/06/2008
+        - added more email => name translations.
+        - fixed bug in Article.pm, where 'archname=' was being found in the
+          test report and not the perl -V output.
+        - fixed bug for printing HTML entities written in hex.
+        - fixed reparse.pl (v0.05) logging bug.
+        - date parsing now looks at the last date contained in the received
+          headers or the date header, in case bogus date stamps are given.
+          Article.pm (v0.10), reparse.pl and cpanstats.pl (0.12) updated.
+        - added viewarticle.pl (v0.01) tool to retrieve and view a complete 
+          article, for one or more articles.
 
-0.41	10/06/2008
-	- added more email => name translations.
-	- reworked writestats.pl due to memory consumption issues.
-	- extracted writegraphs out of writestats.pl into a separate script,
-	  writegraphs.pl (v0.01), in an attempt to reduce memory consumption.
-	- updated cpanstats.pl (v0.11) and reparse.pl (v0.04) to stop if no 
-	  article is returned.
-	- updated reparse.pl to write to the log file as per cpanstats.pl.
-	- readstats.pl (v0.15) no longer stores the whole log file!
-	- changed readstats.pl and writestats.pl to use DBI iterators.
+0.41    10/06/2008
+        - added more email => name translations.
+        - reworked writestats.pl due to memory consumption issues.
+        - extracted writegraphs out of writestats.pl into a separate script,
+          writegraphs.pl (v0.01), in an attempt to reduce memory consumption.
+        - updated cpanstats.pl (v0.11) and reparse.pl (v0.04) to stop if no 
+          article is returned.
+        - updated reparse.pl to write to the log file as per cpanstats.pl.
+        - readstats.pl (v0.15) no longer stores the whole log file!
+        - changed readstats.pl and writestats.pl to use DBI iterators.
 
-0.40	03/06/2008
-	- added more email => name translations.
-	- fixed spelling mistakes in updates.html.
-	- added CGI as a prerequisites for dynamic tools.
+0.40    03/06/2008
+        - added more email => name translations.
+        - fixed spelling mistakes in updates.html.
+        - added CGI as a prerequisites for dynamic tools.
 
-0.39	27/05/2008
-	- added Find A Tester CGI lookup facility.
+0.39    27/05/2008
+        - added Find A Tester CGI lookup facility.
 
-0.38	15/05/2008
-	- added more email => name translations.
-	- fixed readstats.log (v0.14) to remove excessive newlines.
-	- updated writestats.pl to handle daily updates.
-	- added more automated calculations to the templates.
+0.38    15/05/2008
+        - added more email => name translations.
+        - fixed readstats.log (v0.14) to remove excessive newlines.
+        - updated writestats.pl to handle daily updates.
+        - added more automated calculations to the templates.
 
-0.37	13/04/2008
-	- added more email => name translations.
-	- graphs now generated by Google Chart API.
-	- due to overwelling amount of data, graphs altered slightly.
-	- WWW::Mechanize replaces GD::Graph::lines as a dependency.
-	- fixed version sorting as suggested by Earle Martin.
+0.37    13/04/2008
+        - added more email => name translations.
+        - graphs now generated by Google Chart API.
+        - due to overwelling amount of data, graphs altered slightly.
+        - WWW::Mechanize replaces GD::Graph::lines as a dependency.
+        - fixed version sorting as suggested by Earle Martin.
 
-0.36	03/03/2008
-	- added more email => name translations
-	- fixed to Articles.pm to correctly parse distributions such as
-	  'D/DA/DAMOG/WWW-Tumblr-0.tar.gz'
-	- fixed cpanstats.pl (v0.10), readstats.pl (v0.12) and reparse.pl 
-	  (v0.03) to correctly handle above type distributions
+0.36    03/03/2008
+        - added more email => name translations
+        - fixed to Articles.pm to correctly parse distributions such as
+          'D/DA/DAMOG/WWW-Tumblr-0.tar.gz'
+        - fixed cpanstats.pl (v0.10), readstats.pl (v0.12) and reparse.pl 
+          (v0.03) to correctly handle above type distributions
 
-0.35	05/02/2008
-	- added more email => name translations
+0.35    05/02/2008
+        - added more email => name translations
 
-0.34	02/01/2008
-	- added more email => name translations
-	- cpanstats.pl (v0.09) now records better log information in order to 
-	  ease network confirmation for readstats.pl
-	- readstats.pl (v0.11) reworked to read cpanstats.log for as much info 
-	  as possible before having to revert to an NNTP lookup.
-	- readstats.pl now uses Getopt::ArgvFile to avoid updating the code,
-	  thus there is a new .readstats.pl configuration file added to the
-	  release.
-	- updated POD - selectstats.pl (v0.03)
-	- platform option can now be a partial match - selectstats.pl (v0.03)
-	- added reparse.pl (v0.02) to distribution
-	- ignore empty lines from input file - upstats.pl (v0.02)
+0.34    02/01/2008
+        - added more email => name translations
+        - cpanstats.pl (v0.09) now records better log information in order to 
+          ease network confirmation for readstats.pl
+        - readstats.pl (v0.11) reworked to read cpanstats.log for as much info 
+          as possible before having to revert to an NNTP lookup.
+        - readstats.pl now uses Getopt::ArgvFile to avoid updating the code,
+          thus there is a new .readstats.pl configuration file added to the
+          release.
+        - updated POD - selectstats.pl (v0.03)
+        - platform option can now be a partial match - selectstats.pl (v0.03)
+        - added reparse.pl (v0.02) to distribution
+        - ignore empty lines from input file - upstats.pl (v0.02)
 
-0.33	02/11/2007
-	- added more email => name translations
-	- Don't re-encode an already HTML entity encoded testers name
+0.33    02/11/2007
+        - added more email => name translations
+        - Don't re-encode an already HTML entity encoded testers name
 
-0.32	02/10/2007
-	- added more email => name translations
-	- Added view of the spread of TLDs from tester addresses (addresses.pl)
-	- Added updates page for previous news updates
-	- Added counts for source/target tester addresses
+0.32    02/10/2007
+        - added more email => name translations
+        - Added view of the spread of TLDs from tester addresses (addresses.pl)
+        - Added updates page for previous news updates
+        - Added counts for source/target tester addresses
 
-0.31	03/09/2007
-	- Added HTML::Entities to prerequisites in order to fix HTML entities 
-	  in tester names.
+0.31    03/09/2007
+        - Added HTML::Entities to prerequisites in order to fix HTML entities 
+          in tester names.
 
-0.30	02/09/2007
-	- added index creation commands to cpanstats.pl (v0.08)
-	- added more email => name translations
-	- updated POD in readstats.pl (v0.10)
-	- added search feature to readstats.pl to list NNTP subjects directly
-	- added photo of Chris, Dave and Andreas to the index page :)
+0.30    02/09/2007
+        - added index creation commands to cpanstats.pl (v0.08)
+        - added more email => name translations
+        - updated POD in readstats.pl (v0.10)
+        - added search feature to readstats.pl to list NNTP subjects directly
+        - added photo of Chris, Dave and Andreas to the index page :)
 
-0.29	06/08/2007
-	- added more email => name translations
+0.29    06/08/2007
+        - added more email => name translations
 
-0.28	03/07/2007
-	- added more email => name translations
-	- updated index page to reference CPAN Testers Wiki
+0.28    03/07/2007
+        - added more email => name translations
+        - updated index page to reference CPAN Testers Wiki
 
-0.27	09/06/2007
-	- updates to delstats.pl and readstats.pl to match current server 
-	  versions
-	- added more email => name translations
+0.27    09/06/2007
+        - updates to delstats.pl and readstats.pl to match current server 
+          versions
+        - added more email => name translations
 
-0.26	05/06/2007
-	- added upstats.pl to the distribution, which helps to update any 
-	  entries, which haven't been inserted correctly.
+0.26    05/06/2007
+        - added upstats.pl to the distribution, which helps to update any 
+          entries, which haven't been inserted correctly.
 
-0.25	12/05/2007
-	- added Google Analytics code to layout template
+0.25    12/05/2007
+        - added Google Analytics code to layout template
 
-0.24	04/05/2007
-	- added more email => name translations
-	- bad entries or parsing no longer recorded in the DB. This will 
-	  hopefully enable me to update some parts of the site on a more 
-	  regular basis (cpanstats.pl v0.07)
-	- only print headings if we have something to report 
-	  (readstats.pl v0.08)
-	- updates to AUTHOR & COPYRIGHT AND LICENSE entries in POD
-	- updated selectstats.pl to supply a distname from the commandline
-	- added monthly counts for Testers, Platforms & Perls pages
+0.24    04/05/2007
+        - added more email => name translations
+        - bad entries or parsing no longer recorded in the DB. This will 
+          hopefully enable me to update some parts of the site on a more 
+          regular basis (cpanstats.pl v0.07)
+        - only print headings if we have something to report 
+          (readstats.pl v0.08)
+        - updates to AUTHOR & COPYRIGHT AND LICENSE entries in POD
+        - updated selectstats.pl to supply a distname from the commandline
+        - added monthly counts for Testers, Platforms & Perls pages
 
-0.23	14/04/2007
-	- added a new stats matrix for distributions
-	- added click thru lists of distributions for the new matrix
-	- revamped the navigation
+0.23    14/04/2007
+        - added a new stats matrix for distributions
+        - added click thru lists of distributions for the new matrix
+        - revamped the navigation
 
-0.22	23/03/2007
-	- added more email => name translations
-	- added more general domains to ignore when mapping in address.pl
+0.22    23/03/2007
+        - added more email => name translations
+        - added more general domains to ignore when mapping in address.pl
 
-0.21	12/03/2007
-	- further changes to the Failure Counts page, to allow for more fields
-	  and the ability to order by count or percentage.
+0.21    12/03/2007
+        - further changes to the Failure Counts page, to allow for more fields
+          and the ability to order by count or percentage.
 
-0.20	10/03/2007
-	- added missing template (wdists.html) to MANIFEST
+0.20    10/03/2007
+        - added missing template (wdists.html) to MANIFEST
 
-0.19	10/03/2007
-	- added more email => name translations
-	- added the selectstats.pl script to help get quick results back from
-	  the DB
-	- added the Failure Counts feature, following a suggestion from Adam
-	  Kennedy. Note that it does not ignore duplicate reports
+0.19    10/03/2007
+        - added more email => name translations
+        - added the selectstats.pl script to help get quick results back from
+          the DB
+        - added the Failure Counts feature, following a suggestion from Adam
+          Kennedy. Note that it does not ignore duplicate reports
 
-0.18	08/03/2007
-	- added more email => name translations
+0.18    08/03/2007
+        - added more email => name translations
 
-0.17	07/02/2007
-	- added more email => name translations
-	- address translation script modified to list only matched addresses
-	  from a specified date
+0.17    07/02/2007
+        - added more email => name translations
+        - address translation script modified to list only matched addresses
+          from a specified date
 
-0.16	02/01/2007
-	- added more email => name translations
-	- increased graph sizes to be more readable
-	- changed code and templates to produce tabulated data output
-	- modified CSS for the above
+0.16    02/01/2007
+        - added more email => name translations
+        - increased graph sizes to be more readable
+        - changed code and templates to produce tabulated data output
+        - modified CSS for the above
 
-0.15	01/12/2006
-	- added more email => name translations
-	- address translation script modified to include a (commented out)
-	  line to show how to only search for recent postings
+0.15    01/12/2006
+        - added more email => name translations
+        - address translation script modified to include a (commented out)
+          line to show how to only search for recent postings
 
-0.14	01/11/2006
-	- added more email => name translations
-	- fixed bug in address translation script
-	- added address translation script to distribution
+0.14    01/11/2006
+        - added more email => name translations
+        - fixed bug in address translation script
+        - added address translation script to distribution
 
-0.13	09/10/2006
-	- added 100+ email => name translations
-	- changed way unmatched addresses are displayed on the website (to 
-	  help reduce any spam harvesting)
+0.13    09/10/2006
+        - added 100+ email => name translations
+        - changed way unmatched addresses are displayed on the website (to 
+          help reduce any spam harvesting)
 
-0.12	05/09/2006
-	- added more email => name translations
+0.12    05/09/2006
+        - added more email => name translations
 
-0.11	03/06/2006
-	- added more email => name translations
+0.11    03/06/2006
+        - added more email => name translations
 
-0.10	03/04/2006
-	- added more email => name translations
-	- extra graph - UPLOADS/FAIL/UNKNOWN
+0.10    03/04/2006
+        - added more email => name translations
+        - extra graph - UPLOADS/FAIL/UNKNOWN
 
-0.09	02/03/2006
-	- two bugs fixed in Article.pm, firstly only decode Quoted Printable,
-	  if it is, and secondly the platform in the subject was being parsed
-	  correctly.
-	- added more email => name translations
-	- addresses now in separate data file
+0.09    02/03/2006
+        - two bugs fixed in Article.pm, firstly only decode Quoted Printable,
+          if it is, and secondly the platform in the subject was being parsed
+          correctly.
+        - added more email => name translations
+        - addresses now in separate data file
 
-0.08	19/02/2006
-	- added more email => name translations
-	- spelling & grammar fixes
+0.08    19/02/2006
+        - added more email => name translations
+        - spelling & grammar fixes
 
-0.07	18/02/2006
-	- added matrix page to statistics website
+0.07    18/02/2006
+        - added matrix page to statistics website
 
-0.06	02/02/2006
-	- First public release
-	- more address to testers listed
-	- fixed HTML parsing for address strings with '<' in them
+0.06    02/02/2006
+        - First public release
+        - more address to testers listed
+        - fixed HTML parsing for address strings with '<' in them
 
-	Prior versions were not recorded.
+        Prior versions were not recorded.

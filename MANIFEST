@@ -7,6 +7,7 @@ bin/addresses.pl
 bin/cpanstats-writegraphs
 bin/cpanstats-writepages
 bin/getmailrc.pl
+data/01mailrc.txt
 examples/cpanstats.sql
 examples/cpanstats.sh
 examples/example-settings.ini
@@ -26,6 +27,7 @@ t/51init.t
 t/52methods-graphs.t
 t/52methods-pages.t
 t/56writes.t
+t/56writes-update.txt
 t/59cleanup.t
 t/90podtest.t
 t/91podcover.t
@@ -67,6 +69,10 @@ templates/mtesters.html
 templates/osmatrix.html
 templates/perform.html
 templates/pmatrix.html
+templates/public/box-menus.html
+templates/public/box-sites.html
+templates/public/footer.html
+templates/public/quote.html
 templates/response.html
 templates/statscpan.html
 templates/testers.html
@@ -75,8 +81,3 @@ templates/wdists.html
 templates/wdists-recent.html
 templates/wpcent.html
 templates/wpcent-recent.html
-t/56writes-update.txt
-templates/public/box-menus.html
-templates/public/box-sites.html
-templates/public/footer.html
-templates/public/quote.html
