@@ -84,6 +84,7 @@
 
 .main-content table {clear:both; width:630px; margin:0.5em 0 0.2em 0px; border-collapse:collapse; empty-cells:show; background-color:rgb(233,232,244);}
 .main-content table th {height:3.5em; padding:0 7px 0 7px; empty-cells:show; background-color:rgb(175,175,175); text-align:left; color:rgb(255,255,255); font-weight:bold; font-size:110%;border:solid 2px rgb(255,255,255);}
+.main-content table th.side {height:3.5em; padding:0 7px 0 7px; empty-cells:show; background-color:rgb(175,175,175); text-align:left; color:#000; font-weight:bold; font-size:110%;}
 .main-content table th.top {height:3.5em; padding:0 7px 0 7px; empty-cells:show; background-color:rgb(175,175,175); text-align:left; color:rgb(255,255,255); font-weight:bold; font-size:110%;}
 .main-content table th.odd {height:3.0em; padding:2px 20px 2px 7px; border-left:solid 2px rgb(255,255,255); border-right:solid 2px rgb(255,255,255); border-top:solid 2px rgb(255,255,255); border-bottom:solid 2px rgb(255,255,255); background-color:rgb(225,225,225); text-align:left; color:rgb(80,80,80); font-weight:bold; font-size:110%;}
 .main-content table td {height:2.5em; padding:2px 7px 2px 7px; border-left:solid 2px rgb(255,255,255); border-right:solid 2px rgb(255,255,255); border-top:solid 2px rgb(255,255,255); border-bottom:solid 2px rgb(255,255,255); background-color:rgb(225,225,225); text-align:left; font-weight:normal; color:rgb(80,80,80); font-size:110%;}
