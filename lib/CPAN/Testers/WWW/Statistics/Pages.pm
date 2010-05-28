@@ -235,6 +235,7 @@ sub _write_stats {
 
     $self->_report_cpan();
     $self->_build_monthly_stats();
+    $self->_missing_in_action();
 
 ## BUILD GENERAL STATS
 
@@ -551,6 +552,30 @@ sub _report_cpan {
     $tvars{distros}{uploaded6} = $tvars{distros}{uploaded5} - $tvars{distros}{uploaded4};
 
     $self->_writepage('statscpan',\%tvars);
+}
+
+sub _missing_in_action {
+    my $self = shift;
+    my (%tvars,%missing,@missing);
+
+    $self->{parent}->_log("building missing in action page");
+
+    my $fh = IO::File->new('data/missing-in-action.txt') or return;
+    while(<$fh>) {
+        chomp;
+        my ($pauseid,$timestamp,$reason) = /^([a-z]+)[ \t]+([^+]+\+0[01]00) (.*)/i;
+        next	unless($pauseid);
+        $missing{$pauseid}{timestamp} = $timestamp;
+        $missing{$pauseid}{reason} = $reason;
+    }
+    $fh->close;
+
+    for my $pauseid (sort keys %missing) {
+        push @missing, { pauseid => $pauseid, timestamp => $missing{$pauseid}{timestamp},  reason => $missing{$pauseid}{reason} };
+    }
+
+    $tvars{missing} = \@missing	if(@missing);
+    $self->_writepage('missing',\%tvars);
 }
 
 sub _build_osname_matrix {
