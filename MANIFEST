@@ -7,7 +7,6 @@ bin/addresses.pl
 bin/cpanstats-writegraphs
 bin/cpanstats-writepages
 bin/getmailrc.pl
-data/01mailrc.txt
 examples/cpanstats.sql
 examples/cpanstats.sh
 examples/example-settings.ini
@@ -60,6 +59,7 @@ templates/interest.html
 templates/layout.html
 templates/layout-wide.html
 templates/leadercpan.html
+templates/missing.html
 templates/month.html
 templates/mperls.html
 templates/mplatforms.html

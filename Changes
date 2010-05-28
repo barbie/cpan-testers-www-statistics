@@ -1,5 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.85    28/05/2010
+	- added missing.html for missing in action PAUSE accounts.
+
 0.84    20/04/2010
         - fixed ranges() to return correct ranges for a range ending on or 
           after the current month, and ignore any that start on or after the
