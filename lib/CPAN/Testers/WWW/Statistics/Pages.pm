@@ -551,6 +551,74 @@ sub _report_cpan {
     $tvars{distros}{uploaded5} = $rows[0]->[0];
     $tvars{distros}{uploaded6} = $tvars{distros}{uploaded5} - $tvars{distros}{uploaded4};
 
+
+    $self->{parent}->_log("building cpan interesting stats page (part 2)");
+
+    my (%stats,%dists,%pause,%last);
+    $next = $self->{parent}->{CPANSTATS}->iterator('hash','SELECT * FROM uploads ORDER BY released');
+    while(my $row = $next->()) {
+        $stats{vcounter}++;
+        if($stats{vcounter} % 10000 == 0) {
+            $stats{'uploads'}{$stats{vcounter}}{dist} = $row->{dist};
+            $stats{'uploads'}{$stats{vcounter}}{vers} = $row->{version};
+            $stats{'uploads'}{$stats{vcounter}}{date} = $row->{released};
+            $stats{'uploads'}{$stats{vcounter}}{name} = $row->{author};
+        }
+
+        $last{'uploads'}{counter} = $stats{vcounter};
+        $last{'uploads'}{dist} = $row->{dist};
+        $last{'uploads'}{vers} = $row->{version};
+        $last{'uploads'}{date} = $row->{released};
+        $last{'uploads'}{name} = $row->{author};
+
+        unless($pause{$row->{author}}) {
+            $pause{$row->{author}} = 1;
+            $stats{pcounter}++;
+            if($stats{pcounter} % 1000 == 0) {
+                $stats{'uploaders'}{$stats{pcounter}}{dist} = $row->{dist};
+                $stats{'uploaders'}{$stats{pcounter}}{vers} = $row->{version};
+                $stats{'uploaders'}{$stats{pcounter}}{date} = $row->{released};
+                $stats{'uploaders'}{$stats{pcounter}}{name} = $row->{author};
+            }
+
+            $last{'uploaders'}{counter} = $stats{pcounter};
+            $last{'uploaders'}{dist} = $row->{dist};
+            $last{'uploaders'}{vers} = $row->{version};
+            $last{'uploaders'}{date} = $row->{released};
+            $last{'uploaders'}{name} = $row->{author};
+        }
+
+        next    if($dists{$row->{dist}});
+
+        $dists{$row->{dist}} = 1;
+        $stats{dcounter}++;
+        if($stats{dcounter} % 5000 == 0) {
+            $stats{'distributions'}{$stats{dcounter}}{dist} = $row->{dist};
+            $stats{'distributions'}{$stats{dcounter}}{vers} = $row->{version};
+            $stats{'distributions'}{$stats{dcounter}}{date} = $row->{released};
+            $stats{'distributions'}{$stats{dcounter}}{name} = $row->{author};
+        }
+
+        $last{'distributions'}{counter} = $stats{dcounter};
+        $last{'distributions'}{dist} = $row->{dist};
+        $last{'distributions'}{vers} = $row->{version};
+        $last{'distributions'}{date} = $row->{released};
+        $last{'distributions'}{name} = $row->{author};
+    }
+
+    for my $type (qw(distributions uploads uploaders)) {
+        my @list;
+        $stats{$type}{$last{$type}{counter}} = $last{$type};
+        for my $count (sort {$a <=> $b} keys %{$stats{$type}}) {
+            my @date = localtime($stats{$type}{$count}{date});
+            my $date = sprintf "%04d-%02d-%02d %02d:%02d:%02d", $date[5]+1900, $date[4]+1, $date[3], $date[2], $date[1], $date[0] ;
+            $stats{$type}{$count}{counter} = $count;
+            $stats{$type}{$count}{date} = $date;
+            push @list, $stats{$type}{$count};
+        }
+        $tvars{$type} = \@list	if(@list);
+    }
+
     $self->_writepage('statscpan',\%tvars);
 }
 
