@@ -3,6 +3,7 @@ Revision history for CPAN-Testers-WWW-Statistics
 0.85    28/05/2010
 	- added missing.html for missing in action PAUSE accounts.
 	- extended the stats of cpan to provide milestones.
+	- bugfixes to find a tester feature.
 
 0.84    20/04/2010
         - fixed ranges() to return correct ranges for a range ending on or 

@@ -76,7 +76,7 @@ if($tvars{id} || $tvars{guid}) {
         $tvars{nntpid} = guid_to_nntp($tvars{guid});
         $found = retrieve_from_nntp($tvars{nntpid});
     } else {
-        $found = 5;
+        $found ||= 5;
     }
 } else {
     $found = 3;
@@ -115,7 +115,7 @@ sub retrieve_from_db {
     if(defined $hash{id}) {
         $sql = "SELECT * FROM cpanstats WHERE id=$hash{id}";
     } elsif(defined $hash{guid}) {
-        $sql = "SELECT * FROM cpanstats WHERE guid=$hash{guid}";
+        $sql = "SELECT * FROM cpanstats WHERE guid='$hash{guid}'";
     }
 
     my @rows = $dbh->get_query('hash',$sql);
