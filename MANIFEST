@@ -10,6 +10,7 @@ bin/getmailrc.pl
 examples/cpanstats.sql
 examples/cpanstats.sh
 examples/example-settings.ini
+examples/reset.sh
 lib/CPAN/Testers/WWW/Statistics.pm
 lib/CPAN/Testers/WWW/Statistics/Graphs.pm
 lib/CPAN/Testers/WWW/Statistics/Pages.pm

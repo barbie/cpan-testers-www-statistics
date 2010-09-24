@@ -3,6 +3,7 @@ Revision history for CPAN-Testers-WWW-Statistics
 0.86    current
 	- added Metabase and Labyrinth links.
 	- repositioned site boxes to avoid text and logo clashing.
+	- added reset.sh to examples to help rebuild expected.zip
 
 0.85    28/05/2010
 	- added missing.html for missing in action PAUSE accounts.
