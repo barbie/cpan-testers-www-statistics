@@ -1,5 +1,9 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.86    current
+	- added Metabase and Labyrinth links.
+	- repositioned site boxes to avoid text and logo clashing.
+
 0.85    28/05/2010
 	- added missing.html for missing in action PAUSE accounts.
 	- extended the stats of cpan to provide milestones.

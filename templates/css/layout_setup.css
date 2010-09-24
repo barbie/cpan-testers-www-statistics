@@ -108,7 +108,7 @@
 /********************/
 /*  FOOTER SECTION  */
 /********************/
-.footer p {line-height:1.3em; text-align:center; color:rgb(125,125,125); font-weight:bold; font-size:7pt;}
+.footer p {line-height:1.3em; text-align:center; color:rgb(125,125,125); font-weight:bold; font-size:7pt; margin-bottom:5px;}
 .footer p.credits {font-weight:normal;}
 .footer a {text-decoration:underline; color:rgb(125,125,125);}
 .footer a:hover {text-decoration:none; color:rgb(0,0,0);}

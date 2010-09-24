@@ -217,7 +217,7 @@ a.tooltip:hover span {
 
 .boxer {max-height: 600px;overflow:auto;}
 
-.nav0 {z-index: 2; margin-top: 128px; font-size: 8pt; float: right; }
+.nav0 {z-index: 2; margin: 0px; font-size: 8pt; float: right; background-color:#000; width:100%;}
 .nav0 ul {float:right; padding:4px 0;background-color:#000;}
 .nav0 li {display:inline; list-style:none;margin:0;background-color:#000;padding:3px 5px; }
 .nav0 li a {}
@@ -234,6 +234,10 @@ a.tooltip:hover span {
 .nav0 li.blue {border-right:5px solid #0000FF;border-left:2px solid #000;}
 .nav0 li.blue a {color:#fff;}
 .nav0 li.blue a:hover {color:#0000FF;}
+
+.nav0 li.cornblue {border-right:5px solid #6495ED;border-left:2px solid #000;}
+.nav0 li.cornblue a {color:#fff;}
+.nav0 li.cornblue a:hover {color:#6495ED;}
 
 .nav0 li.cyan {border-right:5px solid #00FFFF;border-left:2px solid #000;}
 .nav0 li.cyan a {color:#fff;}
