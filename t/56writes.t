@@ -110,7 +110,7 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 # Tests for creating graphs
 
 SKIP: {
-	skip "Can't see a network connection", 88	if(pingtest());
+	skip "Can't see a network connection", 66	if(pingtest());
 
     $obj->directory($dir . '/create'),
     $page->create();
@@ -150,7 +150,7 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
 
 SKIP: {
-	skip "Can't see a network connection", 45	if(pingtest());
+	skip "Can't see a network connection", 11	if(pingtest());
 
     CTWS_Testing::saveFiles($dir . '/make_graphs');
 
@@ -214,27 +214,29 @@ sub check_dir_contents {
   ok( scalar(@files), "got files [$dir]" );
   ok( scalar(@expectedFiles), "got expectedFiles [$expectedDir]" );
   eq_or_diff( \@files, \@expectedFiles, "$diz file listings match" );
+  my $count = 3;
   for my $f ( @files ){
     my $fGot = File::Spec->catfile($dir,$f);
     my $fExpected = File::Spec->catfile($expectedDir, $f);
 
     # diff text files only
     if($f =~ /\.(html?|txt|js|css|json|ya?ml|ini|cgi)$/i) {
+        $count++;
         my $ok = eq_or_diff_files(
-        $fGot,
-        $fExpected,
-        "$diz diff $f",
-        sub {
-            if($_[0]) {
-                $_[0] =~ s/^(\s*)\d+\.\d+(?:_\d+)? at \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.( Comments and design patches)/$1 ==TIMESTAMP== $2/gmi;
-                $_[0] =~ s/\d+(st|nd|rd|th)\s+\w+\s+\d+/==TIMESTAMP==/gmi;
-                $_[0] =~ s!\d{4}/\d{2}/\d{2}!==TIMESTAMP==!gmi;
-                $_[0] =~ s!\d{2}/\d{2}!==TIMESTAMP==!gmi;
-                $_[0] =~ s!\w+ \d{4}!==TIMESTAMP==!gmi;
-                $_[0] =~ s!CPAN-Testers-WWW-Statistics-0.\d{2}!==DISTRO==!gmi;
+            $fGot,
+            $fExpected,
+            "$diz diff $f",
+            sub {
+                if($_[0]) {
+                    $_[0] =~ s/^(\s*)\d+\.\d+(?:_\d+)? at \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.( Comments and design patches)/$1 ==TIMESTAMP== $2/gmi;
+                    $_[0] =~ s/\d+(st|nd|rd|th)\s+\w+\s+\d+/==TIMESTAMP==/gmi;
+                    $_[0] =~ s!\d{4}/\d{2}/\d{2}!==TIMESTAMP==!gmi;
+                    $_[0] =~ s!\d{2}/\d{2}!==TIMESTAMP==!gmi;
+                    $_[0] =~ s!\w+ \d{4}!==TIMESTAMP==!gmi;
+                    $_[0] =~ s!CPAN-Testers-WWW-Statistics-0.\d{2}!==DISTRO==!gmi;
+                }
+                $_[0];
             }
-            $_[0];
-        }
         );
         next if $ok;
     }
@@ -245,6 +247,7 @@ sub check_dir_contents {
     copy( $fGot, $fExpected );
   }
 
+#diag("check_dir_contents: [$diz] tests=$count/".(scalar(@files)+3));
   return unless $UPDATE_ARCHIVE;
   for my $f ( @expectedFiles ){
     # remove files no longer expected

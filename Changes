@@ -1,6 +1,6 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.86    current
+0.86    26/09/2010
 	- added Metabase and Labyrinth links.
 	- repositioned site boxes to avoid text and logo clashing.
 	- added reset.sh to examples to help rebuild expected.zip
