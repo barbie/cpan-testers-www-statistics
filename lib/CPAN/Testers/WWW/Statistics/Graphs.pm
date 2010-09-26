@@ -37,7 +37,8 @@ Note that this package should not be called directly, but via its parent as:
 use File::Path;
 use HTML::Entities;
 use IO::File;
-use WWW::Mechanize;
+use LWP::UserAgent;
+use HTTP::Request;
 
 # -------------------------------------
 # Variables
@@ -61,8 +62,8 @@ my @graphs = (
 ['pcent1' ,'CPAN Testers Statistics - Percentages', [qw(PASS FAIL OTHER)],              'TEST_RANGES', 'month'],
 );
 
-my $mech = WWW::Mechanize->new();
-$mech->agent_alias( 'Linux Mozilla' );
+my $lwp = LWP::UserAgent->new();
+$lwp->agent( 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624' );
 
 my $chart_api    = 'http://chart.apis.google.com/chart?chs=640x300&cht=lc';
 my $chart_titles = 'chtt=%s&chdl=%s';
@@ -159,35 +160,41 @@ sub create {
             $self->{parent}->_log("url - [".(length $url)."] $url");
     #        print "$url\n";
 
-            eval { $mech->get($url); };
+            my $res;
+            eval { 
+                my $req = HTTP::Request->new(GET => $url);
+                $res = $lwp->request($req);
+            };
 
-            if($@ || !$mech->success()) {
+            if($@ || !$res->is_success()) {
                 my $file = "$results/$g->[0]-$r.html";
-                warn("FAIL: $0 - Cannot access page - see '$file'\n");
-                $mech->save_content($file);
-            } elsif($mech->response->header('Content-Type') =~ /html/) {
+                warn("FAIL: $0 - Cannot access page - see '$file' [$url] [$@]\n");
+                _save_content($res,$file);
+            } elsif($res->header('Content-Type') =~ /html/) {
                 my $file = "$results/$g->[0]-$r.html";
                 warn("FAIL: $0 - request failed - see '$file'\n");
-                $mech->save_content($file);
+                _save_content($res,$file);
             } else {
                 my $file = "$results/$g->[0]-$r.png";
-                my $fh = IO::File->new(">$file") or die "$0 - Cannot write file [$file]: $!\n";
-                binmode($fh);
-                print $fh $mech->content;
-                $fh->close;
+                _save_content($res,$file);
 
                 if($r eq $latest) {
                     $file = "$results/$g->[0].png";
-                    $fh = IO::File->new(">$file") or die "$0 - Cannot write file [$file]: $!\n";
-                    binmode($fh);
-                    print $fh $mech->content;
-                    $fh->close;
+                    _save_content($res,$file);
                 }
             }
         }
     }
 
     $self->{parent}->_log("finish");
+}
+
+sub _save_content {
+    my ($res,$file) = @_;
+    my $fh = IO::File->new(">$file") or die "$0 - Cannot write file [$file]: $!\n";
+    binmode($fh)    if($file =~ /\.png$/);
+    print $fh $res->content;
+    $fh->close;
 }
 
 #=item _make_graph

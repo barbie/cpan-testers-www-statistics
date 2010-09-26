@@ -23,7 +23,7 @@ $|=1;
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 318;
+use Test::More tests => 262;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;
@@ -154,14 +154,18 @@ SKIP: {
 
     CTWS_Testing::saveFiles($dir . '/make_graphs');
 
-    $obj->directory($dir . '/make_graphs'),
-	$obj->make_graphs();
-	check_dir_contents(
-		"[make_graphs]",
-		$obj->directory,
-		File::Spec->catfile($EXPECTEDPATH,'56writes.make_graphs'),
-	);
-	ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+    $obj->directory($dir . '/make_graphs');
+    eval { $obj->make_graphs() };
+
+    SKIP: {
+        skip "User::Agent failure", 1    if($@ =~ /- Cannot access page -/);
+        check_dir_contents(
+            "[make_graphs]",
+            $obj->directory,
+            File::Spec->catfile($EXPECTEDPATH,'56writes.make_graphs'),
+        );
+    }
+    ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 };
 
 #---------------------------------------
@@ -199,7 +203,7 @@ sub eq_or_diff_files {
   return
 	( defined($s1) && defined($s2) )
 	? eq_or_diff( $s1, $s2, $desc )
-	: ok( 0, "$desc - both files exist")
+	: ok( 0, "$desc - both files exist [missing ".(defined($s2) ? $f1 : $f2)."]")
   ;
 }
 

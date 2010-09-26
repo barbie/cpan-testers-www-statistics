@@ -28,7 +28,8 @@ requires:
   Sort::Versions:                   0
   Template:                         0
   Time::Piece:                      0
-  WWW::Mechanize:                   0
+  LWP::UserAgent:                   0
+  HTTP::Request:                    0
 recommends:
   Test::More:                       0.70
   Test::MockObject:                 0
