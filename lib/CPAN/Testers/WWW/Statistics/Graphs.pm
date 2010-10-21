@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.86';
+$VERSION = '0.87';
 
 #----------------------------------------------------------------------------
 
@@ -148,7 +148,7 @@ sub create {
     for my $g (@graphs) {
         my $ranges = $self->{parent}->ranges($g->[3]);
         $self->{parent}->_log("writing graph - got range [$g->[3]] = " . (scalar(@$ranges)) . ", latest=$ranges->[-1]");
-        
+
         my $latest = $ranges->[-1];
 
         for my $r (@$ranges) {
@@ -161,7 +161,7 @@ sub create {
     #        print "$url\n";
 
             my $res;
-            eval { 
+            eval {
                 my $req = HTTP::Request->new(GET => $url);
                 $res = $lwp->request($req);
             };
@@ -288,7 +288,7 @@ sub _get_data {
     $self->{parent}->_log("get data - range=$range, fdate=$fdate, tdate=$tdate");
 
     my @data;
-    my $fh = IO::File->new($file) 
+    my $fh = IO::File->new($file)
         or return ();
         #or die "Cannot open data file [$file]: $!\n";
     while(<$fh>) {

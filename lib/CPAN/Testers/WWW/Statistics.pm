@@ -5,7 +5,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.86';
+$VERSION = '0.87';
 
 #----------------------------------------------------------------------------
 
@@ -55,6 +55,7 @@ keys.
   config    => path to configuration file [required]
 
   directory => path to output directory
+  storage   => path to data storage file
   templates => path to templates directory
   database  => path to SQLite database file
   address   => path to address file
@@ -111,6 +112,7 @@ sub new {
     my @TOCOPY = split("\n", $cfg->val('TOCOPY','LIST'));
     $self->tocopy(\@TOCOPY);
 
+    $self->storage(  _defined_or( $hash{storage},   $cfg->val('MASTER','storage'  ) ));
     $self->templates(_defined_or( $hash{templates}, $cfg->val('MASTER','templates') ));
     $self->database( _defined_or( $hash{database},  $cfg->val('MASTER','database' ) ));
     $self->address(  _defined_or( $hash{address},   $cfg->val('MASTER','address'  ) ));
@@ -120,6 +122,7 @@ sub new {
     $self->copyright(                               $cfg->val('MASTER','copyright') );
     $self->builder(  _defined_or( $hash{builder},   $cfg->val('MASTER','builder'  ) ));
 
+    $self->_log("storage  =".($self->storage   || ''));
     $self->_log("templates=".($self->templates || ''));
     $self->_log("database =".($self->database  || ''));
     $self->_log("address  =".($self->address   || ''));
@@ -160,7 +163,7 @@ Returns the print form of a recorded OS name.
 =cut
 
 __PACKAGE__->mk_accessors(
-    qw( directory templates database address builder logfile logclean 
+    qw( directory storage templates database address builder logfile logclean 
         copyright tocopy osnames));
 
 sub make_pages {
@@ -191,13 +194,13 @@ sub ranges {
 
     my @RANGES;
     if($section eq 'NONE') {
-	@RANGES = ('00000000-99999999');
+        @RANGES = ('00000000-99999999');
     } else {
         my @ranges = split("\n", $self->{cfg}->val($section,'LIST'));
         for my $range (@ranges) {
             my ($fdate,$tdate) = split('-',$range,2);
-            next		if($fdate > $now);
-            $tdate = $now	if($tdate > $now);
+            next            if($fdate > $now);
+            $tdate = $now   if($tdate > $now);
             push @RANGES, "$fdate-$tdate";
         }
     }

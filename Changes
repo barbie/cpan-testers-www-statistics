@@ -3,8 +3,9 @@ Revision history for CPAN-Testers-WWW-Statistics
 0.87    current
         - further domain patterns to ignore.
           - bin/addresses.pl (0.15).
-	- simplification of state lookups.
-	- reduced data held in memory.
+        - simplification of state lookups.
+        - reduced data held in memory.
+        - reduced lookup time by storing data with each run.
 
 0.86    26/09/2010
         - added Metabase and Labyrinth links.
