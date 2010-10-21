@@ -264,7 +264,7 @@ sub _build_stats {
     my @date = localtime($d2);
     my $date = sprintf "%04d%02d%02d", $date[5]+1900, $date[4]+1, $date[3];
 
-    my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM cpanstats WHERE state IN ('pass','fail','na','unknown') AND fulldate like '$date%'");
+    my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM cpanstats WHERE type = 2 AND fulldate like '$date%'");
     $self->{rates}{report} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 10000 * 1000;
     @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM uploads WHERE released > $d2 and released < $d1");
     $self->{rates}{distro} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 60 * 1000;
@@ -305,17 +305,11 @@ sub _build_stats {
     # id, guid, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate, type
 
     my %testers;
-    $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats ORDER BY id");
+    $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats WHERE type = 2 ORDER BY id");
     while(my $row = $iterator->()) {
-        next    if($row->[2] =~ /:invalid/);
-        next    if($row->[12] > 2);
-
         $row->[8] =~ s/\s.*//;  # only need to know the main release
 
-        if($row->[2] eq 'cpan') {
-            $self->{stats}{$row->[3]}{pause}++;
-            $self->{fails}{$row->[5]}{$row->[6]}{post} = $row->[3];
-        } else {
+        {
             my $osname = $self->{parent}->osname($row->[9]);
             my $name   = $self->_tester_name($row->[4]);
 
@@ -324,10 +318,19 @@ sub _build_stats {
             #$self->{stats}{$row->[3]}{dist    }{$row->[5]}++;
             #$self->{stats}{$row->[3]}{version }{$row->[6]}++;
 
-            # check failure rates
-            $self->{fails}{$row->[5]}{$row->[6]}{fail}++    if($row->[2] eq 'fail');
-            $self->{fails}{$row->[5]}{$row->[6]}{pass}++    if($row->[2] eq 'pass');
-            $self->{fails}{$row->[5]}{$row->[6]}{total}++;
+            # check distribution tallies
+            if(defined $self->{dists}{$row->[5]}) {
+                $self->{dists}{$row->[5]}{ALL}++;
+
+                if($self->{dists}{$row->[5]}}->{VER} eq $row->[6]) {
+                    $self->{dists}{$row->[5]}{IXL}++;
+
+                    # check failure rates
+                    $self->{fails}{$row->[5]}{$row->[6]}{fail}++    if($row->[2] eq 'fail');
+                    $self->{fails}{$row->[5]}{$row->[6]}{pass}++    if($row->[2] eq 'pass');
+                    $self->{fails}{$row->[5]}{$row->[6]}{total}++;
+                }
+            }
 
             # build matrix stats
             my $perl = $row->[8];
@@ -350,11 +353,6 @@ sub _build_stats {
             $testers{$name}{first} ||= $row->[3];
             $testers{$name}{last}    = $row->[3];
             $self->{counts}{$row->[3]}{testers}{$name} = 1;
-
-            if(defined $self->{dists}{$row->[5]}) {
-                $self->{dists}{$row->[5]}{ALL}++;
-                $self->{dists}{$row->[5]}{IXL}++  if($self->{dists}{$row->[5]}{VER} eq $row->[6]);
-            }
 
             my $day = substr($row->[11],0,8);
             $self->{build}{$day}{reports}++ if(defined $self->{build}{$day});
@@ -457,6 +455,8 @@ sub _report_cpan {
 
         $self->{counts}{$date}{newauthors}++  if($authors{$row->{author}}{count} == 1);
         $self->{counts}{$date}{newdistros}++  if($distros{$row->{dist}}{count} == 1);
+
+        $self->{stats}{$date}{pause}++;
     }
 
     my $directory = $self->{parent}->directory;
@@ -909,7 +909,7 @@ sub _build_monthly_stats {
     $self->{parent}->_log("building monthly tables");
 
     my $query = q!SELECT postdate,%s,count(id) AS count FROM cpanstats ! .
-                q!WHERE state IN ('pass','fail','unknown','na') ! .
+                q!WHERE type = 2 ! .
                 q!GROUP BY postdate,%s ORDER BY postdate,count DESC!;
     for my $type (qw(platform osname perl)) {
         $self->{parent}->_log("building monthly $type table");
@@ -939,7 +939,8 @@ sub _build_monthly_stats {
             my $name = $self->_tester_name($row->{tester});
             $testers{$name}                         += $row->{count};
             $stats{$row->{postdate}}{list}{$name}   += $row->{count};
-            $self->{stats}{$row->{postdate}}{$type}{$row->{$type}} = 1;
+            #$self->{stats}{$row->{postdate}}{$type}{$row->{$type}} = 1;
+            $self->{stats}{$row->{postdate}}{$type}{$name} = 1;
         }
 
         for my $date (sort {$b <=> $a} keys %stats) {

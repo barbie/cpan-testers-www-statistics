@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 
-my $VERSION = '0.14';
+my $VERSION = '0.15';
 
 #http://www.eurodns.com/search/index.php
 
@@ -299,20 +299,23 @@ sub map_domain {
                     $domain eq 'shaw.ca'        ||
                     $domain eq 'ath.cx'         ||
 
-                    $domain =~ /^(rambler|mail)\.de$/   ||
-                    $domain =~ /^(web|gmx)\.de$/        ||
-                    $domain =~ /^(aacom|free)\.fr$/     ||
-                    $domain =~ /^(xs4all|demon)\.nl$/   ||
-                    $domain =~ /^(ne)\.jp$/   ||
+                    $domain =~ /^(uklinux|eircom)\.net$/    ||
+                    $domain =~ /^(rambler|mail)\.de$/       ||
+                    $domain =~ /^(web|gmx)\.de$/            ||
+                    $domain =~ /^(aacom|free)\.fr$/         ||
+                    $domain =~ /^(xs4all|demon)\.nl$/       ||
+                    $domain =~ /^(ne)\.jp$/                 ||
 
-                    $domain =~ /^(nasa|nih)\.gov$/                                  ||
-                    $domain =~ /^(ieee|no-ip|dyndns|cpan|perl|freebsd)\.org$/       ||
-                    $domain =~ /^(verizon|gmx|comcast|earthlink|cox|usa)\.net$/     ||
-                    $domain =~ /^(yahoo|google|gmail|googlemail|mac|pair|rr|sun|aol)\.com$/    ||
-                    $domain =~ /^(pobox|hotmail|ibm|onlinehome-server)\.com$/       ||
+                    $domain =~ /^(nasa|nih)\.gov$/                                          ||
+                    $domain =~ /^(ieee|no-ip|dyndns|cpan|perl|freebsd)\.org$/               ||
+                    $domain =~ /^(verizon|gmx|comcast|earthlink|cox|usa)\.net$/             ||
+                    $domain =~ /^(yahoo|google|gmail|googlemail|mac|pair|rr|sun|aol)\.com$/ ||
+                    $domain =~ /^(pobox|hotmail|ibm|onlinehome-server)\.com$/               ||
 
+                    $domain =~ /^mail\.(ru)$/                       ||
+                    $domain =~ /^gov\.(au)$/                        ||
                     $domain =~ /^(net|org|com)\.(br|au|tw)$/        ||
-                    $domain =~ /^(co|org)\.uk$/                     ||
+                    $domain =~ /^(co|org)\.(uk|nz)$/                ||
                     $domain =~ /\b(edu|(ac|edu)\.(uk|jp|at|tw))$/             # education establishments
                 );
 

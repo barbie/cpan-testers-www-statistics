@@ -1,16 +1,22 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.87    current
+        - further domain patterns to ignore.
+          - bin/addresses.pl (0.15).
+	- simplification of state lookups.
+	- reduced data held in memory.
+
 0.86    26/09/2010
-	- added Metabase and Labyrinth links.
-	- repositioned site boxes to avoid text and logo clashing.
-	- added reset.sh to examples to help rebuild expected.zip
-	- added data/01mailrc.txt for testing purposes.
-	- broken WWW::Mechanize dropped in favour of basic LWP.
+        - added Metabase and Labyrinth links.
+        - repositioned site boxes to avoid text and logo clashing.
+        - added reset.sh to examples to help rebuild expected.zip
+        - added data/01mailrc.txt for testing purposes.
+        - broken WWW::Mechanize dropped in favour of basic LWP.
 
 0.85    28/05/2010
-	- added missing.html for missing in action PAUSE accounts.
-	- extended the stats of cpan to provide milestones.
-	- bugfixes to find a tester feature.
+        - added missing.html for missing in action PAUSE accounts.
+        - extended the stats of cpan to provide milestones.
+        - bugfixes to find a tester feature.
 
 0.84    20/04/2010
         - fixed ranges() to return correct ranges for a range ending on or 
