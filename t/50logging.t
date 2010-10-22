@@ -70,4 +70,4 @@ unlink('50logging.log') if(-f '50logging.log');
     like($log[0], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Start Again!, 'line 1 of log');
 }
 
-#unlink('50logging.log');
+unlink('50logging.log');
