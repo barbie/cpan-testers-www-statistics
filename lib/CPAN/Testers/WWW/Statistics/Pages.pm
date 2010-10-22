@@ -41,10 +41,11 @@ use Data::Dumper;
 use File::Basename;
 use File::Copy;
 use File::Path;
+use File::Slurp;
 use HTML::Entities;
 use IO::File;
+use JSON;
 use Sort::Versions;
-use Storable;
 use Template;
 #use Time::HiRes qw ( time );
 
@@ -278,7 +279,8 @@ sub _build_stats {
     my $storage = $self->{parent}->storage();
     if($storage && -f $storage) {
         $self->{parent}->_log("building dist hash from storage");
-        $store = retrieve($storage);
+        my $data = read_file($storage);
+        $store = decode_json($data);
         $self->{$_} = $store->{$_}  for(qw(stats dists fails perls pass platform osys osname counts build count xrefs xlast));
         %testers = %{$store->{testers}};
         $lastid = $store->{lastid};
@@ -390,7 +392,8 @@ sub _build_stats {
         $store->{$_} = $self->{$_}  for(qw(stats dists fails perls pass platform osys osname counts build count xrefs xlast));
         $store->{testers} = \%testers;
         $store->{lastid} = $lastid;
-        store($store, $storage);
+        my $data = encode_json($store);
+        overwrite_file($storage,$data);
     }
 
     for my $tester (keys %testers) {
