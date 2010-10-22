@@ -277,12 +277,13 @@ sub _build_stats {
     my $lastid = 0;
     my $storage = $self->{parent}->storage();
     if($storage && -f $storage) {
+        $self->{parent}->_log("building dist hash from storage");
         $store = retrieve($storage);
         $self->{$_} = $store->{$_}  for(qw(stats dists fails perls pass platform osys osname counts build count xrefs xlast));
         %testers = %{$store->{testers}};
         $lastid = $store->{lastid};
     } else {
-        $self->{parent}->_log("building dist hash");
+        $self->{parent}->_log("building dist hash from scratch");
 
         my $iterator = $self->{parent}->{CPANSTATS}->iterator('hash',"SELECT dist,version FROM ixlatest");
         while(my $row = $iterator->()) {
@@ -315,7 +316,8 @@ sub _build_stats {
     # 0,  1,    2,     3,        4,      5     6,       7,        8,    9,      10      11        12
     # id, guid, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate, type
 
-    $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats WHERE type = 2 AND id > $lastid ORDER BY id");
+    $self->{parent}->_log("building dist hash from $lastid");
+    my $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats WHERE type = 2 AND id > $lastid ORDER BY id");
     while(my $row = $iterator->()) {
         $row->[8] =~ s/\s.*//;  # only need to know the main release
         $lastid = $row->[0];
@@ -333,7 +335,7 @@ sub _build_stats {
             if(defined $self->{dists}{$row->[5]}) {
                 $self->{dists}{$row->[5]}{ALL}++;
 
-                if($self->{dists}{$row->[5]}}->{VER} eq $row->[6]) {
+                if($self->{dists}{$row->[5]}->{VER} eq $row->[6]) {
                     $self->{dists}{$row->[5]}{IXL}++;
 
                     # check failure rates
