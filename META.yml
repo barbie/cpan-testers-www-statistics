@@ -1,11 +1,11 @@
 --- #YAML:1.0
 name:                CPAN::Testers::WWW::Statistics
 version:             0.87
-abstract:            Scripts to create the cpanstats website
+abstract:            Scripts to create the CPAN Testers Statistics website
 author:
   - Barbie <barbie@cpan.org>
 
-license:             perl
+license:             artistic_2
 distribution_type:   module
 installdirs:         site
 
@@ -14,6 +14,7 @@ requires:
   Class::Accessor::Fast:            0
   Config::IniFiles:                 0
   CPAN::Testers::Common::DBUtils:   0.03
+  DBI:                              0
   DBD::mysql:                       0
   DBD::SQLite:                      0
   GD::Graph::lines:                 0
@@ -25,26 +26,26 @@ requires:
   Getopt::ArgvFile:                 0
   Getopt::Long:                     0
   HTML::Entities:                   0
+  HTTP::Request:                    0
   IO::File:                         0
   JSON:                             0
+  LWP::UserAgent:                   0
   Sort::Versions:                   0
   Template:                         0
   Time::Piece:                      0
-  LWP::UserAgent:                   0
-  HTTP::Request:                    0
 recommends:
+  Test::CPAN::Meta:                 0.13
+  Test::JSON::Meta:                 0.08
   Test::More:                       0.70
   Test::MockObject:                 0
   Test::Pod:                        1.00
   Test::Pod::Coverage:              0.08
-  Test::CPAN::Meta:                 0.12
 build_requires:
-  Test::More:                       0.01
-  Test::Differences:                0
-  Archive::Zip:                     0
   Archive::Extract:                 0
-  File::Slurp:                      0
+  Archive::Zip:                     0
   File::Spec:                       0
+  Test::Differences:                0
+  Test::More:                       0.70
 
 provides:
   CPAN::Testers::WWW::Statistics:

@@ -2,6 +2,7 @@ Changes
 data/01mailrc.txt
 Makefile.PL
 MANIFEST
+META.json
 META.yml
 README
 bin/addresses.pl
@@ -34,6 +35,7 @@ t/90podtest.t
 t/91podcover.t
 t/94metatest.t
 t/95changedate.t
+t/96metatest.t
 t/CTWS_Testing.pm
 t/data/21config00.ini
 t/data/21config01.ini

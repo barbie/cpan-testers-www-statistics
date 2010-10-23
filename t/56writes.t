@@ -4,6 +4,7 @@ use strict;
 use warnings;
 $|=1;
 
+my $CHECK_DOMAIN    = 'www.google.com';
 
 # NOTE about t/56writes.t & t/expected.zip...
 #
@@ -110,7 +111,7 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 # Tests for creating graphs
 
 SKIP: {
-	skip "Can't see a network connection", 66	if(pingtest());
+	skip "Can't see a network connection", 66	if(pingtest($CHECK_DOMAIN));
 
     $obj->directory($dir . '/create'),
     $page->create();
@@ -150,7 +151,7 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
 
 SKIP: {
-	skip "Can't see a network connection", 11	if(pingtest());
+	skip "Can't see a network connection", 11	if(pingtest($CHECK_DOMAIN));
 
     CTWS_Testing::saveFiles($dir . '/make_graphs');
 
@@ -270,8 +271,13 @@ sub check_dir_contents {
 
 # crude, but it'll hopefully do ;)
 sub pingtest {
-  system("ping -q -c 1 www.google.com >/dev/null");
-  my $retcode = $? >> 8;
-  # ping returns 1 if unable to connect
-  return $retcode;
+    my $domain = shift or return 0;
+    my $cmd =   $^O =~ /solaris/i                           ? "ping -s $domain 56 1" :
+                $^O =~ /dos|os2|mswin32|netware|cygwin/i    ? "ping -n 1 $domain "
+                                                            : "ping -c 1 $domain >/dev/null 2>&1";
+
+    system($cmd);
+    my $retcode = $? >> 8;
+    # ping returns 1 if unable to connect
+    return $retcode;
 }
