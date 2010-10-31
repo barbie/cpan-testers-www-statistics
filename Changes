@@ -1,5 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.88    31/10/2010
+	- added further timestamp test pattern.
+
 0.87    23/10/2010
         - further domain patterns to ignore.
           - bin/addresses.pl (0.15).
