@@ -88,7 +88,7 @@ my %COLOURS = (
 );
 
 my @COLOURS = map {sprintf "%s%s%s", _dec2hex($COLOURS{$_}->[0]),_dec2hex($COLOURS{$_}->[1]),_dec2hex($COLOURS{$_}->[2])} qw(red blue green orange purple grey);
-my @MONTH   = qw( - JANUARY FEBURARY MARCH APRIL MAY JUNE JULY AUGUST SEPTEMBER OCTOBER NOVEMBER DECEMBER );
+my @MONTH   = qw( - JANUARY FEBRUARY MARCH APRIL MAY JUNE JULY AUGUST SEPTEMBER OCTOBER NOVEMBER DECEMBER );
 my @MONTHS  = map {my @x = split(//); my $x = join(' ',@x); [split(//,$x)]} @MONTH;
 
 # -------------------------------------
