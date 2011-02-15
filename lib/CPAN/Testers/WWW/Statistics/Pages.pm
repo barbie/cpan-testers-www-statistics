@@ -281,7 +281,7 @@ sub _build_stats {
         $self->{parent}->_log("building dist hash from storage");
         my $data = read_file($storage);
         $store = decode_json($data);
-        $self->{$_} = $store->{$_}  for(qw(stats dists fails perls pass platform osys osname counts build count xrefs xlast));
+        $self->{$_} = $store->{$_}  for(qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast));
         %testers = %{$store->{testers}};
         $lastid = $store->{lastid};
     } else {
@@ -300,19 +300,27 @@ sub _build_stats {
         #$self->{count} = { posters => 0,  entries => 0,  reports => 0, distros => 0  },
         $self->{xrefs} = { posters => {}, entries => {}, reports => {} },
         $self->{xlast} = { posters => [], entries => [], reports => [] },
+    }
 
-        my $file = $self->{parent}->builder();
-        if($file && -f $file) {
-            if(my $fh = IO::File->new($file,'r')) {
-                while(<$fh>) {
-                    my ($d,$r,$p) = /(\d+),(\d+),(\d+)/;
-                    next    unless($d);
-                    $self->{build}{$d}->{webtotal}  = $r;
-                    $self->{build}{$d}->{webunique} = $p;
-                }
-                $fh->close;
+    # reports builder performance stats
+    for my $d (keys %{$self->{build}}) {
+        $self->{build}{$d}->{old} = 1;
+    }
+    my $file = $self->{parent}->builder();
+    if($file && -f $file) {
+        if(my $fh = IO::File->new($file,'r')) {
+            while(<$fh>) {
+                my ($d,$r,$p) = /(\d+),(\d+),(\d+)/;
+                next    unless($d);
+                $self->{build}{$d}->{webtotal}  = $r;
+                $self->{build}{$d}->{webunique} = $p;
+                $self->{build}{$d}->{old} = 0;
             }
+            $fh->close;
         }
+    }
+    for my $d (keys %{$self->{build}}) {
+        delete $self->{build}{$d} if($self->{build}{$d}->{old});
     }
 
     # 0,  1,    2,     3,        4,      5     6,       7,        8,    9,      10      11        12
@@ -389,7 +397,7 @@ sub _build_stats {
     }
 
     if($storage) {
-        $store->{$_} = $self->{$_}  for(qw(stats dists fails perls pass platform osys osname counts build count xrefs xlast));
+        $store->{$_} = $self->{$_}  for(qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast));
         $store->{testers} = \%testers;
         $store->{lastid} = $lastid;
         my $data = encode_json($store);
@@ -479,7 +487,7 @@ sub _report_cpan {
         $self->{counts}{$date}{newauthors}++  if($authors{$row->{author}}{count} == 1);
         $self->{counts}{$date}{newdistros}++  if($distros{$row->{dist}}{count} == 1);
 
-        $self->{stats}{$date}{pause}++;
+        $self->{pause}{$date}++;
     }
 
     my $directory = $self->{parent}->directory;
@@ -940,7 +948,7 @@ sub _build_monthly_stats {
         my $sql = sprintf $query, $type, $type;
         my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
         while(my $row = $next->()) {
-            $self->{stats}{$row->{postdate}}{$type}{$row->{$type}} = 1;
+            $self->{monthly}{$row->{postdate}}{$type}{$row->{$type}} = 1;
             $row->{$type} = $self->{parent}->osname($row->{$type})  if($type eq 'osname');
             push @{$stats{$row->{postdate}}{list}}, "[$row->{count}] $row->{$type}";
         }
@@ -962,8 +970,8 @@ sub _build_monthly_stats {
             my $name = $self->_tester_name($row->{tester});
             $testers{$name}                         += $row->{count};
             $stats{$row->{postdate}}{list}{$name}   += $row->{count};
-            #$self->{stats}{$row->{postdate}}{$type}{$row->{$type}} = 1;
-            $self->{stats}{$row->{postdate}}{$type}{$name} = 1;
+            #$self->{monthly}{$row->{postdate}}{$type}{$row->{$type}} = 1;
+            $self->{monthly}{$row->{postdate}}{$type}{$name} = 1;
         }
 
         for my $date (sort {$b <=> $a} keys %stats) {
@@ -1022,7 +1030,7 @@ sub _build_monthly_stats_files {
     for my $date (sort keys %{$self->{stats}}) {
         next    if($date > $LIMIT);
 
-        my $uploads = ($self->{stats}{$date}{pause}       || 0);
+        my $uploads = ($self->{pause}{$date}              || 0);
         my $reports = ($self->{stats}{$date}{reports}     || 0);
         my $passes  = ($self->{stats}{$date}{state}{pass} || 0);
         my $fails   = ($self->{stats}{$date}{state}{fail} || 0);
@@ -1076,9 +1084,9 @@ sub _build_monthly_stats_files {
         next    if($date > $LIMIT-1);
         printf $fh2 "%d,%d,%d,%d\n",
             $date,
-            ($self->{stats}{$date}{tester}   ? scalar( keys %{$self->{stats}{$date}{tester}}   ) : 0),
-            ($self->{stats}{$date}{platform} ? scalar( keys %{$self->{stats}{$date}{platform}} ) : 0),
-            ($self->{stats}{$date}{perl}     ? scalar( keys %{$self->{stats}{$date}{perl}}     ) : 0);
+            ($self->{monthly}{$date}{tester}   ? scalar( keys %{$self->{monthly}{$date}{tester}}   ) : 0),
+            ($self->{monthly}{$date}{platform} ? scalar( keys %{$self->{monthly}{$date}{platform}} ) : 0),
+            ($self->{monthly}{$date}{perl}     ? scalar( keys %{$self->{monthly}{$date}{perl}}     ) : 0);
     }
     $fh2->close;
 
