@@ -52,9 +52,13 @@ my $stats = CPAN::Testers::WWW::Statistics->new(
         logclean  => $options{logclean}
 );
 
-if($options{matrix})   { $stats->make_matrix(); }
-elsif($options{stats}) { $stats->make_stats(); }
-else                   { $stats->make_pages(); }
+if($options{all})           { $stats->make_pages();     }
+else                        {
+    if($options{basic})     { $stats->make_basics();    }
+    if($options{update})    { $stats->update();         }
+    if($options{matrix})    { $stats->make_matrix();    }
+    if($options{stats})     { $stats->make_stats();     }
+}
 
 # -------------------------------------
 # Subroutines
@@ -76,29 +80,39 @@ sub init_options {
         'directory=s',
         'database|d=s',
         'address|a=s',
+
         'logfile=s',
         'logclean=i',
+        
+        'all',
+        'basics|b',
+        'update|u',
         'matrix|m',
         'stats|s',
+        
         'help|h',
         'version|v'
-    ) or _help(1);
+    ) or help(1);
 
-    _help(1) if($options{help});
-    _help(0) if($options{version});
+    help(1) if($options{help});
+    help(0) if($options{version});
+
+    $options{all} = 1
+        unless($options{basics} || $options{update} || $options{matrix} || $options{stats});
 }
 
-sub _help {
+sub help {
     my $full = shift;
 
     if($full) {
         print "\n";
         print "Usage:$0 --config=<file> \\\n";
-        print "         [--logfile=<file> [--logclean=<1|0>]] \\\n";
         print "         [--templates=<dir>]   \\\n";
         print "         [--directory=<dir>]   \\\n";
         print "         [--database|d=<file>] \\\n";
         print "         [--address|a=<file>]  \\\n";
+        print "         [--logfile=<file> [--logclean=<1|0>]] \\\n";
+        print "         [--all] [--basics] [--update] [--matrix] [--stats] \\\n";
         print "         [--help|h] [--version|v] \n\n";
 
 #              12345678901234567890123456789012345678901234567890123456789012345678901234567890
@@ -111,7 +125,14 @@ sub _help {
         print "  [--database=<file>]        # path to SQLite database file\n";
         print "  [--address=<file>]         # path to address file\n";
         print "  [--logfile=<file>]         # path to logfile\n";
-        print "  [--logclean]		    # overwrite log if specified\n";
+        print "  [--logclean]		        # overwrite log if specified\n";
+
+        print "\nRun Mode Options:\n";
+        print "  [--all]                    # all modes [default if no modes given]\n";
+        print "  [--basics]                 # create basic stats pages\n";
+        print "  [--update]                 # update data store\n";
+        print "  [--matrix]                 # create matrix style pages\n";
+        print "  [--stats]                  # create stats style pages\n";
 
         print "\nOther Options:\n";
         print "  [--version]                # program version\n";
@@ -156,10 +177,9 @@ F<http://wiki.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2005-2009 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2011 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.
 
 =cut
-

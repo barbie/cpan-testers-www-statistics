@@ -70,13 +70,13 @@ sub init_options {
         'logclean=i',
         'help|h',
         'version|v'
-    );
+    ) or help(1);
 
-    _help(1) if($options{help});
-    _help(0) if($options{version});
+    help(1) if($options{help});
+    help(0) if($options{version});
 }
 
-sub _help {
+sub help {
     my $full = shift;
 
     if($full) {
@@ -136,10 +136,9 @@ F<http://wiki.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2005-2009 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2011 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.
 
 =cut
-
