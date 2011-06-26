@@ -19,7 +19,7 @@
 <h2>Graphs</h2>
 [% FOREACH item = RANGES.reverse %]
 <h3>[% item.substr(0,4) %] - [% item.substr(7,4) %]</h3>
-<p><a name="[% item %]"></a><img src="/stats/[% PREFIX %]-[% item %].png" alt="[% title %] - [% item.substr(0,4) %] to [% item.substr(7,4) %]" /></p>
+<p><img id="[% item %]" src="/stats/[% PREFIX %]-[% item %].png" alt="[% title %] - [% item.substr(0,4) %] to [% item.substr(7,4) %]" /></p>
 [% END %]
 
 <h2>Raw Data</h2>

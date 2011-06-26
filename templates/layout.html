@@ -11,21 +11,23 @@
     base_title = 'CPAN Testers Statistics' ;
 %]
 
+  <meta http-equiv="Content-Type"         content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language"     content="en-gb" />
+  <meta http-equiv="Content-Style-Type"   content="text/css" />
+  <meta http-equiv="Content-Script-Type"  content="text/javascript" />
 
-<title>[% base_title %]: [% htmltitle || title | html %]</title>
+  <title>[% base_title %]: [% htmltitle || title | html %]</title>
 
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
-<meta name="title"       content="CPAN Testers Statistics" />
-<meta name="author"      content="Barbie" />
-<meta name="language"    content="en" />
-<meta name="keywords"    content="perl, cpan, test, testing, tester, testers, stat, statistics, reports, yacsmoke, smoke, smoker, black box, automated, automation" />
-<meta name="description" content="Analysis of reports submitted by the CPAN Testers community, who automatically black box test submissions to Perl's CPAN code repository" />
+  <meta name="title"       content="CPAN Testers Statistics" />
+  <meta name="author"      content="Barbie" />
+  <meta name="language"    content="en" />
+  <meta name="keywords"    content="perl, cpan, test, testing, tester, testers, stat, statistics, reports, yacsmoke, smoke, smoker, black box, automated, automation" />
+  <meta name="description" content="Analysis of reports submitted by the CPAN Testers community, who automatically black box test submissions to Perl's CPAN code repository" />
 
-<link rel="stylesheet" type="text/css" media="screen,projection,print" href="/css/layout_setup.css" />
-<link rel="stylesheet" type="text/css" media="screen,projection,print" href="/css/layout_text.css" />
+  <link rel="stylesheet" type="text/css" media="screen,projection,print" href="/css/layout_setup.css" />
+  <link rel="stylesheet" type="text/css" media="screen,projection,print" href="/css/layout_text.css" />
 
-<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
-</script>
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script>
 <script type="text/javascript">
 _uacct = "UA-1826389-9";
 urchinTracker();
@@ -38,16 +40,16 @@ function goThere(loc) {
 </script>
 
 <!--
-    Site Layout, Design &amp; Development by Miss Barbell Productions
-    Original CSS/XHTML Template Design by Wolfgang.
+  Site Layout, Design &amp; Development by Miss Barbell Productions
+  Original CSS/XHTML Template Design by Wolfgang.
 
-    Valid XHTML 1.0 - http://validator.w3.org/check?uri=referer
-    Powered by LAMP (Linux, Apache, MySQL &amp; Perl) technologies.
-    Produced by LABYRINTH, a state of the art Website Management System
-    available from Miss Barbell Productions.
-    For more information contact Barbie <barbie@missbarbell.co.uk>
+  Valid XHTML 1.0 - http://validator.w3.org/check?uri=referer
+  Powered by LAMP (Linux, Apache, MySQL &amp; Perl) technologies.
+  Produced by LABYRINTH, a state of the art Website Management System
+  available from Miss Barbell Productions.
+  For more information contact Barbie <barbie@missbarbell.co.uk>
 
-    Smoke Box image copyright (c) Tyson Ibele 2004 (http://www.tysonibele.com/Main/gallery.htm)
+  Smoke Box image copyright (c) Tyson Ibele 2004 (http://www.tysonibele.com/Main/gallery.htm)
 -->
 
 </head>
@@ -66,7 +68,7 @@ function goThere(loc) {
 
         <!-- Sitelogo and sitename -->
         <div class="sitename">
-          <h1><a href="/">[% base_title %]</a></h1>
+          <h1><a href="/" title="Home">[% base_title %]</a></h1>
           <h3>[% base_url %]</h3>
           <h2>August 1999 - [% STATDATE %]</h2>
         </div>
@@ -84,8 +86,8 @@ function goThere(loc) {
       <div class="header-breadcrumbs">
         <ul>
           <li><a href="/">Home</a></li>
-          [% IF crumb3_name %]<li><a href="[% crumb3_href %]">[% crumb3_name %]</a></li>[% END %]
-          [% IF crumb2_name %]<li><a href="[% crumb2_href %]">[% crumb2_name %]</a></li>[% END %]
+          [% IF crumb3_name %]<li><a href="[% crumb3_href %]" title="[% crumb3_name %]">[% crumb3_name %]</a></li>[% END %]
+          [% IF crumb2_name %]<li><a href="[% crumb2_href %]" title="[% crumb2_name %]">[% crumb2_name %]</a></li>[% END %]
           <li>[% crumb1_name %]</li>
         </ul>
       </div>

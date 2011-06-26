@@ -9,16 +9,14 @@
 
 <h2>Contents</h2>
 <ul class="contents">
-<li><a href="#top20dist">Top 20 Distributions with Most Reports</a></li>
-<li><a href="#top20dver">Top 20 Distribution/Versions with Most Reports</a></li>
-<li><a href="#reports">Notable Reports submitted by CPAN Testers</a></li>
+<li><a href="#top20dist" title="Top 20 Distributions with Most Reports">Top 20 Distributions with Most Reports</a></li>
+<li><a href="#top20dver" title="Top 20 Distribution/Versions with Most Reports">Top 20 Distribution/Versions with Most Reports</a></li>
+<li><a href="#reports"   title="Notable Reports submitted by CPAN Testers">Notable Reports submitted by CPAN Testers</a></li>
 </ul>
 
-
-<a name="top20dist"></a>
-<h2>Top 20 Distributions with Most Reports</h2>
+<h2 id="top20dist">Top 20 Distributions with Most Reports</h2>
 <!--<div class="boxer">-->
-<table>
+<table summary="Top 20 Distributions with Most Reports">
 <tr><th class="top">#</th><th class="top">COUNT</th><th class="top">DISTRIBUTION</th></tr>
 [% cnt = 1 %]
 [% FOREACH row = BYDIST %]
@@ -27,10 +25,9 @@
 </table>
 <!--</div>-->
 
-<a name="top20dver"></a>
-<h2>Top 20 Distribution/Versions with Most Reports</h2>
+<h2 id="top20dver">Top 20 Distribution/Versions with Most Reports</h2>
 <!--<div class="boxer">-->
-<table>
+<table summary="Top 20 Distribution/Versions with Most Reports">
 <tr><th class="top">#</th><th class="top">COUNT</th><th class="top">DISTRIBUTION</th><th class="top">VERSION</th></tr>
 [% cnt = 1 %]
 [% FOREACH row = BYVERS %]
@@ -39,10 +36,9 @@
 </table>
 <!--</div>-->
 
-<a name="reports"></a>
-<h2>Notable Reports submitted by CPAN Testers</h2>
+<h2 id="reports">Notable Reports submitted by CPAN Testers</h2>
 <div class="boxer flat">
-<table>
+<table summary="Notable Reports submitted by CPAN Testers">
 <tr>[% FOREACH cell = HEADINGS ; cnt = 0 %]
 [% IF    cnt == 1 ; THEN ; id = col %]
 [% ELSE %]<th class="top">[% cell %]</th>[% END ; cnt = cnt + 1 ; END %]</tr>
