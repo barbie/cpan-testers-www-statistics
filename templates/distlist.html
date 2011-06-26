@@ -1,12 +1,37 @@
 [% 
     title = 'Distribution PASS List' ;
     box_sites = 1
+%]
 
-    crumb2_name = 'Matrices' ;
-    crumb2_href = '/' ;
+[% 
+    IF OS ;
+      name1 = 'By OS' ;
+      link1 = '/osmatrix' ;
+    ELSE ; 
+      name1 = 'By Platform' ;
+      link1 = '/pmatrix' ;
+    END ;
+%]
+
+[% 
+    IF FULL ;
+      link1 = link1 _ '-full' ;
+    END ;
+
+    IF MONTH ;
+      link1 = link1 _ '-month' ;
+      title = title _ ' (Last Month)' ;
+    END ;
+
+    crumb3_name = 'Matrices' ;
+    crumb3_href = '/' ;
+    crumb2_name = name1 ;
+    crumb2_href = link1 _ '.html' ;
     crumb1_name = 'Distributions' ;
-    crumb2_href = '/dmatrix.html' ;
-    crumb1_name = 'List' ;
+
+    IF MONTH ;
+      crumb1_name = crumb1_name _ ' (Last Month)' ;
+    END ;
 %]
 
 <table>

@@ -271,6 +271,8 @@ creates the HTML pages.
 sub _write_stats {
     my $self = shift;
 
+$self->{parent}->_log("Page:_write_stats");
+
 ## BUILD INDEPENDENT STATS
 
     $self->_report_cpan();
@@ -345,8 +347,8 @@ sub _build_stats {
         $self->{xlast} = { posters => [], entries => [], reports => [] },
     }
 
-use Data::Dumper;
-$self->{parent}->_log("build:1.".Dumper($self->{build}));
+#use Data::Dumper;
+#$self->{parent}->_log("build:1.".Dumper($self->{build}));
 
     # reports builder performance stats
     for my $d (keys %{$self->{build}}) {
@@ -370,13 +372,13 @@ $self->{parent}->_log("build:1.".Dumper($self->{build}));
     for my $d (keys %{$self->{build}}) {
         delete $self->{build}{$d} unless($self->{build}{$d}->{old});
     }
-$self->{parent}->_log("build:2.".Dumper($self->{build}));
+#$self->{parent}->_log("build:2.".Dumper($self->{build}));
 
     # 0,  1,    2,     3,        4,      5     6,       7,        8,    9,      10      11        12
     # id, guid, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate, type
 
     $self->{parent}->_log("building dist hash from $lastid");
-    my $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats WHERE type = 2 AND id > $lastid ORDER BY id");
+    my $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats WHERE type = 2 AND id > $lastid ORDER BY id LIMIT 1000000");
     while(my $row = $iterator->()) {
         $row->[8] =~ s/\s.*//;  # only need to know the main release
         $lastid = $row->[0];
@@ -437,13 +439,21 @@ $self->{parent}->_log("build:2.".Dumper($self->{build}));
         $self->{count}{reports}++;
 
         my $type = 'reports';
+$self->{parent}->_log("checkpoint: count=$self->{count}{$type}, lastid=$lastid") if($self->{count}{$type} % 10000 == 0);
+
+        if($storage && $self->{count}->{$type} % 100000 == 0) {
+            # due to the large data structures used, long runs (eg starting from
+            # scratch) should save the current state periodically.
+            $self->storage_write($storage,$testers,$lastid)
+        }
+
         if($self->{count}{$type} == 1 || ($self->{count}->{$type} % 500000) == 0) {
             $self->{xrefs}{$type}->{$self->{count}->{$type}} = \@row;
         } else {
             $self->{xlast}{$type} = \@row;
         }
     }
-$self->{parent}->_log("build:3.".Dumper($self->{build}));
+#$self->{parent}->_log("build:3.".Dumper($self->{build}));
 
     $self->storage_write($storage,$testers,$lastid) if($storage);
 
@@ -748,7 +758,7 @@ sub _build_osname_matrix {
 
     my %tvars = (template => 'osmatrix', FULL => 1, MONTH => 0);
     $self->{parent}->_log("building OS matrix - 1");
-    my $CONTENT = $self->_osname_matrix($self->{versions},'all');
+    my $CONTENT = $self->_osname_matrix($self->{versions},'all',1);
     $tvars{CONTENT} = $CONTENT;
     $self->_writepage('osmatrix-full',\%tvars);
  
@@ -759,7 +769,7 @@ sub _build_osname_matrix {
  
     %tvars = (template => 'osmatrix', FULL => 1, MONTH => 1);
     $self->{parent}->_log("building OS matrix - 3");
-    $CONTENT = $self->_osname_matrix($self->{versions},'month');
+    $CONTENT = $self->_osname_matrix($self->{versions},'month',1);
     $tvars{CONTENT} = $CONTENT;
     $self->_writepage('osmatrix-full-month',\%tvars);
 
@@ -772,7 +782,7 @@ sub _build_osname_matrix {
 
     %tvars = (template => 'osmatrix', FULL => 0, MONTH => 0);
     $self->{parent}->_log("building OS matrix - 5");
-    $CONTENT = $self->_osname_matrix(\@vers,'all');
+    $CONTENT = $self->_osname_matrix(\@vers,'all',0);
     $tvars{CONTENT} = $CONTENT;
     $self->_writepage('osmatrix',\%tvars);
 
@@ -783,7 +793,7 @@ sub _build_osname_matrix {
 
     %tvars = (template => 'osmatrix', FULL => 0, MONTH => 1);
     $self->{parent}->_log("building OS matrix - 7");
-    $CONTENT = $self->_osname_matrix(\@vers,'month');
+    $CONTENT = $self->_osname_matrix(\@vers,'month',0);
     $tvars{CONTENT} = $CONTENT;
     $self->_writepage('osmatrix-month',\%tvars);
 
@@ -797,6 +807,7 @@ sub _osname_matrix {
     my $self = shift;
     my $vers = shift or return '';
     my $type = shift;
+    my $full = shift || 0;
     return ''   unless(@$vers);
 
     my %totals;
@@ -834,7 +845,7 @@ sub _osname_matrix {
                 if($self->{list}{osname}{$osname}{$perl}{$type}) {
                     $index = $self->{list}{osname}{$osname}{$perl}{$type};
                 } else {
-                    my %tvars = (template => 'distlist');
+                    my %tvars = (template => 'distlist', OS => 1, MONTH => ($type eq 'month' ? 1 : 0), FULL => $full);
                     my @list = sort keys %{$self->{osys}{$osname}{$perl}{$type}};
                     $tvars{dists}     = \@list;
                     $tvars{vplatform} = $osname;
@@ -873,7 +884,7 @@ sub _build_platform_matrix {
 
     my %tvars = (template => 'pmatrix', FULL => 1, MONTH => 0);
     $self->{parent}->_log("building platform matrix - 1");
-    my $CONTENT = $self->_platform_matrix($self->{versions},'all');
+    my $CONTENT = $self->_platform_matrix($self->{versions},'all',1);
     $tvars{CONTENT} = $CONTENT;
     $self->_writepage('pmatrix-full',\%tvars);
 
@@ -884,7 +895,7 @@ sub _build_platform_matrix {
 
     %tvars = (template => 'pmatrix', FULL => 1, MONTH => 1);
     $self->{parent}->_log("building platform matrix - 3");
-    $CONTENT = $self->_platform_matrix($self->{versions},'month');
+    $CONTENT = $self->_platform_matrix($self->{versions},'month',1);
     $tvars{CONTENT} = $CONTENT;
     $self->_writepage('pmatrix-full-month',\%tvars);
 
@@ -897,7 +908,7 @@ sub _build_platform_matrix {
 
     %tvars = (template => 'pmatrix', FULL => 0, MONTH => 0);
     $self->{parent}->_log("building platform matrix - 5");
-    $CONTENT = $self->_platform_matrix(\@vers,'all');
+    $CONTENT = $self->_platform_matrix(\@vers,'all',0);
     $tvars{CONTENT} = $CONTENT;
     $self->_writepage('pmatrix',\%tvars);
 
@@ -908,7 +919,7 @@ sub _build_platform_matrix {
 
     %tvars = (template => 'pmatrix', FULL => 0, MONTH => 1);
     $self->{parent}->_log("building platform matrix - 7");
-    $CONTENT = $self->_platform_matrix(\@vers,'month');
+    $CONTENT = $self->_platform_matrix(\@vers,'month',0);
     $tvars{CONTENT} = $CONTENT;
     $self->_writepage('pmatrix-month',\%tvars);
 
@@ -922,6 +933,7 @@ sub _platform_matrix {
     my $self = shift;
     my $vers = shift or return '';
     my $type = shift;
+    my $full = shift || 0;
     return ''   unless(@$vers);
 
     my %totals;
@@ -959,7 +971,7 @@ sub _platform_matrix {
                 if($self->{list}{platform}{$platform}{$perl}{$type}) {
                     $index = $self->{list}{platform}{$platform}{$perl}{$type};
                 } else {
-                    my %tvars = (template => 'distlist');
+                    my %tvars = (template => 'distlist', OS => 0, MONTH => ($type eq 'month' ? 1 : 0), FULL => $full);
                     my @list = sort keys %{$self->{pass}{$platform}{$perl}{$type}};
                     $tvars{dists}     = \@list;
                     $tvars{vplatform} = $platform;

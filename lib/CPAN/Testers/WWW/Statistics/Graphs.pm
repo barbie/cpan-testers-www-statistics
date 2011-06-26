@@ -144,7 +144,7 @@ sub create {
     my $results   = "$directory/stats";
     mkpath($results);
 
-    $self->{parent}->_log("start");
+    $self->{parent}->_log("Graphs:create start");
 
     for my $g (@graphs) {
         my $ranges = $self->{parent}->ranges($g->[3]);

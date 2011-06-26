@@ -2,6 +2,9 @@ Revision history for CPAN-Testers-WWW-Statistics
 
 0.89    current
 	- added matrix and stats calls, running sections of full stats run.
+	- storage read & write now methods.
+	- limit data updates to 1000000 records, to reduce memory consumption.
+	- more environment info passed to matrix list templates.
 
 0.88    31/10/2010
         - added further timestamp test pattern.
