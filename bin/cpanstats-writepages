@@ -51,7 +51,10 @@ my $stats = CPAN::Testers::WWW::Statistics->new(
         logfile   => $options{logfile},
         logclean  => $options{logclean}
 );
-$stats->make_pages();
+
+if($options{matrix})   { $stats->make_matrix(); }
+elsif($options{stats}) { $stats->make_stats(); }
+else                   { $stats->make_pages(); }
 
 # -------------------------------------
 # Subroutines
@@ -75,9 +78,11 @@ sub init_options {
         'address|a=s',
         'logfile=s',
         'logclean=i',
+        'matrix|m',
+        'stats|s',
         'help|h',
         'version|v'
-    );
+    ) or _help(1);
 
     _help(1) if($options{help});
     _help(0) if($options{version});

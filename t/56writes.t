@@ -159,7 +159,7 @@ SKIP: {
     eval { $obj->make_graphs() };
 
     SKIP: {
-        skip "User::Agent failure", 1    if($@ =~ /- Cannot access page -/);
+        skip "could not retrieve graphs", 1    if($@ =~ /- (request failed|Cannot access page) -/);
         check_dir_contents(
             "[make_graphs]",
             $obj->directory,

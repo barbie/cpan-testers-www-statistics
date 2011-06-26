@@ -5,7 +5,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.88';
+$VERSION = '0.89';
 
 #----------------------------------------------------------------------------
 
@@ -177,6 +177,32 @@ sub make_pages {
 
     my $stats = CPAN::Testers::WWW::Statistics::Pages->new(parent => $self);
     $stats->create();
+}
+
+sub make_matrix {
+    my $self = shift;
+
+    die "Template directory not found\n"                unless(-d $self->templates);
+    die "Must specify the path of the SQL database\n"   unless(   $self->database);
+    die "Archive SQLite database not found\n"           unless(-f $self->database);
+    die "Must specify the path of the address file\n"   unless(   $self->address);
+    die "Address file not found\n"                      unless(-f $self->address);
+
+    my $stats = CPAN::Testers::WWW::Statistics::Pages->new(parent => $self);
+    $stats->matrix();
+}
+
+sub make_stats {
+    my $self = shift;
+
+    die "Template directory not found\n"                unless(-d $self->templates);
+    die "Must specify the path of the SQL database\n"   unless(   $self->database);
+    die "Archive SQLite database not found\n"           unless(-f $self->database);
+    die "Must specify the path of the address file\n"   unless(   $self->address);
+    die "Address file not found\n"                      unless(-f $self->address);
+
+    my $stats = CPAN::Testers::WWW::Statistics::Pages->new(parent => $self);
+    $stats->stats();
 }
 
 sub make_graphs {

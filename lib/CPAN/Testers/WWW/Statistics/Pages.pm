@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.88';
+$VERSION = '0.89';
 
 #----------------------------------------------------------------------------
 
@@ -123,6 +123,44 @@ sub create {
     $self->_write_basics();
     $self->_write_stats();
     $self->{parent}->_log("finish");
+}
+
+sub matrix {
+    my $self = shift;
+
+    $self->{parent}->_log("matrix start");
+    my $storage = $self->{parent}->storage();
+    if($storage && -f $storage) {
+        $self->{parent}->_log("building dist hash from storage");
+        $self->storage_read($storage);
+
+        my @versions = sort {versioncmp($b,$a)} keys %{$self->{perls}};
+        $self->{versions} = \@versions;
+
+        $self->_build_osname_matrix();
+        $self->_build_platform_matrix();
+    }
+    $self->{parent}->_log("matrix finish");
+}
+
+sub stats {
+    my $self = shift;
+
+    $self->{parent}->_log("stats start");
+    my $storage = $self->{parent}->storage();
+    if($storage && -f $storage) {
+        $self->{parent}->_log("building dist hash from storage");
+        $self->storage_read($storage);
+
+        my @versions = sort {versioncmp($b,$a)} keys %{$self->{perls}};
+        $self->{versions} = \@versions;
+
+        $self->_report_interesting();
+        $self->_build_monthly_stats_files();
+        $self->_build_failure_rates();
+        $self->_build_performance_stats();
+    }
+    $self->{parent}->_log("stats finish");
 }
 
 =head2 Private Methods
@@ -265,6 +303,8 @@ sub _build_stats {
     my ($d1,$d2) = (time(), time() - $ADAY);
     my @date = localtime($d2);
     my $date = sprintf "%04d%02d%02d", $date[5]+1900, $date[4]+1, $date[3];
+    my @tday = localtime($d1);
+    my $tday = sprintf "%04d%02d%02d", $tday[5]+1900, $tday[4]+1, $tday[3];
 
     my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM cpanstats WHERE type = 2 AND fulldate like '$date%'");
     $self->{rates}{report} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 10000 * 1000;
@@ -274,16 +314,20 @@ sub _build_stats {
     $self->{rates}{report} = 1000 if($self->{rates}{report} < 1000);
     $self->{rates}{distro} = 1000 if($self->{rates}{distro} < 1000);
 
-    my (%testers,$store);
+    my $testers = {};
     my $lastid = 0;
     my $storage = $self->{parent}->storage();
     if($storage && -f $storage) {
         $self->{parent}->_log("building dist hash from storage");
-        my $data = read_file($storage);
-        $store = decode_json($data);
-        $self->{$_} = $store->{$_}  for(qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast));
-        %testers = %{$store->{testers}};
-        $lastid = $store->{lastid};
+        ($testers,$lastid) = $self->storage_read($storage);
+
+        # only remember the latest release for 'dists' hash
+        my $iterator = $self->{parent}->{CPANSTATS}->iterator('hash',"SELECT dist,version FROM ixlatest");
+        while(my $row = $iterator->()) {
+            next    if($self->{dists}{$row->{dist}} && $self->{dists}{$row->{dist}}->{VER} eq $row->{version});
+            $self->{dists}{$row->{dist}} = { ALL => 0, IXL => 0, VER => $row->{version}};
+        }
+
     } else {
         $self->{parent}->_log("building dist hash from scratch");
 
@@ -297,14 +341,16 @@ sub _build_stats {
         $self->{parent}->_log("building stats hash");
 
         $self->{count}{$_} ||= 0    for(qw(posters entries reports distros));
-        #$self->{count} = { posters => 0,  entries => 0,  reports => 0, distros => 0  },
         $self->{xrefs} = { posters => {}, entries => {}, reports => {} },
         $self->{xlast} = { posters => [], entries => [], reports => [] },
     }
 
+use Data::Dumper;
+$self->{parent}->_log("build:1.".Dumper($self->{build}));
+
     # reports builder performance stats
     for my $d (keys %{$self->{build}}) {
-        $self->{build}{$d}->{old} = 1;
+        $self->{build}{$d}->{old} = 0;
     }
     my $file = $self->{parent}->builder();
     if($file && -f $file) {
@@ -314,14 +360,17 @@ sub _build_stats {
                 next    unless($d);
                 $self->{build}{$d}->{webtotal}  = $r;
                 $self->{build}{$d}->{webunique} = $p;
-                $self->{build}{$d}->{old} = 0;
+                $self->{build}{$d}->{old} = 1;
             }
             $fh->close;
         }
     }
+    $self->{build}{$date}->{old} = 1;	# keep the tally for yesterday
+    $self->{build}{$tday}->{old} = 2;	# keep the tally for today, but don't use
     for my $d (keys %{$self->{build}}) {
-        delete $self->{build}{$d} if($self->{build}{$d}->{old});
+        delete $self->{build}{$d} unless($self->{build}{$d}->{old});
     }
+$self->{parent}->_log("build:2.".Dumper($self->{build}));
 
     # 0,  1,    2,     3,        4,      5     6,       7,        8,    9,      10      11        12
     # id, guid, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate, type
@@ -385,9 +434,8 @@ sub _build_stats {
 
         $self->{count}{posters} = $row[1];
         $self->{count}{entries}++;
-        $self->{count}{reports}++   if($row[3] ne 'cpan');
+        $self->{count}{reports}++;
 
-        next    if($row[3] eq 'cpan');
         my $type = 'reports';
         if($self->{count}{$type} == 1 || ($self->{count}->{$type} % 500000) == 0) {
             $self->{xrefs}{$type}->{$self->{count}->{$type}} = \@row;
@@ -395,24 +443,40 @@ sub _build_stats {
             $self->{xlast}{$type} = \@row;
         }
     }
+$self->{parent}->_log("build:3.".Dumper($self->{build}));
 
-    if($storage) {
-        $store->{$_} = $self->{$_}  for(qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast));
-        $store->{testers} = \%testers;
-        $store->{lastid} = $lastid;
-        my $data = encode_json($store);
-        overwrite_file($storage,$data);
-    }
+    $self->storage_write($storage,$testers,$lastid) if($storage);
 
-    for my $tester (keys %testers) {
-        $self->{counts}{$testers{$tester}{first}}{first}++;
-        $self->{counts}{$testers{$tester}{last}}{last}++;
+    for my $tester (keys %$testers) {
+        $self->{counts}{$testers->{$tester}{first}}{first}++;
+        $self->{counts}{$testers->{$tester}{last}}{last}++;
     }
 
     my @versions = sort {versioncmp($b,$a)} keys %{$self->{perls}};
     $self->{versions} = \@versions;
 
     $self->{parent}->_log("stats hash built");
+}
+
+sub storage_read {
+    my ($self,$storage) = @_;
+    my $data = read_file($storage);
+    my $store = decode_json($data);
+    $self->{$_} = $store->{$_}  for(qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast));
+    return($store->{testers},$store->{lastid});
+}
+
+sub storage_write {
+    my ($self,$storage,$testers,$lastid) = @_;
+    my $store = {};
+
+    $store->{$_} = $self->{$_}  for(qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast));
+    $store->{testers} = $testers;
+    $store->{lastid} = $lastid;
+
+    my $data = encode_json($store);
+#$self->{parent}->_log("storage: data=".Dumper($data));
+    overwrite_file($storage,$data);
 }
 
 =item * _report_interesting
@@ -664,6 +728,8 @@ sub _missing_in_action {
         chomp;
         my ($pauseid,$timestamp,$reason) = /^([a-z]+)[ \t]+([^+]+\+0[01]00) (.*)/i;
         next    unless($pauseid);
+        $reason =~ s/</&lt;/g;
+        $reason =~ s/>/&gt;/g;
         $missing{$pauseid}{timestamp} = $timestamp;
         $missing{$pauseid}{reason} = $reason;
     }
@@ -1245,6 +1311,8 @@ sub _build_performance_stats {
     print $fh "#DATE,REQUESTS,PAGES,REPORTS\n";
 
     for my $date (sort {$a <=> $b} keys %{$self->{build}}) {
+#$self->{parent}->_log("build_stats: date=$date, old=$self->{build}{$date}->{old}");
+	next	if($self->{build}{$date}->{old} == 2);	# ignore todays tally
         #next    if($date > $LIMIT-1);
 
         printf $fh "%d,%d,%d,%d\n",

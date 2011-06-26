@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.88';
+$VERSION = '0.89';
 
 #----------------------------------------------------------------------------
 
@@ -138,6 +138,7 @@ Method to facilitate the creation of graphs.
 
 sub create {
     my $self = shift;
+    my $status = 1; # assume failure
 
     my $directory = $self->{parent}->directory;
     my $results   = "$directory/stats";
@@ -182,11 +183,13 @@ sub create {
                     $file = "$results/$g->[0].png";
                     _save_content($res,$file);
                 }
+                $status = 0;
             }
         }
     }
 
     $self->{parent}->_log("finish");
+    return $status;
 }
 
 sub _save_content {
