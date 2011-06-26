@@ -5,6 +5,9 @@ Revision history for CPAN-Testers-WWW-Statistics
 	- storage read & write now methods.
 	- limit data updates to 1000000 records, to reduce memory consumption.
 	- more environment info passed to matrix list templates.
+        - changes to scripts to use new interface:
+            bin/cpanstats-writegraphs   (v0.50)
+            bin/cpanstats-writepages    (v0.50)
 
 0.88    31/10/2010
         - added further timestamp test pattern.
