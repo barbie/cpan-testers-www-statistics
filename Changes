@@ -8,6 +8,9 @@ Revision history for CPAN-Testers-WWW-Statistics
         - changes to scripts to use new interface:
             bin/cpanstats-writegraphs   (v0.50)
             bin/cpanstats-writepages    (v0.50)
+	- major XHTML updates for WAI WCAG v2.0 compliance.
+	- reorganised links and names to be consistent across pages.
+	- restructured Pages.pm, to allow process to be called in stages.
 
 0.88    31/10/2010
         - added further timestamp test pattern.

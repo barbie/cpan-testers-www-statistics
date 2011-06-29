@@ -54,7 +54,7 @@ my $stats = CPAN::Testers::WWW::Statistics->new(
 
 if($options{all})           { $stats->make_pages();     }
 else                        {
-    if($options{basic})     { $stats->make_basics();    }
+    if($options{basics})    { $stats->make_basics();    }
     if($options{update})    { $stats->update();         }
     if($options{matrix})    { $stats->make_matrix();    }
     if($options{stats})     { $stats->make_stats();     }

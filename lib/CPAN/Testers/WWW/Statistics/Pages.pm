@@ -17,7 +17,15 @@ CPAN::Testers::WWW::Statistics::Pages - CPAN Testers Statistics pages.
   my %hash = { config => 'options' };
   my $obj = CPAN::Testers::WWW::Statistics->new(%hash);
   my $ct = CPAN::Testers::WWW::Statistics::Pages->new(parent => $obj);
-  $ct->create();
+
+  $ct->update_full();       # updates statistics data and web pages
+
+  # alternatively called individual processes
+
+  $ct->update_data();       # updates statistics data
+  $ct->build_basics();      # updates basic web pages
+  $ct->build_matrices();    # updates matrix style web pages
+  $ct->build_stats();       # updates stats style web pages
 
 =head1 DESCRIPTION
 
@@ -30,7 +38,15 @@ Note that this package should not be called directly, but via its parent as:
 
   my %hash = { config => 'options' };
   my $obj = CPAN::Testers::WWW::Statistics->new(%hash);
-  $obj->make_pages();
+
+  $obj->make_pages();       # updates statistics data and web pages
+
+  # alternatively called individual processes
+
+  $obj->update();           # updates statistics data
+  $obj->make_basics();      # updates basic web pages
+  $obj->make_matrix();      # updates matrix style web pages
+  $obj->make_stats();       # updates stats style web pages
 
 =cut
 
@@ -62,11 +78,8 @@ my %month = (
 
 my $ADAY = 86400;
 
-my ($LIMIT,%options,%pages);
-my ($THISYEAR,$RUNDATE,$STATDATE,$THISDATE,$THATYEAR,$LASTDATE,$THATDATE,$SHORTDATE);
-
-my %matrix_limits = (   
-    all     => [ 1000, 5000 ], 
+my %matrix_limits = (
+    all     => [ 1000, 5000 ],
     month   => [  100,  500 ]
 );
 
@@ -100,7 +113,7 @@ sub new {
     my $self = {parent => $hash{parent}};
     bless $self, $class;
 
-    $self->_init_date();
+    $self->setdates();
     return $self;
 }
 
@@ -108,27 +121,111 @@ sub new {
 
 =over 4
 
-=item * create
+=item * setdates
 
-Method to facilitate the creation of pages.
+Prime all key date variable.
+
+=item * update_full
+
+Full update of data and pages.
+
+=item * update_data
+
+Update data and store in JSON format.
+
+=item * build_basics
+
+Create the basic set of pages,those require no statistical calculation.
+
+=item * build_matrices
+
+Create the matrices pages and distribution list pages.
+
+=item * build_stats
+
+Create all other statistical pages; monthly tables, interesting stats, etc.
 
 =back
 
 =cut
 
-sub create {
+sub setdates {
     my $self = shift;
+    $self->{parent}->_log("init");
 
-    $self->{parent}->_log("start");
-    $self->_write_basics();
-    $self->_write_stats();
-    $self->{parent}->_log("finish");
+    my @datetime = localtime;
+    my $THISYEAR = ($datetime[5] +1900);
+    $self->{dates}{RUNDATE}
+        = sprintf "%d%s %s %d",
+            $datetime[3], _ext($datetime[3]), $month{$datetime[4]}, $THISYEAR;
+    $self->{dates}{RUNTIME}
+        = sprintf "%d%s %s %d %02d:%02d:%02d",
+            $datetime[3], _ext($datetime[3]), $month{$datetime[4]}, $THISYEAR,
+            $datetime[2], $datetime[1], $datetime[0];
+
+    # LIMIT is the last date for all data
+    $self->{dates}{LIMIT}    = ($THISYEAR) * 100 + $datetime[4] + 1;
+    if($datetime[4] == 0) {
+        $datetime[4] = 11;
+        $THISYEAR--;
+    }
+
+    # STATDATE/THISDATE is the Month/Year stats are run for
+    $self->{dates}{STATDATE} = sprintf "%s %d", $month{int($datetime[4])}, $THISYEAR;
+    $self->{dates}{THISDATE} = sprintf "%04d%02d", $THISYEAR, int($datetime[4]);
+
+    # LASTDATE/THATDATE is the previous Month/Year for a full matrix
+    $datetime[4]--;
+    my $THATYEAR = $THISYEAR;
+    if($datetime[4] == 0) {
+        $datetime[4] = 11;
+        $THATYEAR--;
+    }
+    $self->{dates}{LASTDATE}  = sprintf "%04d%02d", $THATYEAR, int($datetime[4]);
+    $self->{dates}{THATDATE}  = sprintf "%s %d", $month{int($datetime[4])}, $THATYEAR;
+    $self->{dates}{SHORTDATE} = sprintf "%02d/%02d", int($datetime[4])+1, $THATYEAR - 2000;
+
+    #print STDERR "THISYEAR=[$THISYEAR]\n";
+    #print STDERR "LIMIT=[$self->{dates}{LIMIT}]\n";
+    #print STDERR "STATDATE=[$self->{dates}{STATDATE}]\n";
+    #print STDERR "RUNDATE=[$self->{dates}{RUNDATE}]\n";
 }
 
-sub matrix {
+sub update_full {
     my $self = shift;
 
-    $self->{parent}->_log("matrix start");
+    $self->{parent}->_log("start update_full");
+    $self->build_basics();
+    $self->build_data();
+    $self->build_matrices();
+    $self->build_stats();
+    $self->{parent}->_log("finish update_full");
+}
+
+sub update_data {
+    my $self = shift;
+
+    $self->{parent}->_log("start update_data");
+    $self->build_data();
+    $self->{parent}->_log("finish update_data");
+}
+
+sub build_basics {
+    my $self = shift;
+
+    $self->{parent}->_log("start build_basics");
+
+    ## BUILD INFREQUENT PAGES
+    $self->_write_basics();
+    $self->_missing_in_action();
+
+    $self->{parent}->_log("finish build_basics");
+}
+
+sub build_matrices {
+    my $self = shift;
+
+    $self->{parent}->_log("start build_matrices");
     my $storage = $self->{parent}->storage();
     if($storage && -f $storage) {
         $self->{parent}->_log("building dist hash from storage");
@@ -140,11 +237,17 @@ sub matrix {
         $self->_build_osname_matrix();
         $self->_build_platform_matrix();
     }
-    $self->{parent}->_log("matrix finish");
+    $self->{parent}->_log("finish build_matrices");
 }
 
-sub stats {
+sub build_stats {
     my $self = shift;
+
+    ## BUILD INDEPENDENT STATS
+    $self->_report_cpan();
+
+    ## BUILD MONTHLY STATS
+    $self->_build_monthly_stats();
 
     $self->{parent}->_log("stats start");
     my $storage = $self->{parent}->storage();
@@ -155,149 +258,35 @@ sub stats {
         my @versions = sort {versioncmp($b,$a)} keys %{$self->{perls}};
         $self->{versions} = \@versions;
 
+        ## BUILD STATS PAGES
         $self->_report_interesting();
         $self->_build_monthly_stats_files();
         $self->_build_failure_rates();
         $self->_build_performance_stats();
+
+        ## BUILD INDEX PAGE
+        $self->_write_index();
     }
     $self->{parent}->_log("stats finish");
 }
 
 =head2 Private Methods
 
+=head3 Data Methods
+
 =over 4
- 
-=item * _write_basics
 
-Write out basic pages, all of which are simply built from the templates,
-without any data processing required.
+=item * build_data
 
-=cut
+=item * storage_read
 
-sub _write_basics {
-    my $self = shift;
-    my $directory = $self->{parent}->directory;
-    my $templates = $self->{parent}->templates;
-    my $database  = $self->{parent}->database;
-    my $results   = "$directory/stats";
-    mkpath($results);
+=item * storage_write
 
-    $self->{parent}->_log("writing basic files");
-
-    my $ranges1 = $self->{parent}->ranges('TEST_RANGES');
-    my $ranges2 = $self->{parent}->ranges('CPAN_RANGES');
-
-    # additional pages not requiring metrics
-    my %pages = (
-            cpanmail => {},
-            response => {},
-            perform  => {},
-            graphs   => {},
-            graphs1  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats1' ,TITLE=>'Monthly Report Counts'},
-            graphs2  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats2' ,TITLE=>'Testers, Platforms and Perls'},
-            graphs3  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats3' ,TITLE=>'Monthly Non-Passing Reports Counts'},
-            graphs4  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats4' ,TITLE=>'Monthly Tester Fluctuations'},
-            graphs5  => {RANGES => $ranges1, template=>'archive',PREFIX=>'pcent1' ,TITLE=>'Monthly Report Percentages'},
-            graphs6  => {RANGES => $ranges2, template=>'archive',PREFIX=>'stats6' ,TITLE=>'All Distribution Uploads per Month'},
-            graphs12 => {RANGES => $ranges2, template=>'archive',PREFIX=>'stats12',TITLE=>'New Distribution Uploads per Month'}
-    );
-
-    $self->{parent}->_log("building support pages");
-    $self->_writepage($_,$pages{$_})    for(keys %pages);
-
-    # copy files
-    $self->{parent}->_log("copying static files");
-    my $tocopy = $self->{parent}->tocopy;
-    foreach my $filename (@$tocopy) {
-        my $src  = $templates . "/$filename";
-        if(-f $src) {
-            my $dest = $directory . "/$filename";
-            mkpath( dirname($dest) );
-            if(-d dirname($dest)) {
-                copy( $src, $dest );
-            } else {
-                warn "Missing directory: $dest\n";
-            }
-        } else {
-            warn "Missing file: $src\n";
-        }
-    }
-}
-
-=item * _write_index
-
-Writes out the main index page, after all stats have been calculated.
+=back
 
 =cut
 
-sub _write_index {
-    my $self = shift;
-    my $directory = $self->{parent}->directory;
-    my $templates = $self->{parent}->templates;
-    my $database  = $self->{parent}->database;
-
-    $self->{parent}->_log("writing index file");
-
-    # calculate database metrics
-    my $mtime = (stat($database))[9];
-    my @ltime = localtime($mtime);
-    $self->{DATABASE2} = sprintf "%d%s %s %d", $ltime[3],_ext($ltime[3]),$month{$ltime[4]},$ltime[5]+1900;
-    my $DATABASE1 = sprintf "%04d/%02d/%02d", $ltime[5]+1900,$ltime[4]+1,$ltime[3];
-    my $DBSZ_UNCOMPRESSED = int((-s $database        ) / (1024 * 1024));
-    my $DBSZ_COMPRESSED   = int((-s $database . '.gz') / (1024 * 1024));
-
-    # index page
-    my %pages = (
-        index    => {
-            THISDATE => $THISDATE, DATABASE => $DATABASE1,
-            DBSZ_COMPRESSED => $DBSZ_COMPRESSED, DBSZ_UNCOMPRESSED => $DBSZ_UNCOMPRESSED,
-            report_count => $self->{count}{reports},
-            distro_count => $self->{count}{distros},
-            report_rate  => $self->{rates}{report},
-            distro_rate  => $self->{rates}{distro}
-        },
-    );
-
-    $self->_writepage($_,$pages{$_})    for(keys %pages);
-}
-
-=item * _write_stats
-
-Extracts data, compiles the pages, generates the graph data files and
-creates the HTML pages.
-
-=cut
-
-sub _write_stats {
-    my $self = shift;
-
-$self->{parent}->_log("Page:_write_stats");
-
-## BUILD INDEPENDENT STATS
-
-    $self->_report_cpan();
-    $self->_build_monthly_stats();
-    $self->_missing_in_action();
-
-## BUILD GENERAL STATS
-
-    $self->_build_stats();
-
-## BUILD STATS PAGES
-
-    $self->_report_interesting();
-    $self->_build_osname_matrix();
-    $self->_build_platform_matrix();
-    $self->_build_monthly_stats_files();
-    $self->_build_failure_rates();
-    $self->_build_performance_stats();
-
-## BUILD INDEX PAGE
-
-    $self->_write_index();
-}
-
-sub _build_stats {
+sub build_data {
     my $self = shift;
 
     $self->{parent}->_log("building rate hash");
@@ -416,7 +405,7 @@ sub _build_stats {
             $self->{osys}    {$osname}  {$perl}{all}{$row->[5]} = 1;
             $self->{osname}  {$osname}  {$perl}{all}++;
 
-            if($row->[3] == $LASTDATE) {
+            if($row->[3] == $self->{dates}{LASTDATE}) {
                 $self->{pass}    {$row->[7]}{$perl}{month}{$row->[5]} = 1;
                 $self->{platform}{$row->[7]}{$perl}{month}++;
                 $self->{osys}    {$osname}  {$perl}{month}{$row->[5]} = 1;
@@ -424,8 +413,8 @@ sub _build_stats {
             }
 
             # record tester activity
-            $testers{$name}{first} ||= $row->[3];
-            $testers{$name}{last}    = $row->[3];
+            $testers->{$name}{first} ||= $row->[3];
+            $testers->{$name}{last}    = $row->[3];
             $self->{counts}{$row->[3]}{testers}{$name} = 1;
 
             my $day = substr($row->[11],0,8);
@@ -487,6 +476,106 @@ sub storage_write {
     my $data = encode_json($store);
 #$self->{parent}->_log("storage: data=".Dumper($data));
     overwrite_file($storage,$data);
+}
+
+=head3 Page Creation Methods
+
+=over 4
+
+=item * _write_basics
+
+Write out basic pages, all of which are simply built from the templates,
+without any data processing required.
+
+=cut
+
+sub _write_basics {
+    my $self = shift;
+    my $directory = $self->{parent}->directory;
+    my $templates = $self->{parent}->templates;
+    my $database  = $self->{parent}->database;
+    my $results   = "$directory/stats";
+    mkpath($results);
+
+    $self->{parent}->_log("writing basic files");
+
+    my $ranges1 = $self->{parent}->ranges('TEST_RANGES');
+    my $ranges2 = $self->{parent}->ranges('CPAN_RANGES');
+
+    # additional pages not requiring metrics
+    my %pages = (
+            cpanmail => {},
+            response => {},
+            perform  => {},
+            graphs   => {},
+            graphs1  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats1' ,TITLE=>'Monthly Report Counts'},
+            graphs2  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats2' ,TITLE=>'Testers, Platforms and Perls'},
+            graphs3  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats3' ,TITLE=>'Monthly Non-Passing Reports Counts'},
+            graphs4  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats4' ,TITLE=>'Monthly Tester Fluctuations'},
+            graphs5  => {RANGES => $ranges1, template=>'archive',PREFIX=>'pcent1' ,TITLE=>'Monthly Report Percentages'},
+            graphs6  => {RANGES => $ranges2, template=>'archive',PREFIX=>'stats6' ,TITLE=>'All Distribution Uploads per Month'},
+            graphs12 => {RANGES => $ranges2, template=>'archive',PREFIX=>'stats12',TITLE=>'New Distribution Uploads per Month'}
+    );
+
+    $self->{parent}->_log("building support pages");
+    $self->_writepage($_,$pages{$_})    for(keys %pages);
+
+    # copy files
+    $self->{parent}->_log("copying static files");
+    my $tocopy = $self->{parent}->tocopy;
+    foreach my $filename (@$tocopy) {
+        my $src  = $templates . "/$filename";
+        if(-f $src) {
+            my $dest = $directory . "/$filename";
+            mkpath( dirname($dest) );
+            if(-d dirname($dest)) {
+                copy( $src, $dest );
+            } else {
+                warn "Missing directory: $dest\n";
+            }
+        } else {
+            warn "Missing file: $src\n";
+        }
+    }
+}
+
+=item * _write_index
+
+Writes out the main index page, after all stats have been calculated.
+
+=cut
+
+sub _write_index {
+    my $self = shift;
+    my $directory = $self->{parent}->directory;
+    my $templates = $self->{parent}->templates;
+    my $database  = $self->{parent}->database;
+
+    $self->{parent}->_log("writing index file");
+
+    # calculate database metrics
+    my $mtime = (stat($database))[9];
+    my @ltime = localtime($mtime);
+    $self->{DATABASE2} = sprintf "%d%s %s %d", $ltime[3],_ext($ltime[3]),$month{$ltime[4]},$ltime[5]+1900;
+    my $DATABASE1 = sprintf "%04d/%02d/%02d", $ltime[5]+1900,$ltime[4]+1,$ltime[3];
+    my $DBSZ_UNCOMPRESSED = int((-s $database        ) / (1024 * 1024));
+    my $DBSZ_COMPRESSED   = int((-s $database . '.gz') / (1024 * 1024));
+
+    # index page
+    my %pages = (
+        index    => {
+            THISDATE            => $self->{dates}{THISDATE},
+            DATABASE            => $DATABASE1,
+            DBSZ_COMPRESSED     => $DBSZ_COMPRESSED,
+            DBSZ_UNCOMPRESSED   => $DBSZ_UNCOMPRESSED,
+            report_count        => $self->{count}{reports},
+            distro_count        => $self->{count}{distros},
+            report_rate         => $self->{rates}{report},
+            distro_rate         => $self->{rates}{distro}
+        },
+    );
+
+    $self->_writepage($_,$pages{$_})    for(keys %pages);
 }
 
 =item * _report_interesting
@@ -761,12 +850,12 @@ sub _build_osname_matrix {
     my $CONTENT = $self->_osname_matrix($self->{versions},'all',1);
     $tvars{CONTENT} = $CONTENT;
     $self->_writepage('osmatrix-full',\%tvars);
- 
+
     %tvars = (template => 'osmatrix', FULL => 1, MONTH => 0, layout => 'layout-wide');
     $tvars{CONTENT} = $CONTENT;
     $self->{parent}->_log("building OS matrix - 2");
     $self->_writepage('osmatrix-full-wide',\%tvars);
- 
+
     %tvars = (template => 'osmatrix', FULL => 1, MONTH => 1);
     $self->{parent}->_log("building OS matrix - 3");
     $CONTENT = $self->_osname_matrix($self->{versions},'month',1);
@@ -827,16 +916,20 @@ sub _osname_matrix {
     }
 
     my $index = 0;
-    my $content = '<table class="matrix">';
-    $content .= '<tr><th>OS/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th><th></th><th>OS/Perl</th></tr>';
-    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) . '</th><th class="totals">Totals</th><th></th></tr>';
+    my $content = "\n" . '<table class="matrix" summary="OS/Perl Matrix">';
+    $content .= "\n" . '<tr><th>OS/Perl</th><th></th><th>' 
+                    . join("</th><th>",@$vers) 
+                    . '</th><th></th><th>OS/Perl</th></tr>';
+    $content .= "\n" . '<tr><th></th><th class="totals">Totals</th><th class="totals">' 
+                    . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) 
+                    . '</th><th class="totals">Totals</th><th></th></tr>';
     for my $osname (sort {$totals{os}{$b} <=> $totals{os}{$a}} keys %{$totals{os}}) {
         if($type eq 'month') {
             my $check = 0;
             for my $perl (@$vers) { $check++ if(defined $self->{osys}{$osname}{$perl}{$type}) }
             next    if($check == 0);
         }
-        $content .= '<tr><th>' . $osname . '</th><th class="totals">' . $totals{os}{$osname} . '</th>';
+        $content .= "\n" . '<tr><th>' . $osname . '</th><th class="totals">' . $totals{os}{$osname} . '</th>';
         for my $perl (@$vers) {
             my $count = defined $self->{osys}{$osname}{$perl}{$type}
                             ? scalar(keys %{$self->{osys}{$osname}{$perl}{$type}})
@@ -866,15 +959,18 @@ sub _osname_matrix {
             $class = 'more' if($number > $matrix_limits{$type}->[0]);
             $class = 'lots' if($number > $matrix_limits{$type}->[1]);
             $content .= qq{<td class="$class">}
-                        . ($count ? qq|<a href="$index.html">$count</a><br />$self->{osname}{$osname}{$perl}{$type}| : '-')
+                        . ($count ? qq|<a href="$index.html" title="Distribution List for $osname/$perl">$count</a><br />$self->{osname}{$osname}{$perl}{$type}| : '-')
                         . '</td>';
         }
         $content .= '<th class="totals">' . $totals{os}{$osname} . '</th><th>' . $osname . '</th>';
         $content .= '</tr>';
     }
-    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) . '</th><th class="totals">Totals</th><th></th></tr>';
-    $content .= '<tr><th>OS/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th><th></th><th>OS/Perl</th></tr>';
-    $content .= '</table>';
+    $content .= "\n" . '<tr><th></th><th class="totals">Totals</th><th class="totals">' 
+                    . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) 
+                    . '</th><th class="totals">Totals</th><th></th></tr>';
+    $content .= "\n" . '<tr><th>OS/Perl</th><th></th><th>' 
+                    . join("</th><th>",@$vers) . '</th><th></th><th>OS/Perl</th></tr>';
+    $content .= "\n" . '</table>';
 
     return $content;
 }
@@ -953,16 +1049,20 @@ sub _platform_matrix {
     }
 
     my $index = 0;
-    my $content = '<table class="matrix">';
-    $content .= '<tr><th>Platform/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th><th></th><th>Platform/Perl</th></tr>';
-    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) . '</th><th class="totals">Totals</th><th></th></tr>';
+    my $content = "\n" . '<table class="matrix" summary="Platform/Perl Matrix">';
+    $content .= "\n" . '<tr><th>Platform/Perl</th><th></th><th>' 
+                    . join("</th><th>",@$vers) 
+                    . '</th><th></th><th>Platform/Perl</th></tr>';
+    $content .= "\n" . '<tr><th></th><th class="totals">Totals</th><th class="totals">' 
+                    . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) 
+                    . '</th><th class="totals">Totals</th><th></th></tr>';
     for my $platform (sort {$totals{platform}{$b} <=> $totals{platform}{$a}} keys %{$totals{platform}}) {
         if($type eq 'month') {
             my $check = 0;
             for my $perl (@$vers) { $check++ if(defined $self->{pass}{$platform}{$perl}{$type}) }
             next    if($check == 0);
         }
-        $content .= '<tr><th>' . $platform . '</th><th class="totals">' . $totals{platform}{$platform} . '</th>';
+        $content .= "\n" . '<tr><th>' . $platform . '</th><th class="totals">' . $totals{platform}{$platform} . '</th>';
         for my $perl (@$vers) {
             my $count = defined $self->{pass}{$platform}{$perl}{$type}
                             ? scalar(keys %{$self->{pass}{$platform}{$perl}{$type}})
@@ -992,15 +1092,19 @@ sub _platform_matrix {
             $class = 'more' if($number > $matrix_limits{$type}->[0]);
             $class = 'lots' if($number > $matrix_limits{$type}->[1]);
             $content .= qq{<td class="$class">}
-                        . ($count ? qq|<a href="$index.html">$count</a><br />$self->{platform}{$platform}{$perl}{$type}| : '-')
+                        . ($count ? qq|<a href="$index.html" title="Distribution List for $platform/$perl">$count</a><br />$self->{platform}{$platform}{$perl}{$type}| : '-')
                         . '</td>';
         }
         $content .= '<th class="totals">' . $totals{platform}{$platform} . '</th><th>' . $platform . '</th>';
         $content .= '</tr>';
     }
-    $content .= '<tr><th></th><th class="totals">Totals</th><th class="totals">' . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) . '</th><th class="totals">Totals</th><th></th></tr>';
-    $content .= '<tr><th>Platform/Perl</th><th></th><th>' . join("</th><th>",@$vers) . '</th><th></th><th>Platform/Perl</th></tr>';
-    $content .= '</table>';
+    $content .= "\n" . '<tr><th></th><th class="totals">Totals</th><th class="totals">' 
+                    . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) 
+                    . '</th><th class="totals">Totals</th><th></th></tr>';
+    $content .= "\n" . '<tr><th>Platform/Perl</th><th></th><th>' 
+                    . join("</th><th>",@$vers) 
+                    . '</th><th></th><th>Platform/Perl</th></tr>';
+    $content .= "\n" . '</table>';
 
     return $content;
 }
@@ -1055,8 +1159,8 @@ sub _build_monthly_stats {
         for my $date (sort {$b <=> $a} keys %stats) {
             $stats{$date}{count} = keys %{$stats{$date}{list}};
             push @{$tvars{STATS}}, [$date,$stats{$date}{count},
-                join(', ',  
-                    map {"[$stats{$date}{list}{$_}] $_"} 
+                join(', ',
+                    map {"[$stats{$date}{list}{$_}] $_"}
                         sort {$stats{$date}{list}{$b} <=> $stats{$date}{list}{$a}}
                             keys %{$stats{$date}{list}})];
         }
@@ -1100,13 +1204,13 @@ sub _build_monthly_stats_files {
     print $fh1 "#DATE,UPLOADS,REPORTS,PASS,FAIL\n";
 
     my $fh2 = IO::File->new(">$results/pcent1.txt");
-    print $fh2 "#DATE,PASS,FAIL,OTHER\n";
+    print $fh2 "#DATE,FAIL,OTHER,PASS\n";
 
     my $fh3 = IO::File->new(">$results/stats3.txt");
     print $fh3 "#DATE,FAIL,NA,UNKNOWN\n";
-    
+
     for my $date (sort keys %{$self->{stats}}) {
-        next    if($date > $LIMIT);
+        next    if($date > $self->{dates}{LIMIT});
 
         my $uploads = ($self->{pause}{$date}              || 0);
         my $reports = ($self->{stats}{$date}{reports}     || 0);
@@ -1119,10 +1223,10 @@ sub _build_monthly_stats_files {
         );
 
         my @pcent = (
-            $date, 
-            ($reports > 0 ? int($passes / $reports * 100) : 0),
+            $date,
             ($reports > 0 ? int($fails  / $reports * 100) : 0),
-            ($reports > 0 ? int($others / $reports * 100) : 0)
+            ($reports > 0 ? int($others / $reports * 100) : 0),
+            ($reports > 0 ? int($passes / $reports * 100) : 0)
         );
 
         unshift @{$tvars{STATS}},
@@ -1131,7 +1235,7 @@ sub _build_monthly_stats_files {
                 $self->{stats}{$date}{state}{unknown}];
 
         # graphs don't include current month
-        next    if($date > $LIMIT-1);
+        next    if($date > $self->{dates}{LIMIT}-1);
 
         my $content = sprintf "%d,%d,%d,%d,%d\n", @fields;
         print $fh1 $content;
@@ -1159,7 +1263,7 @@ sub _build_monthly_stats_files {
     print $fh2 "#DATE,TESTERS,PLATFORMS,PERLS\n";
 
     for my $date (sort keys %{$self->{stats}}) {
-        next    if($date > $LIMIT-1);
+        next    if($date > $self->{dates}{LIMIT}-1);
         printf $fh2 "%d,%d,%d,%d\n",
             $date,
             ($self->{monthly}{$date}{tester}   ? scalar( keys %{$self->{monthly}{$date}{tester}}   ) : 0),
@@ -1175,7 +1279,7 @@ sub _build_monthly_stats_files {
     print $fh1 "#DATE,ALL,FIRST,LAST\n";
 
     for my $date (sort keys %{ $self->{stats} }) {
-        next    if($date > $LIMIT-1);
+        next    if($date > $self->{dates}{LIMIT}-1);
 
         if(defined $self->{counts}{$date}) {
             $self->{counts}{$date}{all}     = scalar(keys %{$self->{counts}{$date}{testers}});
@@ -1183,7 +1287,7 @@ sub _build_monthly_stats_files {
         $self->{counts}{$date}{all}   ||= 0;
         $self->{counts}{$date}{first} ||= 0;
         $self->{counts}{$date}{last}  ||= 0;
-        $self->{counts}{$date}{last}    = ''  if($date > $THISDATE);
+        $self->{counts}{$date}{last}    = ''  if($date > $self->{dates}{THISDATE});
 
         printf $fh1 "%d,%s,%s,%s\n",
             $date,
@@ -1200,8 +1304,8 @@ sub _build_failure_rates {
 
     $self->{parent}->_log("building failure rates");
 
-    my $query = 
-        'SELECT x.dist,x.version,u.released FROM ixlatest AS x '. 
+    my $query =
+        'SELECT x.dist,x.version,u.released FROM ixlatest AS x '.
         'INNER JOIN uploads AS u ON u.dist=x.dist AND u.version=x.version '.
         "WHERE u.type != 'backpan'";
     my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$query);
@@ -1219,8 +1323,8 @@ sub _build_failure_rates {
 
         $worst{"$dist-$version"} = $self->{fails}->{$dist}{$version};
         $worst{"$dist-$version"}->{dist}   = $dist;
-        $worst{"$dist-$version"}->{pcent}  = $self->{fails}{$dist}{$version}{fail} 
-                                                ? int(($self->{fails}{$dist}{$version}{fail}/$self->{fails}{$dist}{$version}{total})*10000)/100 
+        $worst{"$dist-$version"}->{pcent}  = $self->{fails}{$dist}{$version}{fail}
+                                                ? int(($self->{fails}{$dist}{$version}{fail}/$self->{fails}{$dist}{$version}{total})*10000)/100
                                                 : 0.00;
         $worst{"$dist-$version"}->{pass} ||= 0;
         $worst{"$dist-$version"}->{fail} ||= 0;
@@ -1271,7 +1375,7 @@ sub _build_failure_rates {
 
     my @recent = localtime(time() - 15778463); # 6 months ago
     my $recent = sprintf "%04d%02d", $recent[5]+1900, $recent[4]+1;
-    
+
     for my $dist (keys %worst) {
         next    if($worst{$dist}->{post} ge $recent);
         delete $worst{$dist};
@@ -1325,7 +1429,7 @@ sub _build_performance_stats {
     for my $date (sort {$a <=> $b} keys %{$self->{build}}) {
 #$self->{parent}->_log("build_stats: date=$date, old=$self->{build}{$date}->{old}");
 	next	if($self->{build}{$date}->{old} == 2);	# ignore todays tally
-        #next    if($date > $LIMIT-1);
+        #next    if($date > $self->{dates}{LIMIT}-1);
 
         printf $fh "%d,%d,%d,%d\n",
             $date,
@@ -1359,13 +1463,14 @@ sub _writepage {
 
     #$self->{parent}->_log("_writepage: layout=$layout, source=$source, target=$target");
 
-    $vars->{SOURCE}    = $source;
-    $vars->{VERSION}   = $VERSION;
-    $vars->{RUNDATE}   = $RUNDATE;
-    $vars->{STATDATE}  = $STATDATE;
-    $vars->{THATDATE}  = $THATDATE;
-    $vars->{SHORTDATE} = $SHORTDATE;
-    $vars->{copyright} = $self->{parent}->copyright;
+    $vars->{SOURCE}     = $source;
+    $vars->{VERSION}    = $VERSION;
+    $vars->{RUNDATE}    = $self->{dates}{RUNDATE};
+    $vars->{RUNTIME}    = $self->{dates}{RUNTIME};
+    $vars->{STATDATE}   = $self->{dates}{STATDATE};
+    $vars->{THATDATE}   = $self->{dates}{THATDATE};
+    $vars->{SHORTDATE}  = $self->{dates}{SHORTDATE};
+    $vars->{copyright}  = $self->{parent}->copyright;
 
 #    if($page =~ /^(p|os)matrix/) {
 #        use Data::Dumper;
@@ -1384,50 +1489,6 @@ sub _writepage {
     my $parser = Template->new(\%config);   # initialise parser
     $parser->process($layout,$vars,$target) # parse the template
         or die $parser->error() . "\n";
-}
-
-=item * _init_date
-
-Prime all key date variable.
-
-=cut
-
-sub _init_date {
-    my $self = shift;
-    $self->{parent}->_log("init");
-
-    my @datetime = localtime;
-    $THISYEAR = ($datetime[5] +1900);
-    $RUNDATE  = sprintf "%d%s %s %d",
-                        $datetime[3], _ext($datetime[3]),
-                        $month{$datetime[4]}, $THISYEAR;
-
-    # LIMIT is the last date for all data
-    $LIMIT    = ($THISYEAR) * 100 + $datetime[4] + 1;
-    if($datetime[4] == 0) {
-        $datetime[4] = 11;
-        $THISYEAR--;
-    }
-
-    # STATDATE/THISDATE is the Month/Year stats are run for
-    $STATDATE = sprintf "%s %d", $month{int($datetime[4])}, $THISYEAR;
-    $THISDATE = sprintf "%04d%02d", $THISYEAR, int($datetime[4]);
-
-    # LASTDATE/THATDATE is the previous Month/Year for a full matrix
-    $datetime[4]--;
-    $THATYEAR = $THISYEAR;
-    if($datetime[4] == 0) {
-        $datetime[4] = 11;
-        $THATYEAR--;
-    }
-    $LASTDATE = sprintf "%04d%02d", $THATYEAR, int($datetime[4]);
-    $THATDATE = sprintf "%s %d", $month{int($datetime[4])}, $THATYEAR;
-    $SHORTDATE = sprintf "%02d/%02d", int($datetime[4])+1, $THATYEAR - 2000;
-
-    #print STDERR "THISYEAR=[$THISYEAR]\n";
-    #print STDERR "LIMIT=[$LIMIT]\n";
-    #print STDERR "STATDATE=[$STATDATE]\n";
-    #print STDERR "RUNDATE=[$RUNDATE]\n";
 }
 
 =item * _tester_name
@@ -1468,11 +1529,7 @@ sub _tester_name {
     return $addr;
 }
 
-=item * _ext
-
-Provides the ordinal for dates.
-
-=cut
+# Provides the ordinal for dates.
 
 sub _ext {
     my $num = shift;
@@ -1535,10 +1592,9 @@ F<http://wiki.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2005-2010 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2011 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.
 
 =cut
-

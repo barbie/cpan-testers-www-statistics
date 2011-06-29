@@ -143,11 +143,30 @@ sub new {
 
 =item * make_pages
 
-Method to facilitate the creation of the statistics web pages.
+Method to manage the data update and creation of all the statistics web pages.
+
+Note that this method incorporate all of the method functionality of update, 
+make_basics, make_matrix and make_stats.
+
+=item * update
+
+Method to manage the data update only.
+
+=item * make_basics
+
+Method to manage the creation of the basic statistics web pages.
+
+=item * make_matrix
+
+Method to manage the creation of the matrix style statistics web pages.
+
+=item * make_stats
+
+Method to manage the creation of the tabular style statistics web pages.
 
 =item * make_graphs
 
-Method to facilitate the creation of the statistics graphs.
+Method to manage the creation of all the statistics graphs.
 
 =item * ranges
 
@@ -168,41 +187,42 @@ __PACKAGE__->mk_accessors(
 
 sub make_pages {
     my $self = shift;
-
-    die "Template directory not found\n"                unless(-d $self->templates);
-    die "Must specify the path of the SQL database\n"   unless(   $self->database);
-    die "Archive SQLite database not found\n"           unless(-f $self->database);
-    die "Must specify the path of the address file\n"   unless(   $self->address);
-    die "Address file not found\n"                      unless(-f $self->address);
+    $self->_check_files();
 
     my $stats = CPAN::Testers::WWW::Statistics::Pages->new(parent => $self);
-    $stats->create();
+    $stats->update_full();
+}
+
+sub update {
+    my $self = shift;
+    $self->_check_files();
+
+    my $stats = CPAN::Testers::WWW::Statistics::Pages->new(parent => $self);
+    $stats->update_data();
+}
+
+sub make_basics {
+    my $self = shift;
+    $self->_check_files();
+
+    my $stats = CPAN::Testers::WWW::Statistics::Pages->new(parent => $self);
+    $stats->build_basics();
 }
 
 sub make_matrix {
     my $self = shift;
-
-    die "Template directory not found\n"                unless(-d $self->templates);
-    die "Must specify the path of the SQL database\n"   unless(   $self->database);
-    die "Archive SQLite database not found\n"           unless(-f $self->database);
-    die "Must specify the path of the address file\n"   unless(   $self->address);
-    die "Address file not found\n"                      unless(-f $self->address);
+    $self->_check_files();
 
     my $stats = CPAN::Testers::WWW::Statistics::Pages->new(parent => $self);
-    $stats->matrix();
+    $stats->build_matrices();
 }
 
 sub make_stats {
     my $self = shift;
-
-    die "Template directory not found\n"                unless(-d $self->templates);
-    die "Must specify the path of the SQL database\n"   unless(   $self->database);
-    die "Archive SQLite database not found\n"           unless(-f $self->database);
-    die "Must specify the path of the address file\n"   unless(   $self->address);
-    die "Address file not found\n"                      unless(-f $self->address);
+    $self->_check_files();
 
     my $stats = CPAN::Testers::WWW::Statistics::Pages->new(parent => $self);
-    $stats->stats();
+    $stats->build_stats();
 }
 
 sub make_graphs {
@@ -242,6 +262,15 @@ sub osname {
 
 # -------------------------------------
 # Private Methods
+
+sub _check_files {
+    my $self = shift;
+    die "Template directory not found\n"                unless(-d $self->templates);
+    die "Must specify the path of the SQL database\n"   unless(   $self->database);
+    die "Archive SQLite database not found\n"           unless(-f $self->database);
+    die "Must specify the path of the address file\n"   unless(   $self->address);
+    die "Address file not found\n"                      unless(-f $self->address);
+}
 
 sub _log {
     my $self = shift;
@@ -300,10 +329,9 @@ F<http://wiki.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2008-2010 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2011 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.
 
 =cut
-
