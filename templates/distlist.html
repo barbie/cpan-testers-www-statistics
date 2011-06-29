@@ -1,14 +1,16 @@
 [% 
     title = 'Distribution PASS List' ;
-    box_sites = 1
+    box_sites = 1 ;
+    name3 = '' ;
+    name2 = '' ;
 %]
 
 [% 
     IF OS ;
-      name1 = 'By OS' ;
+      name3 = 'Matrices By OS' ;
       link1 = '/osmatrix' ;
     ELSE ; 
-      name1 = 'By Platform' ;
+      name3 = 'Matrices By Platform' ;
       link1 = '/pmatrix' ;
     END ;
 %]
@@ -16,16 +18,19 @@
 [% 
     IF FULL ;
       link1 = link1 _ '-full' ;
+      name2 = 'All Perl Releases' ;
+    ELSE ; 
+      name2 = 'Official Perl Releases' ;
     END ;
 
     IF MONTH ;
       link1 = link1 _ '-month' ;
       title = title _ ' (Last Month)' ;
+      name2 = name2 _ ' (Last Month)' ;
     END ;
 
-    crumb3_name = 'Matrices' ;
-    crumb3_href = '/' ;
-    crumb2_name = name1 ;
+    crumb3_name = name3 ;
+    crumb2_name = name2 ;
     crumb2_href = link1 _ '.html' ;
     crumb1_name = 'Distributions' ;
 
@@ -46,6 +51,6 @@ perl.</p>
 
 <ul>
 [% FOREACH dist = dists %]
-<li><a href="http://search.cpan.org/dist/[% dist %]">[% dist %]</a></li>
+<li><a href="http://search.cpan.org/dist/[% dist %]" title="[% dist %] on search.cpan.org">[% dist %]</a></li>
 [% END %]
 </ul>

@@ -85,9 +85,9 @@ function goThere(loc) {
       <!-- Breadcrumbs -->
       <div class="header-breadcrumbs">
         <ul>
-          <li><a href="/">Home</a></li>
-          [% IF crumb3_name %]<li><a href="[% crumb3_href %]" title="[% crumb3_name %]">[% crumb3_name %]</a></li>[% END %]
-          [% IF crumb2_name %]<li><a href="[% crumb2_href %]" title="[% crumb2_name %]">[% crumb2_name %]</a></li>[% END %]
+          <li><a href="/" title="Home">Home</a></li>
+          [% IF crumb3_name %]<li>[% IF crumb3_href %]<a href="[% crumb3_href %]" title="[% crumb3_name %]">[% crumb3_name %]</a>[% ELSE ; crumb3_name ; END %]</li>[% END %]
+          [% IF crumb2_name %]<li>[% IF crumb2_href %]<a href="[% crumb2_href %]" title="[% crumb2_name %]">[% crumb2_name %]</a>[% ELSE ; crumb2_name ; END %]</li>[% END %]
           <li>[% crumb1_name %]</li>
         </ul>
       </div>

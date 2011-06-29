@@ -1,17 +1,15 @@
 [% 
-    title = 'Recent Percentage' ;
+    title = 'Recent Failure Percentage' ;
     box_sites = 1
 
-    crumb2_name = 'Failures' ;
-    crumb2_href = '/' ;
-    crumb1_name = 'Recent Percentage' ;
+    crumb1_name = 'Recent Failure Percentage' ;
 %]
 
 <h2>HIGHEST RECENT FAILURE COUNTS (as of [% DATABASE %])</h2>
 <p>Order by Failure Count or Failure Percentage by clicking the appropriate column headings.</p>
 
-<table summary="HIGHEST RECENT FAILURE COUNTS">
-<tr><th class="top">#</th><th class="top">DISTRIBUTION</th><th class="top">UPLOAD</th><th class="top"><a href="wdists-recent.html">FAILS</a></th><th class="top">PASSES</th><th class="top">TOTAL</th><th class="top">PERCENTAGE</th></tr>
+<table summary="HIGHEST RECENT FAILURE PERCENTAGES">
+<tr><th class="top">#</th><th class="top">DISTRIBUTION</th><th class="top">UPLOAD</th><th class="top"><a href="wdists-recent.html" title="HIGHEST RECENT FAILURE COUNTS">FAILS</a></th><th class="top">PASSES</th><th class="top">TOTAL</th><th class="top">PERCENTAGE</th></tr>
 [% FOREACH row = WORST %]
 <tr><td align="right">[% row.0 %]</td>
     <td><a href="http://www.cpantesters.org/distro/[% row.7.substr(0,1) %]/[% row.7 %].html" title="reports for [% row.7 %]">[% row.2 %]</a></td>

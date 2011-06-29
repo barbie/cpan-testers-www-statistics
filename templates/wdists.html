@@ -1,17 +1,15 @@
 [% 
-    title = 'Counts' ;
+    title = 'Failure Counts' ;
     box_sites = 1
 
-    crumb2_name = 'Failures' ;
-    crumb2_href = '/' ;
-    crumb1_name = 'Counts' ;
+    crumb1_name = 'Failure Counts' ;
 %]
 
 <h2>HIGHEST FAILURE COUNTS (as of [% DATABASE %])</h2>
 <p>Order by Failure Count or Failure Percentage by clicking the appropriate column headings.</p>
 
 <table summary="HIGHEST FAILURE COUNTS">
-<tr><th class="top">#</th><th class="top">DISTRIBUTION</th><th class="top">UPLOAD</th><th class="top">FAILS</th><th class="top">PASSES</th><th class="top">TOTAL</th><th class="top"><a href="wpcent.html">PERCENTAGE</a></th></tr>
+<tr><th class="top">#</th><th class="top">DISTRIBUTION</th><th class="top">UPLOAD</th><th class="top">FAILS</th><th class="top">PASSES</th><th class="top">TOTAL</th><th class="top"><a href="wpcent.html" title="HIGHEST FAILURE PERCENTAGES">PERCENTAGE</a></th></tr>
 [% IF WORST %]
 [% FOREACH row = WORST %]
 <tr><td align="right">[% row.0 %]</td>

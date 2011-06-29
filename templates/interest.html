@@ -2,8 +2,6 @@
     title = 'Interesting Stats' ;
     box_sites = 1
 
-    crumb2_name = 'Main' ;
-    crumb2_href = '/' ;
     crumb1_name = 'Interesting Stats' ;
 %]
 
@@ -47,7 +45,7 @@
 [% IF    cnt == 1  ; THEN ; id = col %]
 [% ELSIF cnt == 2  ; THEN ; guid = col %]
 [% ELSIF cnt == 13 ; THEN ; type = col %]
-[% ELSIF cnt == 3 %]<td class="[% col | upper %]"><a href="http://www.cpantesters.org/cpan/report/[% id %]">[% col | upper %]</a></td>
+[% ELSIF cnt == 3 %]<td class="[% col | upper %]"><a href="http://www.cpantesters.org/cpan/report/[% id %]" title="view report">[% col | upper %]</a></td>
 [% ELSE %]<td>[% col %]</td>[% END ; cnt = cnt + 1 ; END %]</tr>
 [% END %]
 </table>

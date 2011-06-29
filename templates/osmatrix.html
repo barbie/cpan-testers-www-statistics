@@ -2,34 +2,34 @@
     link1 = 'osmatrix' ;
     link2 = 'osmatrix' ;
     link3 = '' ;
+    name1 = '' ;
 
     IF FULL ; THEN ; 
       link1 = link1 _ '-full' ;
-      title = 'Matrices : By OS - All Perl Releases' ; 
+      title = 'Matrices By OS - All Perl Releases' ; 
     ELSE ; 
-      title = 'Matrices : By OS - Official Perl Releases' ; 
+      title = 'Matrices By OS - Official Perl Releases' ; 
     END ;
 
     IF MONTH ; THEN ; 
       link3 = '-month' ;
       link1 = link1 _ link3 ;
-      title = title _ ' (Last Month)' ;
+      name1 = ' (Last Month)' ;
+      title = title _ name1 ;
     ELSE ;
     END ;
 
     box_sites = 1
 
-    crumb3_name = 'Matrices' ;
-    crumb3_href = '/' ;
-    crumb2_name = 'By OS' ;
-    crumb2_href = '/' ;
+    crumb2_name = 'Matrices By OS' ;
+
     IF FULL ; THEN ; 
       crumb1_name = 'All Perl Releases' ; 
     ELSE ; 
       crumb1_name = 'Official Perl Releases' ; 
     END ;
     IF MONTH ; THEN ; 
-      crumb1_name = crumb1_name _ ' (Last Month)' ;
+      crumb1_name = crumb1_name _ name1 ;
     END ;
 %]
 
@@ -57,13 +57,13 @@ representing the distributions, to see the full list of distributions with a PAS
 for that combination.</p>
 
 [% IF FULL %]
-<p>The matrix below includes <i>all released versions of Perl</i> tested. To see a more 
+<p>The matrix below includes <em>all released versions of Perl</em> tested. To see a more 
 restricted matrix, listing only the versions of Perl that have had an official release, 
-please <a href="/[% link2 %][% link3 %].html" title="view matrix for official perls">click here</a>.</p>
+please <a href="/[% link2 %][% link3 %].html" title="By OS - Official Perls[% name1 %]">click here</a>.</p>
 [% ELSE %]
-<p>The matrix below includes <i>all <b>officially</b> released versions of Perl</i> tested. To see a
+<p>The matrix below includes <em>all <strong>officially</strong> released versions of Perl</em> tested. To see a
 less restricted matrix, listing all released versions of Perl, please
-<a href="/[% link2 %]-full[% link3 %].html" title="view matrix for all perls">click here</a>.</p>
+<a href="/[% link2 %]-full[% link3 %].html" title="By OS - All Perls[% name1 %]">click here</a>.</p>
 [% END %]
 
 <p><a href="/[% link1 %].xls" title="Download Excel version">Click Here</a> to download an Excel formatted version of this page.</p>

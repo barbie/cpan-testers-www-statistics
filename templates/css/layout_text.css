@@ -289,3 +289,7 @@ a img,
 a:visited img,
 a:hover img,
 img { border: 1px rgb(225,225,225) solid; text-decoration: none; }
+
+.footer strong  { color: #000; }
+th.w100         { width: 15%; }
+th.w200         { width: 25%; }
