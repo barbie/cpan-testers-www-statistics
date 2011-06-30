@@ -293,3 +293,6 @@ img { border: 1px rgb(225,225,225) solid; text-decoration: none; }
 .footer strong  { color: #000; }
 th.w100         { width: 15%; }
 th.w200         { width: 25%; }
+
+.footnote   { text-align: center; }
+.footnote a { color:rgb(70,122,167); font-weight:bold; text-decoration:none; font-size: 0.7em; }

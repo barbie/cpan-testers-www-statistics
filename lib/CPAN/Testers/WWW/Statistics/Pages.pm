@@ -504,17 +504,18 @@ sub _write_basics {
 
     # additional pages not requiring metrics
     my %pages = (
-            cpanmail => {},
-            response => {},
-            perform  => {},
-            graphs   => {},
-            graphs1  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats1' ,TITLE=>'Monthly Report Counts'},
-            graphs2  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats2' ,TITLE=>'Testers, Platforms and Perls'},
-            graphs3  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats3' ,TITLE=>'Monthly Non-Passing Reports Counts'},
-            graphs4  => {RANGES => $ranges1, template=>'archive',PREFIX=>'stats4' ,TITLE=>'Monthly Tester Fluctuations'},
-            graphs5  => {RANGES => $ranges1, template=>'archive',PREFIX=>'pcent1' ,TITLE=>'Monthly Report Percentages'},
-            graphs6  => {RANGES => $ranges2, template=>'archive',PREFIX=>'stats6' ,TITLE=>'All Distribution Uploads per Month'},
-            graphs12 => {RANGES => $ranges2, template=>'archive',PREFIX=>'stats12',TITLE=>'New Distribution Uploads per Month'}
+        cpanmail => {},
+        response => {},
+        perform  => {},
+        terms    => {},
+        graphs   => {},
+        graphs1  => {RANGES => $ranges1, template=>'archive', PREFIX=>'stats1' ,TITLE=>'Monthly Report Counts'},
+        graphs2  => {RANGES => $ranges1, template=>'archive', PREFIX=>'stats2' ,TITLE=>'Testers, Platforms and Perls'},
+        graphs3  => {RANGES => $ranges1, template=>'archive', PREFIX=>'stats3' ,TITLE=>'Monthly Non-Passing Reports Counts'},
+        graphs4  => {RANGES => $ranges1, template=>'archive', PREFIX=>'stats4' ,TITLE=>'Monthly Tester Fluctuations'},
+        graphs5  => {RANGES => $ranges1, template=>'archive', PREFIX=>'pcent1' ,TITLE=>'Monthly Report Percentages'},
+        graphs6  => {RANGES => $ranges2, template=>'archive', PREFIX=>'stats6' ,TITLE=>'All Distribution Uploads per Month'},
+        graphs12 => {RANGES => $ranges2, template=>'archive', PREFIX=>'stats12',TITLE=>'New Distribution Uploads per Month'}
     );
 
     $self->{parent}->_log("building support pages");

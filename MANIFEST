@@ -79,6 +79,7 @@ templates/public/footer.html
 templates/public/quote.html
 templates/response.html
 templates/statscpan.html
+templates/terms.html
 templates/testers.html
 templates/trends.html
 templates/wdists.html

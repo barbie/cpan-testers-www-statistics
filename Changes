@@ -11,6 +11,7 @@ Revision history for CPAN-Testers-WWW-Statistics
 	- major XHTML updates for WAI WCAG v2.0 compliance.
 	- reorganised links and names to be consistent across pages.
 	- restructured Pages.pm, to allow process to be called in stages.
+	- added terms & conditions page.
 
 0.88    31/10/2010
         - added further timestamp test pattern.
@@ -32,7 +33,7 @@ Revision history for CPAN-Testers-WWW-Statistics
 0.86    26/09/2010
         - added Metabase and Labyrinth links.
         - repositioned site boxes to avoid text and logo clashing.
-        - added reset.sh to examples to help rebuild expected.zip
+        - added reset.sh to examples to help rebuild expected.zip.
         - added data/01mailrc.txt for testing purposes.
         - broken WWW::Mechanize dropped in favour of basic LWP.
 
