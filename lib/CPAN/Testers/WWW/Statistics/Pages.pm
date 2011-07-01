@@ -1193,13 +1193,13 @@ sub _build_monthly_stats {
     }
 
     $count--;
-    print "Unknown Addresses: ".($count-$known_t)."\n";
-    print "Known Addresses:   ".($known_s)."\n";
-    print "Listed Addresses:  ".($known_s+$count-$known_t)."\n";
-    print "\n";
-    print "Unknown Testers:   ".($count-$known_t)."\n";
-    print "Known Testers:     ".($known_t)."\n";
-    print "Listed Testers:    ".($count)."\n";
+
+    $self->{parent}->_log("Unknown Addresses: ".($count-$known_t));
+    $self->{parent}->_log("Known Addresses:   ".($known_s));
+    $self->{parent}->_log("Listed Addresses:  ".($known_s+$count-$known_t));
+    $self->{parent}->_log("Unknown Testers:   ".($count-$known_t));
+    $self->{parent}->_log("Known Testers:     ".($known_t));
+    $self->{parent}->_log("Listed Testers:    ".($count));
 
     push @{$tvars{COUNTS}}, ($count-$known_t),$known_s,($known_s+$count-$known_t),($count-$known_t),$known_t,$count;
 
