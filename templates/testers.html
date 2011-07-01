@@ -1,8 +1,8 @@
 [% 
-    title = 'CPAN Testers Leaderboard' ;
+    title = 'All Time CPAN Testers Leaderboard' ;
     box_sites = 1
 
-    crumb1_name = 'CPAN Testers Leaderboard' ;
+    crumb1_name = 'Tester Leaderboard' ;
 %]
 
 <p>Click below to see alternative OS Leaderboards</p>
@@ -10,7 +10,7 @@
 [% inx = 0 %]
 [% FOREACH item = osnames %]
 [% IF inx % 3 == 0 %]<tr>[% END %]
-<td><a href="/leaders/leaders-[% item.osname %]-all.html" title="[% item.ostitle %] Leaderboard (All Months)">[% item.ostitle %]</a></td>
+<td><a href="/leaders/leaders-[% item.osname %]-all.html" title="[% item.ostitle %] Tester Leaderboard (All Months)">[% item.ostitle %]</a></td>
 [% inx = inx + 1 %]
 [% IF inx % 3 == 0 %]</tr>[% END %]
 [% END %]
@@ -19,7 +19,7 @@
 
 
 <h2>TOP TESTERS OF ALL TIME</h2>
-<table summary="CPAN Testers Leaderboard">
+<table summary="Tester Leaderboard">
 <tr><th class="top">POSITION</th><th class="top">SUBMISSIONS</th><th class="top">TESTER</th></tr>
 [% FOREACH row = STATS %]
 <tr><td align="right">[% row.0 %]</td><td align="right">[% row.1 %]</td><td>[% row.2 %]</td></tr>
