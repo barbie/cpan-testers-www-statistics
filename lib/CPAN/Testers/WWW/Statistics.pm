@@ -225,6 +225,14 @@ sub make_stats {
     $stats->build_stats();
 }
 
+sub make_leaders {
+    my $self = shift;
+    $self->_check_files();
+
+    my $stats = CPAN::Testers::WWW::Statistics::Pages->new(parent => $self);
+    $stats->build_leaders();
+}
+
 sub make_graphs {
     my $self = shift;
     my $stats = CPAN::Testers::WWW::Statistics::Graphs->new(parent => $self);

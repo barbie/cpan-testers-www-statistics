@@ -58,6 +58,7 @@ else                        {
     if($options{update})    { $stats->update();         }
     if($options{matrix})    { $stats->make_matrix();    }
     if($options{stats})     { $stats->make_stats();     }
+    if($options{leader})    { $stats->make_leaders();   }
 }
 
 # -------------------------------------
@@ -89,6 +90,7 @@ sub init_options {
         'update|u',
         'matrix|m',
         'stats|s',
+	'leader|l',
         
         'help|h',
         'version|v'
@@ -98,7 +100,7 @@ sub init_options {
     help(0) if($options{version});
 
     $options{all} = 1
-        unless($options{basics} || $options{update} || $options{matrix} || $options{stats});
+        unless($options{basics} || $options{update} || $options{matrix} || $options{stats} || $options{leader});
 }
 
 sub help {
@@ -133,6 +135,7 @@ sub help {
         print "  [--update]                 # update data store\n";
         print "  [--matrix]                 # create matrix style pages\n";
         print "  [--stats]                  # create stats style pages\n";
+        print "  [--leader]                 # create leaderboard pages\n";
 
         print "\nOther Options:\n";
         print "  [--version]                # program version\n";

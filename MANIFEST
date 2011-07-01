@@ -63,6 +63,7 @@ templates/interest.html
 templates/layout.html
 templates/layout-wide.html
 templates/leadercpan.html
+templates/leaderos.html
 templates/missing.html
 templates/month.html
 templates/mperls.html

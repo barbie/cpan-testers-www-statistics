@@ -162,6 +162,7 @@ sub setdates {
         = sprintf "%d%s %s %d %02d:%02d:%02d",
             $datetime[3], _ext($datetime[3]), $month{$datetime[4]}, $THISYEAR,
             $datetime[2], $datetime[1], $datetime[0];
+    $self->{dates}{RUNTIME} = `date`;
 
     # LIMIT is the last date for all data
     $self->{dates}{LIMIT}    = ($THISYEAR) * 100 + $datetime[4] + 1;
@@ -268,6 +269,17 @@ sub build_stats {
         $self->_write_index();
     }
     $self->{parent}->_log("stats finish");
+}
+
+sub build_leaders {
+    my $self = shift;
+
+    $self->{parent}->_log("leaders start");
+
+    ## BUILD OS LEADERBOARDS
+    $self->_build_osname_leaderboards();
+
+    $self->{parent}->_log("leaders finish");
 }
 
 =head2 Private Methods
@@ -1171,6 +1183,10 @@ sub _build_monthly_stats {
     $self->{parent}->_log("building leader board");
     (%tvars,%stats) = ();
 
+    my $sql = 'SELECT * FROM osname ORDER BY ostitle';
+    my @rows = $self->{parent}->{CPANSTATS}->get_query('hash',$sql);
+    $tvars{osnames} = \@rows;
+
     my $count = 1;
     for my $tester (sort {$testers{$b} <=> $testers{$a}} keys %testers) {
         push @{$tvars{STATS}}, [$count++, $testers{$tester}, $tester];
@@ -1188,6 +1204,150 @@ sub _build_monthly_stats {
     push @{$tvars{COUNTS}}, ($count-$known_t),$known_s,($known_s+$count-$known_t),($count-$known_t),$known_t,$count;
 
     $self->_writepage('testers',\%tvars);
+}
+
+sub _build_osname_leaderboards {
+    my $self = shift;
+    my ($json,$data);
+
+    $self->{parent}->_log("building osname leaderboards");
+
+    # load data
+    my $file = 'leaderboard.json';
+    if(-f $file) {
+        $json = read_file($file);
+        $data = decode_json($json);
+    }
+
+    unless($data) {
+        $data->{'999999'} = {}, # all counter
+        $data->{'199908'} = {}  # first report date
+    }
+
+    # set dates
+    my $post0 = '999999';
+    my $post3 = $self->{dates}{THISDATE};
+    my $post2 = $self->{dates}{LASTDATE};
+    my $post1 = $self->{dates}{LASTDATE} - 1;
+    $post1 -= 88    if($post1 % 100 == 0);
+
+    $self->{parent}->_log("1.post0=$post0");
+    $self->{parent}->_log("2.post1=$post1");
+    $self->{parent}->_log("3.post2=$post2");
+    $self->{parent}->_log("4.post3=$post3");
+
+    my @posts = sort keys %$data;
+    $self->{parent}->_log("5.posts[0]=$posts[0]");
+
+    if($posts[0] != $post1) {
+        my $p = $posts[0];
+        while($p < $post3) {
+            $data->{$p} = $self->_build_os_hash($p);
+            $p++;
+            $p += 88    if($p % 100 > 12);
+        }
+    } else {
+        for my $p ($post1,$post2,$post3) {
+            $data->{$p} = $self->_build_os_hash($p);
+        }
+    }
+
+    my %oses;
+    for my $post (keys %$data) {
+        if($post == $post0 || $post == $post1 || $post == $post2 || $post == $post3) {
+            for my $os (keys %{$data->{$post}}) {
+                $oses{$os} = 1;
+                for my $tester (keys %{$data->{$post}{$os}}) {
+                    $data->{$post0}{$os}{$tester} ||= 0;  # make sure we include all testers
+                }
+            }
+        } else {
+            for my $os (keys %{$data->{$post}}) {
+                $oses{$os} = 1;
+                for my $tester (keys %{$data->{$post}{$os}}) {
+                    $data->{$post0}{$os}{$tester} += $data->{$post}{$os}{$tester};
+                }
+            }
+            delete $data->{$post};
+        }
+    }
+
+    # save data
+    $json = encode_json($data);
+    write_file($file,$json);
+
+    $self->{parent}->_log("1.save json");
+
+    # reorganise data
+    my %hash;
+    for my $os (keys %oses) {
+        for my $tester (keys %{$data->{$post0}{$os}}) {
+            $hash{$os}{$tester}{this} = $data->{$post3}{$os}{$tester} || 0;
+            $hash{$os}{$tester}{that} = $data->{$post2}{$os}{$tester} || 0;
+            $hash{$os}{$tester}{all}  = ($data->{$post3}{$os}{$tester} || 0) + ($data->{$post2}{$os}{$tester} || 0) + 
+                                        ($data->{$post1}{$os}{$tester} || 0) + ($data->{$post0}{$os}{$tester} || 0);
+        }
+
+    }
+
+    $self->{parent}->_log("1.reorg");
+
+    my %titles = (
+        this    => 'This Month',
+        that    => 'Last Month',
+        all     => 'All Months'
+    );
+
+    my $sql = 'SELECT * FROM osname ORDER BY ostitle';
+    my @rows = $self->{parent}->{CPANSTATS}->get_query('hash',$sql);
+
+    for my $osname (keys %oses) {
+        next    unless($osname);
+        for my $type (qw(this that all)) {
+            my @leaders;
+            for my $tester (sort {($hash{$osname}{$b}{$type} || 0) <=> ($hash{$osname}{$a}{$type} || 0)} keys %{$hash{$osname}}) {
+                push @leaders, 
+                        {   col2    => $hash{$osname}{$tester}{this}, 
+                            col1    => $hash{$osname}{$tester}{that},
+                            col3    => $hash{$osname}{$tester}{all},
+                            tester  => $tester
+                        } ;
+            }
+
+            my $os = lc $osname;
+
+            my %tvars;
+            $tvars{osnames}     = \@rows;
+            $tvars{template}    = 'leaderos';
+            $tvars{osname}      = $self->{parent}->osname($osname);
+            $tvars{leaders}     = \@leaders;
+            $tvars{headers}     = { col1 => $post2, col2 => $post3, title => "$tvars{osname} Leaderboard ($titles{$type})" };
+            $tvars{links}{this} = $type eq 'this' ? '' : "leaders-$os-this.html";
+            $tvars{links}{that} = $type eq 'that' ? '' : "leaders-$os-that.html";
+            $tvars{links}{all}  = $type eq 'all'  ? '' : "leaders-$os-all.html";
+            $self->{parent}->_log("1.leaders/leaders-$os-$type");
+
+            $self->_writepage("leaders/leaders-$os-$type",\%tvars);
+        }
+    }
+}
+
+sub _build_os_hash {
+    my ($self,$pd) = @_;
+    my %hash;
+
+    my $sql = 
+        'SELECT osname,tester,COUNT(id) AS count FROM cpanstats '.
+        'WHERE postdate=? AND type=2 '.
+        'GROUP BY osname,tester';
+
+    my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql,$pd);
+    while(my $row = $next->()) {
+        my $name = $self->_tester_name($row->{tester});
+        $hash{$row->{osname}}{$name} += $row->{count};
+    }
+
+    return \%hash;
 }
 
 sub _build_monthly_stats_files {
