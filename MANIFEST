@@ -48,6 +48,7 @@ t/data/21config10.ini
 t/data/21config11.ini
 t/data/addresses.txt
 t/data/cpanstats-test.json
+t/data/missing-in-action.txt
 t/expected.zip
 templates/archive.html
 templates/cgi-bin/cpanmail.cgi
