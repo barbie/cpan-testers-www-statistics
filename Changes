@@ -15,6 +15,7 @@ Revision history for CPAN-Testers-WWW-Statistics
 	- changed storage method to mainstore and added	leadstore for JSON data
 	  storage files.
 	- updated tests.
+	- added missing method for the missing-in-action file path.
 
 0.88	31/10/2010
 	- added	further	timestamp test pattern.

@@ -118,6 +118,7 @@ sub new {
     $self->templates(_defined_or( $hash{templates}, $cfg->val('MASTER','templates') ));
     $self->database( _defined_or( $hash{database},  $cfg->val('MASTER','database' ) ));
     $self->address(  _defined_or( $hash{address},   $cfg->val('MASTER','address'  ) ));
+    $self->missing(  _defined_or( $hash{missing},   $cfg->val('MASTER','missing'  ) ));
     $self->logfile(  _defined_or( $hash{logfile},   $cfg->val('MASTER','logfile'  ) ));
     $self->logclean( _defined_or( $hash{logclean},  $cfg->val('MASTER','logclean' ), 0 ));
     $self->directory(_defined_or( $hash{directory}, $cfg->val('MASTER','directory') ));
@@ -129,6 +130,7 @@ sub new {
     $self->_log("templates=".($self->templates || ''));
     $self->_log("database =".($self->database  || ''));
     $self->_log("address  =".($self->address   || ''));
+    $self->_log("missing  =".($self->missing   || ''));
     $self->_log("logfile  =".($self->logfile   || ''));
     $self->_log("logclean =".($self->logclean  || ''));
     $self->_log("directory=".($self->directory || ''));
@@ -190,7 +192,7 @@ Returns the print form of a recorded OS name.
 
 __PACKAGE__->mk_accessors(
     qw( directory mainstore leadstore templates database address builder 
-        logfile logclean copyright tocopy osnames));
+        missing logfile logclean copyright tocopy osnames));
 
 sub make_pages {
     my $self = shift;

@@ -840,7 +840,9 @@ sub _missing_in_action {
 
     $self->{parent}->_log("building missing in action page");
 
-    my $fh = IO::File->new('data/missing-in-action.txt') or return;
+    my $missing = $self->{parent}->missing();
+    return  unless(-f $missing);
+    my $fh = IO::File->new($missing) or return;
     while(<$fh>) {
         chomp;
         my ($pauseid,$timestamp,$reason) = /^([a-z]+)[ \t]+([^+]+\+0[01]00) (.*)/i;
