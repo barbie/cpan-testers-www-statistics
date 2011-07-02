@@ -12,6 +12,8 @@ Revision history for CPAN-Testers-WWW-Statistics
 	- reorganised links and names to be consistent across pages.
 	- restructured Pages.pm, to allow process to be called in stages.
 	- added terms & conditions page.
+	- changed storage method to mainstore and added leadstore for JSON data
+	  storage files.
 
 0.88    31/10/2010
         - added further timestamp test pattern.

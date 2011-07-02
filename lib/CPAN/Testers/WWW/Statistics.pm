@@ -55,7 +55,8 @@ keys.
   config    => path to configuration file [required]
 
   directory => path to output directory
-  storage   => path to data storage file
+  mainstore => path to main data storage file
+  leadstore => path to leaderboard data storage file
   templates => path to templates directory
   database  => path to SQLite database file
   address   => path to address file
@@ -112,7 +113,8 @@ sub new {
     my @TOCOPY = split("\n", $cfg->val('TOCOPY','LIST'));
     $self->tocopy(\@TOCOPY);
 
-    $self->storage(  _defined_or( $hash{storage},   $cfg->val('MASTER','storage'  ) ));
+    $self->mainstore(_defined_or( $hash{mainstore}, $cfg->val('MASTER','mainstore') ));
+    $self->leadstore(_defined_or( $hash{leadstore}, $cfg->val('MASTER','leadstore') ));
     $self->templates(_defined_or( $hash{templates}, $cfg->val('MASTER','templates') ));
     $self->database( _defined_or( $hash{database},  $cfg->val('MASTER','database' ) ));
     $self->address(  _defined_or( $hash{address},   $cfg->val('MASTER','address'  ) ));
@@ -122,7 +124,8 @@ sub new {
     $self->copyright(                               $cfg->val('MASTER','copyright') );
     $self->builder(  _defined_or( $hash{builder},   $cfg->val('MASTER','builder'  ) ));
 
-    $self->_log("storage  =".($self->storage   || ''));
+    $self->_log("mainstore=".($self->mainstore || ''));
+    $self->_log("leadstore=".($self->leadstore || ''));
     $self->_log("templates=".($self->templates || ''));
     $self->_log("database =".($self->database  || ''));
     $self->_log("address  =".($self->address   || ''));
@@ -164,6 +167,10 @@ Method to manage the creation of the matrix style statistics web pages.
 
 Method to manage the creation of the tabular style statistics web pages.
 
+=item * make_leaders
+
+Method to manage the creation of the OS leaderboard web pages.
+
 =item * make_graphs
 
 Method to manage the creation of all the statistics graphs.
@@ -182,8 +189,8 @@ Returns the print form of a recorded OS name.
 =cut
 
 __PACKAGE__->mk_accessors(
-    qw( directory storage templates database address builder logfile logclean 
-        copyright tocopy osnames));
+    qw( directory mainstore leadstore templates database address builder 
+        logfile logclean copyright tocopy osnames));
 
 sub make_pages {
     my $self = shift;

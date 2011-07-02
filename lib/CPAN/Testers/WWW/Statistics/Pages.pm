@@ -145,6 +145,10 @@ Create the matrices pages and distribution list pages.
 
 Create all other statistical pages; monthly tables, interesting stats, etc.
 
+=item * build_leaders
+
+Create all OS Leaderboards.
+
 =back
 
 =cut
@@ -200,6 +204,7 @@ sub update_full {
     $self->build_data();
     $self->build_matrices();
     $self->build_stats();
+    $self->build_leaders();
     $self->{parent}->_log("finish update_full");
 }
 
@@ -227,7 +232,7 @@ sub build_matrices {
     my $self = shift;
 
     $self->{parent}->_log("start build_matrices");
-    my $storage = $self->{parent}->storage();
+    my $storage = $self->{parent}->mainstore();
     if($storage && -f $storage) {
         $self->{parent}->_log("building dist hash from storage");
         $self->storage_read($storage);
@@ -251,7 +256,7 @@ sub build_stats {
     $self->_build_monthly_stats();
 
     $self->{parent}->_log("stats start");
-    my $storage = $self->{parent}->storage();
+    my $storage = $self->{parent}->mainstore();
     if($storage && -f $storage) {
         $self->{parent}->_log("building dist hash from storage");
         $self->storage_read($storage);
@@ -319,7 +324,7 @@ sub build_data {
 
     my $testers = {};
     my $lastid = 0;
-    my $storage = $self->{parent}->storage();
+    my $storage = $self->{parent}->mainstore();
     if($storage && -f $storage) {
         $self->{parent}->_log("building dist hash from storage");
         ($testers,$lastid) = $self->storage_read($storage);
@@ -1213,9 +1218,9 @@ sub _build_osname_leaderboards {
     $self->{parent}->_log("building osname leaderboards");
 
     # load data
-    my $file = 'leaderboard.json';
-    if(-f $file) {
-        $json = read_file($file);
+    my $storage = $self->{parent}->leadstore();
+    if($storage && -f $storage) {
+        $json = read_file($storage);
         $data = decode_json($json);
     }
 
@@ -1273,10 +1278,10 @@ sub _build_osname_leaderboards {
     }
 
     # save data
-    $json = encode_json($data);
-    write_file($file,$json);
-
-    $self->{parent}->_log("1.save json");
+    if($storage) {
+        $json = encode_json($data);
+        write_file($storage,$json);
+    }
 
     # reorganise data
     my %hash;
