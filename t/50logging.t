@@ -26,11 +26,10 @@ unlink('50logging.log') if(-f '50logging.log');
     my @log = do { open FILE, '<', '50logging.log'; <FILE> };
     chomp @log;
 
-    is(scalar(@log),10, 'log written');
-    like($log[8], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Hello!,   'line 1 of log');
-    like($log[9], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Goodbye!, 'line 2 of log');
+    is(scalar(@log),11, 'log written');
+    like($log[9], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Hello!,   'line 1 of log');
+    like($log[10], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Goodbye!, 'line 2 of log');
 }
-
 
 {
     ok( my $obj = CTWS_Testing::getObj(config => 't/50logging.ini'), "got object" );
@@ -45,10 +44,10 @@ unlink('50logging.log') if(-f '50logging.log');
     my @log = do { open FILE, '<', '50logging.log'; <FILE> };
     chomp @log;
 
-    is(scalar(@log),19, 'log extended');
-    like($log[8], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Hello!,      'line 1 of log');
-    like($log[9], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Goodbye!,    'line 2 of log');
-    like($log[18], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Back Again!, 'line 3 of log');
+    is(scalar(@log),21, 'log extended');
+    like($log[9], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Hello!,      'line 1 of log');
+    like($log[10], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Goodbye!,    'line 2 of log');
+    like($log[20], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Back Again!, 'line 3 of log');
 }
 
 {

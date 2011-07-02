@@ -19,12 +19,11 @@ my $CHECK_DOMAIN    = 'www.google.com';
 # create a new zip file t/expected-NEW.zip. To commit it, just enter:
 #
 # $> mv t/expected-NEW.zip t/expected.zip
-#
 
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 262;
+use Test::More tests => 385;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;
@@ -33,12 +32,15 @@ use File::Spec;
 use File::Path;
 use File::Copy;
 use File::Basename;
+use Sort::Versions;
 
 use lib 't';
 use CTWS_Testing;
 
 ok( my $obj = CTWS_Testing::getObj(), "got object" );
 ok( CTWS_Testing::cleanDir($obj), 'directory removed' );
+unlink($obj->mainstore) if(-f $obj->mainstore);
+unlink($obj->leadstore) if(-f $obj->leadstore);
 
 my $rc;
 my @files;
@@ -75,7 +77,10 @@ my $images = File::Spec->catfile( $TARGET, 'images' );
 rmtree($images);
 $obj->templates($TARGET);
 
-my ($stats,$fails,$pass,$counts,$dists,$index,$versions) = $page->_build_stats();
+#my ($stats,$fails,$pass,$counts,$dists,$index,$versions) = $page->_build_stats();
+
+
+## BUILD BASICS METHODS
 
 $obj->directory($dir . '/_write_basics'),
 $page->_write_basics();
@@ -86,9 +91,70 @@ check_dir_contents(
 );
 ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
+$obj->directory($dir . '/_missing_in_action'),
+$page->_missing_in_action();
+check_dir_contents(
+	"[_missing_in_action]",
+	$obj->directory,
+	File::Spec->catfile($EXPECTEDPATH,'56writes._missing_in_action'),
+);
+ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+
+
+## READ JSON DATA
+
+{
+    my $store1 = 't/data/cpanstats-test.json';
+    $page->storage_read($store1);
+
+    my @versions = sort {versioncmp($b,$a)} keys %{$page->{perls}};
+    $page->{versions} = \@versions;
+}
+
+
+## BUILD MATRIX METHODS
+
+$obj->directory($dir . '/_build_osname_matrix'),
+$page->_build_osname_matrix();
+check_dir_contents(
+	"[_build_osname_matrix]",
+	$obj->directory,
+	File::Spec->catfile($EXPECTEDPATH,'56writes._build_osname_matrix'),
+);
+ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+
+$obj->directory($dir . '/_build_platform_matrix'),
+$page->_build_platform_matrix();
+check_dir_contents(
+	"[_build_platform_matrix]",
+	$obj->directory,
+	File::Spec->catfile($EXPECTEDPATH,'56writes._build_platform_matrix'),
+);
+ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+
+
+## BUILD REGULAR STATS METHODS
+
+$obj->directory($dir . '/_report_cpan'),
+$page->_report_cpan();
+check_dir_contents(
+	"[_report_cpan]",
+	$obj->directory,
+	File::Spec->catfile($EXPECTEDPATH,'56writes._report_cpan'),
+);
+ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+
+$obj->directory($dir . '/_build_monthly_stats'),
+$page->_build_monthly_stats();
+check_dir_contents(
+	"[_build_monthly_stats]",
+	$obj->directory,
+	File::Spec->catfile($EXPECTEDPATH,'56writes._build_monthly_stats'),
+);
+ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
 $obj->directory($dir . '/_report_interesting'),
-$page->_report_interesting($dists,$index);
+$page->_report_interesting();
 check_dir_contents(
 	"[_report_interesting]",
 	$obj->directory,
@@ -96,13 +162,51 @@ check_dir_contents(
 );
 ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
-
-$obj->directory($dir . '/_write_stats'),
-$page->_write_stats();
+$obj->directory($dir . '/_build_monthly_stats_files'),
+$page->_build_monthly_stats_files();
 check_dir_contents(
-	"[_write_stats]",
+	"[_build_monthly_stats_files]",
 	$obj->directory,
-	File::Spec->catfile($EXPECTEDPATH,'56writes._write_stats'),
+	File::Spec->catfile($EXPECTEDPATH,'56writes._build_monthly_stats_files'),
+);
+ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+
+$obj->directory($dir . '/_build_failure_rates'),
+$page->_build_failure_rates();
+check_dir_contents(
+	"[_build_failure_rates]",
+	$obj->directory,
+	File::Spec->catfile($EXPECTEDPATH,'56writes._build_failure_rates'),
+);
+ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+
+$obj->directory($dir . '/_build_performance_stats'),
+$page->_build_performance_stats();
+check_dir_contents(
+	"[_build_performance_stats]",
+	$obj->directory,
+	File::Spec->catfile($EXPECTEDPATH,'56writes._build_performance_stats'),
+);
+ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+
+$obj->directory($dir . '/_write_index'),
+$page->_write_index();
+check_dir_contents(
+	"[_write_index]",
+	$obj->directory,
+	File::Spec->catfile($EXPECTEDPATH,'56writes._write_index'),
+);
+ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+
+
+## BUILD LEADERBOARDS METHODS
+
+$obj->directory($dir . '/_build_osname_leaderboards'),
+$page->_build_osname_leaderboards();
+check_dir_contents(
+	"[_build_osname_leaderboards]",
+	$obj->directory,
+	File::Spec->catfile($EXPECTEDPATH,'56writes._build_osname_leaderboards'),
 );
 ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
@@ -113,12 +217,12 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 SKIP: {
 	skip "Can't see a network connection", 66	if(pingtest($CHECK_DOMAIN));
 
-    $obj->directory($dir . '/create'),
-    $page->create();
+    $obj->directory($dir . '/update_full'),
+    $page->update_full();
     check_dir_contents(
-        "[create]",
+        "[update_full]",
         $obj->directory,
-        File::Spec->catfile($EXPECTEDPATH,'56writes.create'),
+        File::Spec->catfile($EXPECTEDPATH,'56writes.update_full'),
     );
     ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
@@ -230,6 +334,7 @@ sub check_dir_contents {
             sub {
                 if($_[0]) {
                     $_[0] =~ s/^(\s*)\d+\.\d+(?:_\d+)? at \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.( Comments and design patches)/$1 ==TIMESTAMP== $2/gmi;
+                    $_[0] =~ s!\w{3}\s+\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\w{3,4}\s+\d{4}!==TIMESTAMP==!gmi;
                     $_[0] =~ s/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/==TIMESTAMP==/gmi;
                     $_[0] =~ s/\d+(st|nd|rd|th)\s+\w+\s+\d+/==TIMESTAMP==/gmi;
                     $_[0] =~ s!\d{4}/\d{2}/\d{2}!==TIMESTAMP==!gmi;
