@@ -1,6 +1,6 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.89	02/07/2011
+0.89	03/07/2011
 	- added	matrix and stats calls,	running	sections of full stats run.
 	- storage read & write now methods.
 	- limit	data updates to	1000000	records, to reduce memory consumption.

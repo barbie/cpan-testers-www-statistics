@@ -23,7 +23,7 @@ my $CHECK_DOMAIN    = 'www.google.com';
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 385;
+use Test::More tests => 266;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;
@@ -215,7 +215,7 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 # Tests for creating graphs
 
 SKIP: {
-	skip "Can't see a network connection", 66	if(pingtest($CHECK_DOMAIN));
+	skip "Can't see a network connection", 116	if(pingtest($CHECK_DOMAIN));
 
     $obj->directory($dir . '/update_full'),
     $page->update_full();
@@ -244,14 +244,14 @@ SKIP: {
 #---------------------------------------
 # Tests for main API
 
-$obj->directory($dir . '/make_pages'),
-$obj->make_pages();
-check_dir_contents(
-	"[make_pages]",
-	$obj->directory,
-	File::Spec->catfile($EXPECTEDPATH,'56writes.make_pages'),
-);
-ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+#$obj->directory($dir . '/make_pages'),
+#$obj->make_pages();
+#check_dir_contents(
+#	"[make_pages]",
+#	$obj->directory,
+#	File::Spec->catfile($EXPECTEDPATH,'56writes.make_pages'),
+#);
+#ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
 
 SKIP: {
@@ -338,6 +338,7 @@ sub check_dir_contents {
                     $_[0] =~ s/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/==TIMESTAMP==/gmi;
                     $_[0] =~ s/\d+(st|nd|rd|th)\s+\w+\s+\d+/==TIMESTAMP==/gmi;
                     $_[0] =~ s!\d{4}/\d{2}/\d{2}!==TIMESTAMP==!gmi;
+                    $_[0] =~ s!20\d{6}!==TIMESTAMP==!gmi;
                     $_[0] =~ s!\d{2}/\d{2}!==TIMESTAMP==!gmi;
                     $_[0] =~ s!\w+ \d{4}!==TIMESTAMP==!gmi;
                     $_[0] =~ s!CPAN-Testers-WWW-Statistics-0.\d{2}!==DISTRO==!gmi;
