@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.89';
+$VERSION = '0.90';
 
 #----------------------------------------------------------------------------
 
@@ -1192,7 +1192,8 @@ sub _build_monthly_stats {
 
     my $sql = 'SELECT * FROM osname ORDER BY ostitle';
     my @rows = $self->{parent}->{CPANSTATS}->get_query('hash',$sql);
-    $tvars{osnames} = \@rows;
+    my @oses = grep {$_->{osname}} @rows;
+    $tvars{osnames} = \@oses;
 
     my $count = 1;
     for my $tester (sort {$testers{$b} <=> $testers{$a}} keys %testers) {
@@ -1233,10 +1234,10 @@ sub _build_osname_leaderboards {
 
     # set dates
     my $post0 = '999999';
-    my $post3 = $self->{dates}{THISDATE};
-    my $post2 = $self->{dates}{LASTDATE};
-    my $post1 = $self->{dates}{LASTDATE} - 1;
-    $post1 -= 88    if($post1 % 100 == 0);
+    my $post1 = $self->{dates}{LASTDATE};
+    my $post2 = $self->{dates}{THISDATE};
+    my $post3 = $self->{dates}{THISDATE} + 1;
+    $post1 += 88    if($post3 % 100 > 12);
 
     $self->{parent}->_log("1.post0=$post0");
     $self->{parent}->_log("2.post1=$post1");
@@ -1248,7 +1249,7 @@ sub _build_osname_leaderboards {
 
     if($posts[0] != $post1) {
         my $p = $posts[0];
-        while($p < $post3) {
+        while($p <= $post3) {
             $data->{$p} = $self->_build_os_hash($p);
             $p++;
             $p += 88    if($p % 100 > 12);
@@ -1263,6 +1264,7 @@ sub _build_osname_leaderboards {
     for my $post (keys %$data) {
         if($post == $post0 || $post == $post1 || $post == $post2 || $post == $post3) {
             for my $os (keys %{$data->{$post}}) {
+                next    unless($os);
                 $oses{$os} = 1;
                 for my $tester (keys %{$data->{$post}{$os}}) {
                     $data->{$post0}{$os}{$tester} ||= 0;  # make sure we include all testers
@@ -1270,6 +1272,7 @@ sub _build_osname_leaderboards {
             }
         } else {
             for my $os (keys %{$data->{$post}}) {
+                next    unless($os);
                 $oses{$os} = 1;
                 for my $tester (keys %{$data->{$post}{$os}}) {
                     $data->{$post0}{$os}{$tester} += $data->{$post}{$os}{$tester};
@@ -1307,6 +1310,7 @@ sub _build_osname_leaderboards {
 
     my $sql = 'SELECT * FROM osname ORDER BY ostitle';
     my @rows = $self->{parent}->{CPANSTATS}->get_query('hash',$sql);
+    my @oses = grep {$_->{osname}} @rows;
 
     for my $osname (keys %oses) {
         next    unless($osname);
@@ -1324,7 +1328,7 @@ sub _build_osname_leaderboards {
             my $os = lc $osname;
 
             my %tvars;
-            $tvars{osnames}     = \@rows;
+            $tvars{osnames}     = \@oses;
             $tvars{template}    = 'leaderos';
             $tvars{osname}      = $self->{parent}->osname($osname);
             $tvars{leaders}     = \@leaders;

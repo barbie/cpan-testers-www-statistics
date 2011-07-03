@@ -1,5 +1,9 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.90	03/07/2011
+	- fixes to prevent blank oses being displayed in leaderboards.
+	- adjustments to postdates in leaderboards.
+
 0.89	03/07/2011
 	- added	matrix and stats calls,	running	sections of full stats run.
 	- storage read & write now methods.

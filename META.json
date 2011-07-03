@@ -1,6 +1,6 @@
 {
     "name": "CPAN-Testers-WWW-Statistics",
-    "version": "0.89",
+    "version": "0.90",
     "abstract": "Scripts to create the CPAN Testers Statistics website",
     "author": [
         "Barbie (BARBIE) <barbie@cpan.org>"
@@ -69,15 +69,15 @@
     "provides": {
         "CPAN::Testers::WWW::Statistics": {
             "file": "lib/CPAN/Testers/WWW/Statistics.pm",
-            "version": "0.89"
+            "version": "0.90"
         },
         "CPAN::Testers::WWW::Statistics::Page": {
             "file": "lib/CPAN/Testers/WWW/Statistics/Page.pm",
-            "version": "0.89"
+            "version": "0.90"
         },
         "CPAN::Testers::WWW::Statistics::Graphs": {
             "file": "lib/CPAN/Testers/WWW/Statistics/Graphs.pm",
-            "version": "0.89"
+            "version": "0.90"
         }
     },
     "no_index": {
