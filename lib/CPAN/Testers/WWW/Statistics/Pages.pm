@@ -627,7 +627,7 @@ sub _report_interesting {
     my $type = 'reports';
     $self->{xrefs}{$type}{$self->{count}{$type}} = $self->{xlast}{$type};
 
-    for my $key (sort {$a <=> $b} keys %{ $self->{xrefs}{$type} }) {
+    for my $key (sort {$b <=> $a} keys %{ $self->{xrefs}{$type} }) {
         my @row = @{ $self->{xrefs}{$type}{$key} };
 
         $row[0] = $key;
