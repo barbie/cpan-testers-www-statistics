@@ -251,6 +251,7 @@ sub build_stats {
 
     ## BUILD INDEPENDENT STATS
     $self->_report_cpan();
+    $self->_no_reports();
 
     ## BUILD MONTHLY STATS
     $self->_build_monthly_stats();
@@ -832,6 +833,26 @@ sub _report_cpan {
     }
 
     $self->_writepage('statscpan',\%tvars);
+}
+
+sub _no_reports {
+    my $self = shift;
+    my $grace = time - 2419200;
+    my $query = 
+        'SELECT x.* FROM ixlatest AS x '.
+        'LEFT JOIN release_summary AS s ON (x.dist=s.dist AND x.version=s.version) '.
+        'WHERE s.id IS NULL '.
+        'GROUP BY x.dist,x.version ORDER BY x.released DESC';
+    my @rows = $self->{parent}->{CPANSTATS}->get_query('hash',$query);
+    for my $row (@rows) {
+        my @dt = localtime($row->{released});
+        $row->{datetime} = sprintf "%04d-%02d-%02d", $dt[5]+1900,$dt[4]+1,$dt[3];
+        $row->{display}  = $row->{released} < $grace ? 1 : 0;
+        $row->{display}  = 0    if($row->{dist} =~ /^(perl|sqlperl)$/);
+    }
+
+    my $tvars = { rows => \@rows };
+    $self->_writepage('noreports',$tvars);
 }
 
 sub _missing_in_action {

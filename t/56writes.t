@@ -23,7 +23,7 @@ my $CHECK_DOMAIN    = 'www.google.com';
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 266;
+use Test::More tests => 267;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;
@@ -215,7 +215,7 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 # Tests for creating graphs
 
 SKIP: {
-	skip "Can't see a network connection", 116	if(pingtest($CHECK_DOMAIN));
+	skip "Can't see a network connection", 117	if(pingtest($CHECK_DOMAIN));
 
     $obj->directory($dir . '/update_full'),
     $page->update_full();
