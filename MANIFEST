@@ -1,5 +1,4 @@
 Changes
-data/01mailrc.txt
 Makefile.PL
 MANIFEST
 META.json
@@ -38,6 +37,7 @@ t/94metatest.t
 t/95changedate.t
 t/96metatest.t
 t/CTWS_Testing.pm
+t/data/01mailrc.txt
 t/data/21config00.ini
 t/data/21config01.ini
 t/data/21config02.ini

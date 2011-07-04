@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.90';
+$VERSION = '0.91';
 
 #----------------------------------------------------------------------------
 
@@ -746,7 +746,7 @@ sub _report_cpan {
 
     $self->{parent}->_log("building cpan interesting stats page");
 
-    $tvars{authors}{total} = _count_mailrc();
+    $tvars{authors}{total} = $self->_count_mailrc();
     my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(distinct author) FROM uploads");
     $tvars{authors}{active}   = $rows[0]->[0];
     $tvars{authors}{inactive} = $tvars{authors}{total} - $rows[0]->[0];
@@ -1739,9 +1739,11 @@ sub _parsedate {
 }
 
 sub _count_mailrc {
+    my $self = shift;
     my $count = 0;
+    my $mailrc = $self->{parent}->mailrc();
 
-    my $fh  = IO::File->new('data/01mailrc.txt','r')     or die "Cannot read file [data/01mailrc.txt]: $!\n";
+    my $fh  = IO::File->new($mailrc,'r')     or die "Cannot read file [$mailrc]: $!\n";
     while(<$fh>) {
         last    if(/^alias\s*DBIML/);
         $count++;

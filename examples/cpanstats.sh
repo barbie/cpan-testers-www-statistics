@@ -9,6 +9,16 @@ cd $BASE
 perl bin/cpanstats-writepages   \
      --config=data/settings.ini	\
      --logclean=1		\
-     --database=../db/cpanstats.db
+     --database=../db/cpanstats.db \
+     --basics --update --stats --leader
+
 perl bin/cpanstats-writegraphs	\
      --config=data/settings.ini
+
+# takes the longest to run
+perl bin/cpanstats-writepages   \
+     --config=data/settings.ini	\
+     --logclean=1		\
+     --database=../db/cpanstats.db \
+     --matrix
+

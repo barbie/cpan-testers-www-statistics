@@ -1,5 +1,10 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.91	04/07/2011
+	- updated favicon links.
+	- added 'no report'functionality.
+	- made path to 01mailrc.txt a configurable parameter.
+
 0.90	03/07/2011
 	- fixes to prevent blank oses being displayed in leaderboards.
 	- adjustments to postdates in leaderboards.
