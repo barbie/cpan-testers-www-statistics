@@ -8,9 +8,11 @@
 [% 
     IF OS ;
       name3 = 'Matrices By OS' ;
+      name2 = 'By OS' ;
       link1 = '/osmatrix' ;
     ELSE ; 
       name3 = 'Matrices By Platform' ;
+      name2 = 'By Platform' ;
       link1 = '/pmatrix' ;
     END ;
 %]
@@ -18,9 +20,9 @@
 [% 
     IF FULL ;
       link1 = link1 _ '-full' ;
-      name2 = 'All Perl Releases' ;
+      name2 = name2 _ ' All Perls' ;
     ELSE ; 
-      name2 = 'Official Perl Releases' ;
+      name2 = name2 _ ' Official Perls' ;
     END ;
 
     IF MONTH ;
