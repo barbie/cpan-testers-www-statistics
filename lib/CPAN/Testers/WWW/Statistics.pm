@@ -112,7 +112,7 @@ sub new {
     $self->osnames( \%OSNAMES );
 
     my $ra = Regexp::Assemble->new();
-    my @NOREPORTS = split("\n", $cfg->val('NOREPORTS','LIST'));
+    my @NOREPORTS = split("\n", $cfg->val('NOREPORTS','list'));
     for(@NOREPORTS) {
         s/\s+\#.*$//;   #remove comments
         $ra->add($_);
