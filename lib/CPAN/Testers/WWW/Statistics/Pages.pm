@@ -846,9 +846,11 @@ sub _no_reports {
         'LEFT JOIN release_summary AS s ON (x.dist=s.dist AND x.version=s.version) '.
         'GROUP BY x.dist,x.version ORDER BY x.released DESC';
     my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$query);
+    my $noreports = $self->{parent}->noreports();
+
     my (@rows,%dists);
     while(my $row = $next->()) {
-        next    if($self->{noreports} && $row->{dist} =~ /^$self->{noreports}$/);
+        next    if($noreports && $row->{dist} =~ /^$noreports$/);
         next    if($dists{$row->{dist}});
         $dists{$row->{dist}} = $row->{released};
 
