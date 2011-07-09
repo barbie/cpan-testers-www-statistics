@@ -5,7 +5,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.91';
+$VERSION = '0.92';
 
 #----------------------------------------------------------------------------
 
@@ -30,6 +30,7 @@ use CPAN::Testers::Common::DBUtils;
 use File::Basename;
 use File::Path;
 use IO::File;
+use Regexp::Assemble;
 
 use CPAN::Testers::WWW::Statistics::Pages;
 use CPAN::Testers::WWW::Statistics::Graphs;
@@ -110,6 +111,13 @@ sub new {
     }
     $self->osnames( \%OSNAMES );
 
+    my $ra = Regexp::Assemble->new();
+    my @NOREPORTS = split("\n", $cfg->val('NOREPORTS','LIST'));
+    for(@NOREPORTS) {
+        s/\s+\#.*$//;   #remove comments
+        $ra->add($_);
+    }
+    $self->noreports($ra->re);
 
     my @TOCOPY = split("\n", $cfg->val('TOCOPY','LIST'));
     $self->tocopy(\@TOCOPY);
@@ -196,7 +204,7 @@ Returns the print form of a recorded OS name.
 
 __PACKAGE__->mk_accessors(
     qw( directory mainstore leadstore templates database address builder 
-        missing mailrc logfile logclean copyright tocopy osnames));
+        missing mailrc logfile logclean copyright noreports tocopy osnames));
 
 sub make_pages {
     my $self = shift;

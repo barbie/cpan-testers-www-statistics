@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.91';
+$VERSION = '0.92';
 
 #----------------------------------------------------------------------------
 
@@ -64,6 +64,7 @@ use JSON;
 use Sort::Versions;
 use Template;
 #use Time::HiRes qw ( time );
+use Time::Piece;
 
 # -------------------------------------
 # Variables
@@ -157,16 +158,13 @@ sub setdates {
     my $self = shift;
     $self->{parent}->_log("init");
 
+    my $t = localtime;
     my @datetime = localtime;
     my $THISYEAR = ($datetime[5] +1900);
     $self->{dates}{RUNDATE}
         = sprintf "%d%s %s %d",
             $datetime[3], _ext($datetime[3]), $month{$datetime[4]}, $THISYEAR;
-    $self->{dates}{RUNTIME}
-        = sprintf "%d%s %s %d %02d:%02d:%02d",
-            $datetime[3], _ext($datetime[3]), $month{$datetime[4]}, $THISYEAR,
-            $datetime[2], $datetime[1], $datetime[0];
-    $self->{dates}{RUNTIME} = `date`;
+    $self->{dates}{RUNTIME} = $t->strftime();
 
     # LIMIT is the last date for all data
     $self->{dates}{LIMIT}    = ($THISYEAR) * 100 + $datetime[4] + 1;
@@ -314,14 +312,6 @@ sub build_data {
     my $date = sprintf "%04d%02d%02d", $date[5]+1900, $date[4]+1, $date[3];
     my @tday = localtime($d1);
     my $tday = sprintf "%04d%02d%02d", $tday[5]+1900, $tday[4]+1, $tday[3];
-
-    my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM cpanstats WHERE type = 2 AND fulldate like '$date%'");
-    $self->{rates}{report} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 10000 * 1000;
-    @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM uploads WHERE released > $d2 and released < $d1");
-    $self->{rates}{distro} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 60 * 1000;
-
-    $self->{rates}{report} = 1000 if($self->{rates}{report} < 1000);
-    $self->{rates}{distro} = 1000 if($self->{rates}{distro} < 1000);
 
     my $testers = {};
     my $lastid = 0;
@@ -571,6 +561,19 @@ sub _write_index {
     my $database  = $self->{parent}->database;
 
     $self->{parent}->_log("writing index file");
+
+    # calculate growth rates
+    my ($d1,$d2) = (time(), time() - $ADAY);
+    my @date = localtime($d2);
+    my $date = sprintf "%04d%02d%02d", $date[5]+1900, $date[4]+1, $date[3];
+
+    my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM cpanstats WHERE type = 2 AND fulldate like '$date%'");
+    $self->{rates}{report} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 10000 * 1000;
+    @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(*) FROM uploads WHERE released > $d2 and released < $d1");
+    $self->{rates}{distro} = $rows[0]->[0] ? $ADAY / $rows[0]->[0] * 1000 : $ADAY / 60 * 1000;
+
+    $self->{rates}{report} = 1000 if($self->{rates}{report} < 1000);
+    $self->{rates}{distro} = 1000 if($self->{rates}{distro} < 1000);
 
     # calculate database metrics
     my $mtime = (stat($database))[9];
@@ -836,22 +839,30 @@ sub _report_cpan {
 }
 
 sub _no_reports {
-    my $self = shift;
+    my $self  = shift;
     my $grace = time - 2419200;
-    my $query = 
-        'SELECT x.* FROM ixlatest AS x '.
+    my $query =
+        'SELECT x.*,count(s.id) as count FROM ixlatest AS x '.
         'LEFT JOIN release_summary AS s ON (x.dist=s.dist AND x.version=s.version) '.
-        'WHERE s.id IS NULL '.
         'GROUP BY x.dist,x.version ORDER BY x.released DESC';
-    my @rows = $self->{parent}->{CPANSTATS}->get_query('hash',$query);
-    for my $row (@rows) {
+    my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$query);
+    my (@rows,%dists);
+    while(my $row = $next->()) {
+        next    if($self->{noreports} && $row->{dist} =~ /^$self->{noreports}$/);
+        next    if($dists{$row->{dist}});
+        $dists{$row->{dist}} = $row->{released};
+
+        next    if($row->{count} > 0);
+        next    if(!$row->{oncpan} || $row->{oncpan} != 1);
+        next    if($row->{released} > $grace);
+
         my @dt = localtime($row->{released});
         $row->{datetime} = sprintf "%04d-%02d-%02d", $dt[5]+1900,$dt[4]+1,$dt[3];
-        $row->{display}  = $row->{released} < $grace ? 1 : 0;
-        $row->{display}  = 0    if($row->{dist} =~ /^(perl|sqlperl)$/);
+        $row->{display} = 1;
+        push @rows, $row;
     }
 
-    my $tvars = { rows => \@rows };
+    my $tvars = { rows => \@rows, rowcount => scalar(@rows) };
     $self->_writepage('noreports',$tvars);
 }
 
@@ -957,13 +968,18 @@ sub _osname_matrix {
     }
 
     my $index = 0;
-    my $content = "\n" . '<table class="matrix" summary="OS/Perl Matrix">';
-    $content .= "\n" . '<tr><th>OS/Perl</th><th></th><th>' 
-                    . join("</th><th>",@$vers) 
-                    . '</th><th></th><th>OS/Perl</th></tr>';
-    $content .= "\n" . '<tr><th></th><th class="totals">Totals</th><th class="totals">' 
-                    . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) 
-                    . '</th><th class="totals">Totals</th><th></th></tr>';
+    my $content = 
+        "\n"
+        . '<table class="matrix" summary="OS/Perl Matrix">'
+        . "\n"
+        . '<tr><th>OS/Perl</th><th></th><th>' 
+        . join( "</th><th>", @$vers ) 
+        . '</th><th></th><th>OS/Perl</th></tr>'
+        . "\n" 
+        . '<tr><th></th><th class="totals">Totals</th><th class="totals">' 
+        . join( '</th><th class="totals">', map {$totals{perl}{$_}||0} @$vers ) 
+        . '</th><th class="totals">Totals</th><th></th></tr>';
+
     for my $osname (sort {$totals{os}{$b} <=> $totals{os}{$a}} keys %{$totals{os}}) {
         if($type eq 'month') {
             my $check = 0;
@@ -1006,12 +1022,18 @@ sub _osname_matrix {
         $content .= '<th class="totals">' . $totals{os}{$osname} . '</th><th>' . $osname . '</th>';
         $content .= '</tr>';
     }
-    $content .= "\n" . '<tr><th></th><th class="totals">Totals</th><th class="totals">' 
-                    . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) 
-                    . '</th><th class="totals">Totals</th><th></th></tr>';
-    $content .= "\n" . '<tr><th>OS/Perl</th><th></th><th>' 
-                    . join("</th><th>",@$vers) . '</th><th></th><th>OS/Perl</th></tr>';
-    $content .= "\n" . '</table>';
+
+    $content .= 
+        "\n" 
+        . '<tr><th></th><th class="totals">Totals</th><th class="totals">' 
+        . join( '</th><th class="totals">', map {$totals{perl}{$_}||0} @$vers ) 
+        . '</th><th class="totals">Totals</th><th></th></tr>'
+        . "\n" 
+        . '<tr><th>OS/Perl</th><th></th><th>' 
+        . join( "</th><th>", @$vers ) 
+        . '</th><th></th><th>OS/Perl</th></tr>'
+        . "\n" . 
+        '</table>';
 
     return $content;
 }
@@ -1090,13 +1112,18 @@ sub _platform_matrix {
     }
 
     my $index = 0;
-    my $content = "\n" . '<table class="matrix" summary="Platform/Perl Matrix">';
-    $content .= "\n" . '<tr><th>Platform/Perl</th><th></th><th>' 
-                    . join("</th><th>",@$vers) 
-                    . '</th><th></th><th>Platform/Perl</th></tr>';
-    $content .= "\n" . '<tr><th></th><th class="totals">Totals</th><th class="totals">' 
-                    . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) 
-                    . '</th><th class="totals">Totals</th><th></th></tr>';
+    my $content = 
+        "\n" 
+        . '<table class="matrix" summary="Platform/Perl Matrix">'
+        . "\n" 
+        . '<tr><th>Platform/Perl</th><th></th><th>' 
+        . join( "</th><th>", @$vers ) 
+        . '</th><th></th><th>Platform/Perl</th></tr>'
+        . "\n" 
+        . '<tr><th></th><th class="totals">Totals</th><th class="totals">' 
+        . join( '</th><th class="totals">', map {$totals{perl}{$_}||0} @$vers ) 
+        . '</th><th class="totals">Totals</th><th></th></tr>';
+
     for my $platform (sort {$totals{platform}{$b} <=> $totals{platform}{$a}} keys %{$totals{platform}}) {
         if($type eq 'month') {
             my $check = 0;
@@ -1139,13 +1166,17 @@ sub _platform_matrix {
         $content .= '<th class="totals">' . $totals{platform}{$platform} . '</th><th>' . $platform . '</th>';
         $content .= '</tr>';
     }
-    $content .= "\n" . '<tr><th></th><th class="totals">Totals</th><th class="totals">' 
-                    . join('</th><th class="totals">',map {$totals{perl}{$_}||0} @$vers) 
-                    . '</th><th class="totals">Totals</th><th></th></tr>';
-    $content .= "\n" . '<tr><th>Platform/Perl</th><th></th><th>' 
-                    . join("</th><th>",@$vers) 
-                    . '</th><th></th><th>Platform/Perl</th></tr>';
-    $content .= "\n" . '</table>';
+    $content .= 
+        "\n" 
+        . '<tr><th></th><th class="totals">Totals</th><th class="totals">' 
+        . join( '</th><th class="totals">', map {$totals{perl}{$_}||0} @$vers ) 
+        . '</th><th class="totals">Totals</th><th></th></tr>'
+        . "\n" 
+        . '<tr><th>Platform/Perl</th><th></th><th>' 
+        . join( "</th><th>", @$vers ) 
+        . '</th><th></th><th>Platform/Perl</th></tr>'
+        . "\n" 
+        . '</table>';
 
     return $content;
 }

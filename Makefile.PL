@@ -20,13 +20,14 @@ WriteMakefile(
         IO::File                        => 0,
         JSON                            => 0,
         LWP::UserAgent                  => 0,
+        Regexp::Assemble                => 0,
         Sort::Versions                  => 0,
         Template                        => 2.19,
+        Time::Piece                     => 0,
 
-        # for the CGI tools
+        # for cgimail.pl
         CGI                             => 0,
         Email::Simple                   => 0,
-        Time::Piece                     => 0,
 
         # for database access
         CPAN::Testers::Common::DBUtils  => 0.03,
