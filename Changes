@@ -1,6 +1,6 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.92	current
+0.92	09/07/2011
 	- added filters for distros that should not appear in the 'no reports' 
 	  list.
 
