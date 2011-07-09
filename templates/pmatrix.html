@@ -1,31 +1,26 @@
 [% 
+    box_sites = 1
+
     link1 = 'pmatrix' ;
     link2 = 'pmatrix' ;
     link3 = '' ;
 
+    crumb2_name = 'Matrices' ;
+
     IF FULL ; THEN ; 
       link1 = link1 _ '-full' ;
       title = 'Matrices By Platforms - All Perl Releases' ; 
+      crumb1_name = 'By Platforms - All Perls' ; 
     ELSE ; 
       title = 'Matrices By Platforms - Official Perl Releases' ; 
+      crumb1_name = 'By Platforms - Official Perls' ; 
     END ;
+
     IF MONTH ; THEN ; 
       link3 = '-month' ;
       link1 = link1 _ link3 ;
       name1 = ' (Last Month)' ;
       title = title _ name1 ;
-    END ;
-
-    box_sites = 1
-
-    crumb2_name = 'Matrices' ;
-
-    IF FULL ; THEN ; 
-      crumb1_name = 'By Platforms - All Perls' ; 
-    ELSE ; 
-      crumb1_name = 'By Platforms - Official Perls' ; 
-    END ;
-    IF MONTH ; THEN ; 
       crumb1_name = crumb1_name _ name1 ;
     END ;
 %]

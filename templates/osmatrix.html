@@ -1,14 +1,20 @@
 [% 
+    box_sites = 1
+
     link1 = 'osmatrix' ;
     link2 = 'osmatrix' ;
     link3 = '' ;
     name1 = '' ;
 
+    crumb2_name = 'Matrices' ;
+
     IF FULL ; THEN ; 
       link1 = link1 _ '-full' ;
       title = 'Matrices By OS - All Perl Releases' ; 
+      crumb1_name = 'By OS - All Perls' ; 
     ELSE ; 
       title = 'Matrices By OS - Official Perl Releases' ; 
+      crumb1_name = 'By OS - Official Perls' ; 
     END ;
 
     IF MONTH ; THEN ; 
@@ -16,21 +22,9 @@
       link1 = link1 _ link3 ;
       name1 = ' (Last Month)' ;
       title = title _ name1 ;
-    ELSE ;
-    END ;
-
-    box_sites = 1
-
-    crumb2_name = 'Matrices' ;
-
-    IF FULL ; THEN ; 
-      crumb1_name = 'By OS - All Perls' ; 
-    ELSE ; 
-      crumb1_name = 'By OS - Official Perls' ; 
-    END ;
-    IF MONTH ; THEN ; 
       crumb1_name = crumb1_name _ name1 ;
     END ;
+
 %]
 
 [% IF MONTH %]
