@@ -1,6 +1,6 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.93	current
+0.93	13/07/2011
 	- added more filters for 'no reports' in example config.
 	- update layout to include an update notification.
 	- added new social media bar
