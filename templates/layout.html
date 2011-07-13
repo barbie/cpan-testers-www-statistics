@@ -87,12 +87,17 @@ function goThere(loc) {
 
       <!-- Breadcrumbs -->
       <div class="header-breadcrumbs">
+        <div id="breadcrumbs">
         <ul>
           <li><a href="/" title="Home">Home</a></li>
           [% IF crumb3_name %]<li>[% IF crumb3_href %]<a href="[% crumb3_href %]" title="[% crumb3_name %]">[% crumb3_name %]</a>[% ELSE ; crumb3_name ; END %]</li>[% END %]
           [% IF crumb2_name %]<li>[% IF crumb2_href %]<a href="[% crumb2_href %]" title="[% crumb2_name %]">[% crumb2_name %]</a>[% ELSE ; crumb2_name ; END %]</li>[% END %]
           <li>[% crumb1_name %]</li>
         </ul>
+        </div>
+        
+        [% INCLUDE "public/social-bar.html" %]
+
       </div>
     </div>
 
@@ -115,6 +120,12 @@ function goThere(loc) {
  
       <!-- B.1 MAIN CONTENT -->
       <div class="main-content">
+
+        <div id="tooltip" class="update20110712">
+          <p><strong>Upgrade Notice</strong></p>
+          <p>The CPAN Testers Statistics site has been upgraded since you last accessed the site.
+          Please press the F5 key or CTRL-R to refresh your browser cache to use the latest javascript and CSS files.</p>
+        </div>
 
         <!-- Pagetitle -->
         <h1 class="pagetitle">[% title %]</h1>

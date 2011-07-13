@@ -1,5 +1,10 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.93	current
+	- added more filters for 'no reports' in example config.
+	- update layout to include an update notification.
+	- added new social media bar
+
 0.92	09/07/2011
 	- added filters for distros that should not appear in the 'no reports' 
 	  list.

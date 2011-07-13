@@ -82,6 +82,7 @@ templates/public/box-menus.html
 templates/public/box-sites.html
 templates/public/footer.html
 templates/public/quote.html
+templates/public/social-bar.html
 templates/response.html
 templates/statscpan.html
 templates/terms.html

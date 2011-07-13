@@ -296,3 +296,31 @@ th.w200         { width: 25%; }
 
 .footnote   { text-align: center; }
 .footnote a { color:rgb(70,122,167); font-weight:bold; text-decoration:none; font-size: 0.7em; }
+
+#socialbar {
+    float: right;
+    width: 400px; 
+    border: 0px solid #0f0;
+    margin-right: 10px;
+    margin-top: -20px;
+}
+
+#facebook { width: 70px; float: right; border: 0px solid #f00; }
+#gplus    { width: 70px; float: right; border: 0px solid #00f; }
+#breadcrumbs  { float: left; }
+
+#tooltip {
+    background-color: #fff;
+    color: #f00;
+    width: 98%;
+
+    padding: 5px; 
+    border: dashed 1px #f00;
+    margin-bottom: 20px;
+}
+#tooltip p  { margin-top: 2px; margin-bottom: 2px; }
+
+.alert { color: #f00; }
+
+.accessibility  { display: none }
+.update20110712 { display: none }
