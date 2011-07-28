@@ -26,6 +26,5 @@ is( $obj->database, $db, 'database' );
 ok( -f $obj->database, 'database exists' );
 
 ok( $obj->directory, 'directory' );
-is( $obj->directory, 't/_TMPDIR', 'directory' );
+is( $obj->directory, File::Spec->catfile('t', '_TMPDIR'), 'directory' );
 ok( -d $obj->directory, 'directory exists' );
-
