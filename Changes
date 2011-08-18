@@ -1,5 +1,9 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.94	current
+	- revised banner logo image by Jon 'JJ' Allen.
+	- update to MANIFEST to include missing layout images.
+
 0.93	13/07/2011
 	- added more filters for 'no reports' in example config.
 	- update layout to include an update notification.
