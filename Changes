@@ -6,6 +6,7 @@ Revision history for CPAN-Testers-WWW-Statistics
 	- added addresses.pl example shell scripts.
 	- added cpanstats-admin.pl to examples.
 	- removed obsolete updates.pl script.
+	- redesigned _build_monthly_stats() to use JSON file storage.
 
 0.93	13/07/2011
 	- added more filters for 'no reports' in example config.

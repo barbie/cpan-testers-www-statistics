@@ -122,6 +122,10 @@ sub new {
 
     my $self = {parent => $hash{parent}};
     bless $self, $class;
+
+    $self->{parent}->_log("GRAPHS: new");
+
+    return $self;
 }
 
 =head2 Methods
@@ -144,7 +148,7 @@ sub create {
     my $results   = "$directory/stats";
     mkpath($results);
 
-    $self->{parent}->_log("Graphs:create start");
+    $self->{parent}->_log("create start");
 
     for my $g (@graphs) {
         my $ranges = $self->{parent}->ranges($g->[3]);
