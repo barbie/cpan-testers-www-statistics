@@ -1,12 +1,15 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.94	current
+0.94	21/08/2011
 	- revised banner logo image by Jon 'JJ' Allen.
 	- update to MANIFEST to include missing layout images.
 	- added addresses.pl example shell scripts.
 	- added cpanstats-admin.pl to examples.
 	- removed obsolete updates.pl script.
 	- redesigned _build_monthly_stats() to use JSON file storage.
+	- fixed tests for Win32 (patches by Christian Walde).
+	- fixed main leaderboard listings.
+	- fixed first/last testers stats.
 
 0.93	13/07/2011
 	- added more filters for 'no reports' in example config.

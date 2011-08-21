@@ -122,30 +122,32 @@ sub new {
     my @TOCOPY = split("\n", $cfg->val('TOCOPY','LIST'));
     $self->tocopy(\@TOCOPY);
 
-    $self->mainstore(_defined_or( $hash{mainstore}, $cfg->val('MASTER','mainstore') ));
-    $self->leadstore(_defined_or( $hash{leadstore}, $cfg->val('MASTER','leadstore') ));
-    $self->templates(_defined_or( $hash{templates}, $cfg->val('MASTER','templates') ));
-    $self->database( _defined_or( $hash{database},  $cfg->val('MASTER','database' ) ));
-    $self->address(  _defined_or( $hash{address},   $cfg->val('MASTER','address'  ) ));
-    $self->missing(  _defined_or( $hash{missing},   $cfg->val('MASTER','missing'  ) ));
-    $self->mailrc(   _defined_or( $hash{mailrc},    $cfg->val('MASTER','mailrc'   ) ));
-    $self->logfile(  _defined_or( $hash{logfile},   $cfg->val('MASTER','logfile'  ) ));
-    $self->logclean( _defined_or( $hash{logclean},  $cfg->val('MASTER','logclean' ), 0 ));
-    $self->directory(_defined_or( $hash{directory}, $cfg->val('MASTER','directory') ));
-    $self->copyright(                               $cfg->val('MASTER','copyright') );
-    $self->builder(  _defined_or( $hash{builder},   $cfg->val('MASTER','builder'  ) ));
+    $self->mainstore( _defined_or( $hash{mainstore},  $cfg->val('MASTER','mainstore' ) ));
+    $self->leadstore( _defined_or( $hash{leadstore},  $cfg->val('MASTER','leadstore' ) ));
+    $self->monthstore(_defined_or( $hash{monthstore}, $cfg->val('MASTER','monthstore'), 'cpanstats-%s.json' ));
+    $self->templates( _defined_or( $hash{templates},  $cfg->val('MASTER','templates' ) ));
+    $self->database(  _defined_or( $hash{database},   $cfg->val('MASTER','database'  ) ));
+    $self->address(   _defined_or( $hash{address},    $cfg->val('MASTER','address'   ) ));
+    $self->missing(   _defined_or( $hash{missing},    $cfg->val('MASTER','missing'   ) ));
+    $self->mailrc(    _defined_or( $hash{mailrc},     $cfg->val('MASTER','mailrc'    ) ));
+    $self->logfile(   _defined_or( $hash{logfile},    $cfg->val('MASTER','logfile'   ) ));
+    $self->logclean(  _defined_or( $hash{logclean},   $cfg->val('MASTER','logclean'  ), 0 ));
+    $self->directory( _defined_or( $hash{directory},  $cfg->val('MASTER','directory' ) ));
+    $self->copyright(                                 $cfg->val('MASTER','copyright' ) );
+    $self->builder(   _defined_or( $hash{builder},    $cfg->val('MASTER','builder'   ) ));
 
-    $self->_log("mainstore=".($self->mainstore || ''));
-    $self->_log("leadstore=".($self->leadstore || ''));
-    $self->_log("templates=".($self->templates || ''));
-    $self->_log("database =".($self->database  || ''));
-    $self->_log("address  =".($self->address   || ''));
-    $self->_log("missing  =".($self->missing   || ''));
-    $self->_log("mailrc   =".($self->mailrc    || ''));
-    $self->_log("logfile  =".($self->logfile   || ''));
-    $self->_log("logclean =".($self->logclean  || ''));
-    $self->_log("directory=".($self->directory || ''));
-    $self->_log("builder  =".($self->builder   || ''));
+    $self->_log("mainstore =".($self->mainstore  || ''));
+    $self->_log("leadstore =".($self->leadstore  || ''));
+    $self->_log("monthstore=".($self->monthstore || ''));
+    $self->_log("templates =".($self->templates  || ''));
+    $self->_log("database  =".($self->database   || ''));
+    $self->_log("address   =".($self->address    || ''));
+    $self->_log("missing   =".($self->missing    || ''));
+    $self->_log("mailrc    =".($self->mailrc     || ''));
+    $self->_log("logfile   =".($self->logfile    || ''));
+    $self->_log("logclean  =".($self->logclean   || ''));
+    $self->_log("directory =".($self->directory  || ''));
+    $self->_log("builder   =".($self->builder    || ''));
 
     die "Must specify the output directory\n"           unless($self->directory);
     die "Must specify the template directory\n"         unless($self->templates);
@@ -203,8 +205,9 @@ Returns the print form of a recorded OS name.
 =cut
 
 __PACKAGE__->mk_accessors(
-    qw( directory mainstore leadstore templates database address builder 
-        missing mailrc logfile logclean copyright noreports tocopy osnames));
+    qw( directory mainstore leadstore monthstore templates database address 
+        builder missing mailrc logfile logclean copyright noreports tocopy 
+        osnames));
 
 sub make_pages {
     my $self = shift;
