@@ -101,13 +101,19 @@ sub saveFiles {
 __DATA__
 
 [MASTER]
+mainstore=t/_TMPDIR/cpanstats.json
+leadstore=t/_TMPDIR/leaderboard.json
+monthstore=t/_TMPDIR/cpanstats-%s.json
+
 database=t/_DBDIR/test.db
 address=t/data/addresses.txt
 templates=templates
-mainstore=t/_TMPDIR/cpanstats.json
-leadstore=t/_TMPDIR/leaderboard.json
+builder=t/_TMPDIR/log-parser.txt
 missing=t/data/missing-in-action.txt
 mailrc=t/data/01mailrc.txt
+
+#logfile=t/_TMPDIR/cpanstats-test.log
+#logclean=0
 
 [CPANSTATS]
 driver=SQLite

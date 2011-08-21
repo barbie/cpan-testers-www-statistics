@@ -23,7 +23,7 @@ my $CHECK_DOMAIN    = 'www.google.com';
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 267;
+use Test::More tests => 270;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;
@@ -105,7 +105,11 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
 {
     my $store1 = 't/data/cpanstats-test.json';
-    $page->storage_read($store1);
+    my ($testers,$lastid) = $page->storage_read($store1);
+
+    is($lastid,182,'got lastid');
+    is($testers->{"Paul Schinder (SCHINDER)"}{'first'},199908,'got testers first');
+    is($testers->{"Paul Schinder (SCHINDER)"}{'last'}, 199909,'got testers last');
 
     my @versions = sort {versioncmp($b,$a)} keys %{$page->{perls}};
     $page->{versions} = \@versions;
