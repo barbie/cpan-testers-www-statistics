@@ -27,7 +27,6 @@ WriteMakefile(
 
         # for cgimail.pl
         CGI                             => 0,
-        Email::Simple                   => 0,
 
         # for database access
         CPAN::Testers::Common::DBUtils  => 0.03,

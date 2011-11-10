@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                CPAN::Testers::WWW::Statistics
-version:             0.94
+version:             0.95
 abstract:            Scripts to create the CPAN Testers Statistics website
 author:
   - Barbie <barbie@cpan.org>
@@ -18,7 +18,6 @@ requires:
   DBD::mysql:                       0
   DBD::SQLite:                      0
   GD::Graph::lines:                 0
-  Email::Simple:                    0
   File::Basename:                   0
   File::Copy:                       0
   File::Path:                       0
@@ -36,7 +35,7 @@ requires:
   Time::Piece:                      0
 recommends:
   Test::CPAN::Meta:                 0.13
-  Test::JSON::Meta:                 0.08
+  Test::CPAN::Meta::JSON:           0.10
   Test::More:                       0.70
   Test::MockObject:                 0
   Test::Pod:                        1.00
@@ -51,13 +50,13 @@ build_requires:
 provides:
   CPAN::Testers::WWW::Statistics:
     file:     lib/CPAN/Testers/WWW/Statistics.pm
-    version:  0.94
+    version:  0.95
   CPAN::Testers::WWW::Statistics::Graphs:
     file:     lib/CPAN/Testers/WWW/Statistics/Graphs.pm
-    version:  0.94
+    version:  0.95
   CPAN::Testers::WWW::Statistics::Pages:
     file:     lib/CPAN/Testers/WWW/Statistics/Pages.pm
-    version:  0.94
+    version:  0.95
 
 resources:
   repository: http://github.com/barbie/cpan-testers-www-statistics

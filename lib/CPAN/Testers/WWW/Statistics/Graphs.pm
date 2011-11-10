@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.94';
+$VERSION = '0.95';
 
 #----------------------------------------------------------------------------
 
@@ -382,7 +382,7 @@ http://rt.cpan.org/Public/Dist/Display.html?Name=CPAN-Testers-WWW-Statistics
 =head1 SEE ALSO
 
 L<CPAN::Testers::Data::Generator>,
-L<CPAN::WWW::Testers>
+L<CPAN::Testers::WWW::Reports>
 
 F<http://www.cpantesters.org/>,
 F<http://stats.cpantesters.org/>,

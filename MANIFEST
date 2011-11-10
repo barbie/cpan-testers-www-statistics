@@ -56,6 +56,7 @@ t/data/missing-in-action.txt
 t/expected.zip
 templates/archive.html
 templates/cgi-bin/cpanmail.cgi
+templates/cgi-bin/cpanmail.ini
 templates/cpanmail-response.html
 templates/cpanmail.html
 templates/css/layout_setup.css

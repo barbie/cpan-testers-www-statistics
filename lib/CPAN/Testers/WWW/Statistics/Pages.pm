@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.94';
+$VERSION = '0.95';
 
 #----------------------------------------------------------------------------
 
@@ -542,18 +542,35 @@ sub _write_basics {
     # copy files
     $self->{parent}->_log("copying static files");
     my $tocopy = $self->{parent}->tocopy;
-    foreach my $filename (@$tocopy) {
-        my $src  = $templates . "/$filename";
-        if(-f $src) {
-            my $dest = $directory . "/$filename";
-            mkpath( dirname($dest) );
-            if(-d dirname($dest)) {
-                copy( $src, $dest );
+    for my $filename (@$tocopy) {
+        my $source = $templates . "/$filename";
+        if(-f $source) {
+            my $target = $directory . "/$filename";
+            next    if(-f $target);
+
+            mkpath( dirname($target) );
+            if(-d dirname($target)) {
+                copy( $source, $target );
             } else {
-                warn "Missing directory: $dest\n";
+                warn "Missing directory: $target\n";
             }
         } else {
-            warn "Missing file: $src\n";
+            warn "Missing file: $source\n";
+        }
+    }
+
+    #link files
+    $self->{parent}->_log("linking static files");
+    my $tolink = $self->{parent}->tolink;
+    for my $filename (keys %$tolink) {
+        my $source = $directory . "/$filename";
+        my $target = $directory . '/'.$tolink->{$filename};
+
+        next    if(-f $target);
+        if(-f $source) {
+            link($target,$source);
+        } else {
+            warn "Missing file: $source\n";
         }
     }
 }
@@ -1887,7 +1904,7 @@ http://rt.cpan.org/Public/Dist/Display.html?Name=CPAN-Testers-WWW-Statistics
 =head1 SEE ALSO
 
 L<CPAN::Testers::Data::Generator>,
-L<CPAN::WWW::Testers>
+L<CPAN::Testers::WWW::Reports>
 
 F<http://www.cpantesters.org/>,
 F<http://stats.cpantesters.org/>,

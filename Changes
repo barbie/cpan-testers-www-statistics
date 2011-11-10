@@ -1,5 +1,11 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.95	current
+	- removed NNTP code from cpanmail.cgi.
+	- added cpanmail.ini to cgi templates.
+	- don't overwrite basic files in case they have changed.
+	- added the ability to link basic files.
+
 0.94	21/08/2011
 	- revised banner logo image by Jon 'JJ' Allen.
 	- update to MANIFEST to include missing layout images.

@@ -2,7 +2,7 @@
 use strict;
 $|++;
 
-my $VERSION = '0.05';
+my $VERSION = '0.06';
 
 #----------------------------------------------------------------------------
 
@@ -29,9 +29,6 @@ use CGI;
 #use CGI::Carp qw(fatalsToBrowser);
 use Config::IniFiles;
 use CPAN::Testers::Common::DBUtils;
-use CPAN::Testers::Common::Utils        qw(nntp_to_guid guid_to_nntp);
-use Email::Simple;
-use Net::NNTP;
 use Template;
 
 # -------------------------------------
@@ -46,19 +43,13 @@ my %tvars;
 # Program
 
 my $cgi = CGI->new();
-my $nntpid  = $cgi->param('nntpid');    # old style
-my $id      = $cgi->param('id');        # new style
+my $id  = $cgi->param('id');        # new style
 
-if($nntpid && $nntpid =~ /^(\d+)$/) {
-    $tvars{guid} = nntp_to_guid($1);
-} elsif($id && $id =~ /^(\d+)$/) {
+if($id && $id =~ /^(\d+)$/) {
     $tvars{id} = $1;
 } elsif($id && $id =~ /^([-\w]+)$/) {
     $tvars{guid} = $1;
 }
-
-#$tvars{nntpid} = $cgi->param('nntpid');
-#$tvars{nntpid} =~ s/\D+//g  if($tvars{nntpid});
 
 my $found = 0;
 if($tvars{id} || $tvars{guid}) {
@@ -69,15 +60,7 @@ if($tvars{id} || $tvars{guid}) {
         );
     }
 
-    # currently fallback is only an NNTP lookup, may want to add
-    # a Metabase lookup at some point.
-
-    if(!$found && $tvars{guid}) {
-        $tvars{nntpid} = guid_to_nntp($tvars{guid});
-        $found = retrieve_from_nntp($tvars{nntpid});
-    } else {
-        $found ||= 5;
-    }
+    $found ||= 5;
 } else {
     $found = 3;
 }
@@ -129,34 +112,6 @@ sub retrieve_from_db {
     return 1;
 }
 
-=item retrieve_from_nntp
-
-Very simplistic NNTP server look up to parse the required article.
-
-=cut
-
-sub retrieve_from_nntp {
-    my $id = shift;
-    return 5    unless($id);
-
-    my $nntp = Net::NNTP->new("nntp.perl.org")
-        || return 9; #die "Cannot connect to nntp.perl.org";
-
-    my($num, $first, $last) = $nntp->group("perl.cpan.testers");
-    return 4    if($id < $first || $id > $last);
-
-    my $article = join "", @{$nntp->article($id) || []};
-    return 0    unless($article);   # no article for that id!
-
-    my $mail = Email::Simple->new($article);
-    return 0    unless $mail;
-
-    $tvars{from}    = $mail->header("From");
-    $tvars{subject} = $mail->header("Subject");
-
-    return 1;
-}
-
 =item write_results
 
 Outputs the results using Template Toolkit
@@ -203,7 +158,7 @@ be forthcoming, please feel free to (politely) remind me.
 
 =head1 SEE ALSO
 
-L<Net::NNTP>.
+L<CPAN::Testers::WWW::Statistics>.
 
 F<http://stats.cpantesters.org/>
 
@@ -214,7 +169,7 @@ F<http://stats.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2005-2010 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2011 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.
