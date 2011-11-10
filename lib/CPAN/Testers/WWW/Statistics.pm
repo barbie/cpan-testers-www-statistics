@@ -123,8 +123,8 @@ sub new {
     $self->tocopy(\@TOCOPY);
 
     my %TOLINK;
-    for my $link ($cfg->Params('TOLINK')) {
-        my $file = $cfg->val('TOLINK',$link));
+    for my $link ($cfg->Parameters('TOLINK')) {
+        my $file = $cfg->val('TOLINK',$link);
         $TOLINK{$link} = $file;
     }
     $self->tolink(\%TOLINK);
