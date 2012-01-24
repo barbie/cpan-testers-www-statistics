@@ -24,6 +24,7 @@ WriteMakefile(
         Sort::Versions                  => 0,
         Template                        => 2.19,
         Time::Piece                     => 0,
+        WWW::Mechanize                  => 0,
 
         # for cgimail.pl
         CGI                             => 0,
