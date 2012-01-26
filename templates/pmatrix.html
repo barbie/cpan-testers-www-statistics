@@ -26,7 +26,7 @@
 %]
 
 [% IF MONTH %]
-<h2>Platform/Perl Matrix for Distributions &amp; Reports for [% THATDATE %]</h2>
+<h2>Platform/Perl Matrix for Distributions &amp; Reports for [% LASTDATE %]</h2>
 [% ELSE %]
 <h2>Platform/Perl Matrix for Distributions &amp; Reports prior to [% RUNDATE %]</h2>
 [% END %]
@@ -35,7 +35,7 @@ one PASS report submitted to the cpan-testers mailing list, for a particular
 version of the perl interpreter and a particular platform. Note that patched
 versions of perl are mapped to their major/minor release of perl. 
 [% IF MONTH %]
-All reports recorded are for [% THATDATE %] only.
+All reports recorded are for [% LASTDATE %] only.
 [% ELSE %]
 All reports recorded are from August 1999 until [% RUNDATE %].
 [% END %]

@@ -158,40 +158,43 @@ sub setdates {
     my $self = shift;
     $self->{parent}->_log("init");
 
+    # timestamp for now
     my $t = localtime;
-    my @datetime = localtime;
-    my $THISYEAR = ($datetime[5] +1900);
-    $self->{dates}{RUNDATE}
-        = sprintf "%d%s %s %d",
-            $datetime[3], _ext($datetime[3]), $month{$datetime[4]}, $THISYEAR;
     $self->{dates}{RUNTIME} = $t->strftime();
 
-    # LIMIT is the last date for all data
-    $self->{dates}{LIMIT}    = ($THISYEAR) * 100 + $datetime[4] + 1;
-    if($datetime[4] == 0) {
-        $datetime[4] = 11;
-        $THISYEAR--;
-    }
+    # todays date
+    my @datetime = localtime;
+    my $THISYEAR = ($datetime[5] +1900);
+    $self->{dates}{RUNDATE} = sprintf "%d%s %s %d", $datetime[3], _ext($datetime[3]), $month{$datetime[4]}, $THISYEAR;
 
-    # STATDATE/THISDATE is the Month/Year stats are run for
-    $self->{dates}{STATDATE} = sprintf "%s %d", $month{int($datetime[4])}, $THISYEAR;
-    $self->{dates}{THISDATE} = sprintf "%04d%02d", $THISYEAR, int($datetime[4]);
+    # THISMONTH is the last date for all data
+    $self->{dates}{THISMONTH} = ($THISYEAR) * 100 + $datetime[4] + 1;
+    $self->{dates}{THISDATE}  = sprintf "%s %d", $month{int($datetime[4])}, $THISYEAR;
 
-    # LASTDATE/THATDATE is the previous Month/Year for a full matrix
     $datetime[4]--;
     my $THATYEAR = $THISYEAR;
-    if($datetime[4] == 0) {
-        $datetime[4] = 11;
+    if($datetime[4] < 0) {
+        $datetime[4] = 12;
         $THATYEAR--;
     }
-    $self->{dates}{LASTDATE}  = sprintf "%04d%02d", $THATYEAR, int($datetime[4]);
-    $self->{dates}{THATDATE}  = sprintf "%s %d", $month{int($datetime[4])}, $THATYEAR;
-    $self->{dates}{SHORTDATE} = sprintf "%02d/%02d", int($datetime[4])+1, $THATYEAR - 2000;
 
-    #print STDERR "THISYEAR=[$THISYEAR]\n";
-    #print STDERR "LIMIT=[$self->{dates}{LIMIT}]\n";
-    #print STDERR "STATDATE=[$self->{dates}{STATDATE}]\n";
-    #print STDERR "RUNDATE=[$self->{dates}{RUNDATE}]\n";
+    # LASTMONTH is the Month/Year stats are run for
+    $self->{dates}{LASTMONTH} = sprintf "%04d%02d", $THATYEAR, int($datetime[4]);
+    $self->{dates}{LASTDATE}  = sprintf "%s %d", $month{int($datetime[4])-1}, $THATYEAR;
+    $self->{dates}{PREVMONTH} = sprintf "%02d/%02d", int($datetime[4]), $THATYEAR - 2000;
+
+    $datetime[4]--;
+    if($datetime[4] < 0) {
+        $datetime[4] = 12;
+        $THATYEAR--;
+    }
+
+    # THATMONTH is the previous Month/Year for a full matrix
+    $self->{dates}{THATMONTH} = sprintf "%04d%02d", $THATYEAR, int($datetime[4]);
+    
+    $self->{parent}->_log( "THISYEAR=[$THISYEAR]" );
+    $self->{parent}->_log( "THATYEAR=[$THATYEAR]" );
+    $self->{parent}->_log( "DATES=" . Dumper( $self->{dates} ) );
 }
 
 sub update_full {
@@ -420,7 +423,7 @@ sub build_data {
             $self->{osys}    {$osname}  {$perl}{all}{$row->[5]} = 1;
             $self->{osname}  {$osname}  {$perl}{all}++;
 
-            if($row->[3] == $self->{dates}{LASTDATE}) {
+            if($row->[3] == $self->{dates}{THATMONTH}) {
                 $self->{pass}    {$row->[7]}{$perl}{month}{$row->[5]} = 1;
                 $self->{platform}{$row->[7]}{$perl}{month}++;
                 $self->{osys}    {$osname}  {$perl}{month}{$row->[5]} = 1;
@@ -613,7 +616,7 @@ sub _write_index {
     # index page
     my %pages = (
         index    => {
-            THISDATE            => $self->{dates}{THISDATE},
+            LASTMONTH            => $self->{dates}{LASTMONTH},
             DATABASE            => $DATABASE1,
             DBSZ_COMPRESSED     => $DBSZ_COMPRESSED,
             DBSZ_UNCOMPRESSED   => $DBSZ_UNCOMPRESSED,
@@ -1356,10 +1359,9 @@ sub _build_osname_leaderboards {
 
     # set dates
     my $post0 = '999999';
-    my $post1 = $self->{dates}{LASTDATE};
-    my $post2 = $self->{dates}{THISDATE};
-    my $post3 = $self->{dates}{THISDATE} + 1;
-    $post1 += 88    if($post3 % 100 > 12);
+    my $post1 = $self->{dates}{THATMONTH};
+    my $post2 = $self->{dates}{LASTMONTH};
+    my $post3 = $self->{dates}{THISMONTH};
 
     $self->{parent}->_log("1.post0=$post0");
     $self->{parent}->_log("2.post1=$post1");
@@ -1533,7 +1535,7 @@ sub _build_monthly_stats_files {
     print $fh3 "#DATE,FAIL,NA,UNKNOWN\n";
 
     for my $date (sort keys %{$self->{stats}}) {
-        next    if($date > $self->{dates}{LIMIT});
+        next    if($date > $self->{dates}{THISMONTH});
 
         my $uploads = ($self->{pause}{$date}              || 0);
         my $reports = ($self->{stats}{$date}{reports}     || 0);
@@ -1558,7 +1560,7 @@ sub _build_monthly_stats_files {
                 $self->{stats}{$date}{state}{unknown}];
 
         # graphs don't include current month
-        next    if($date > $self->{dates}{LIMIT}-1);
+        next    if($date > $self->{dates}{THISMONTH}-1);
 
         my $content = sprintf "%d,%d,%d,%d,%d\n", @fields;
         print $fh1 $content;
@@ -1586,7 +1588,7 @@ sub _build_monthly_stats_files {
     print $fh2 "#DATE,TESTERS,PLATFORMS,PERLS\n";
 
     for my $date (sort keys %{$self->{stats}}) {
-        next    if($date > $self->{dates}{LIMIT}-1);
+        next    if($date > $self->{dates}{THISMONTH}-1);
         printf $fh2 "%d,%d,%d,%d\n",
             $date,
             ($self->{monthly}{$date}{tester}   || 0),
@@ -1602,7 +1604,7 @@ sub _build_monthly_stats_files {
     print $fh1 "#DATE,ALL,FIRST,LAST\n";
 
     for my $date (sort keys %{ $self->{stats} }) {
-        next    if($date > $self->{dates}{LIMIT}-1);
+        next    if($date > $self->{dates}{THISMONTH}-1);
 
         if(defined $self->{counts}{$date}) {
             $self->{counts}{$date}{all} = scalar(keys %{$self->{counts}{$date}{testers}});
@@ -1610,7 +1612,7 @@ sub _build_monthly_stats_files {
         $self->{counts}{$date}{all}   ||= 0;
         $self->{counts}{$date}{first} ||= 0;
         $self->{counts}{$date}{last}  ||= 0;
-        $self->{counts}{$date}{last}    = ''  if($date > $self->{dates}{THISDATE});
+        $self->{counts}{$date}{last}    = ''  if($date > $self->{dates}{LASTMONTH});
 
         printf $fh1 "%d,%s,%s,%s\n",
             $date,
@@ -1752,7 +1754,7 @@ sub _build_performance_stats {
     for my $date (sort {$a <=> $b} keys %{$self->{build}}) {
 #$self->{parent}->_log("build_stats: date=$date, old=$self->{build}{$date}->{old}");
 	next	if($self->{build}{$date}->{old} == 2);	# ignore todays tally
-        #next    if($date > $self->{dates}{LIMIT}-1);
+        #next    if($date > $self->{dates}{THISMONTH}-1);
 
         printf $fh "%d,%d,%d,%d\n",
             $date,
@@ -1790,9 +1792,9 @@ sub _writepage {
     $vars->{VERSION}    = $VERSION;
     $vars->{RUNDATE}    = $self->{dates}{RUNDATE};
     $vars->{RUNTIME}    = $self->{dates}{RUNTIME};
-    $vars->{STATDATE}   = $self->{dates}{STATDATE};
-    $vars->{THATDATE}   = $self->{dates}{THATDATE};
-    $vars->{SHORTDATE}  = $self->{dates}{SHORTDATE};
+    $vars->{THISDATE}   = $self->{dates}{THISDATE};
+    $vars->{LASTDATE}   = $self->{dates}{LASTDATE};
+    $vars->{PREVMONTH}  = $self->{dates}{PREVMONTH};
     $vars->{copyright}  = $self->{parent}->copyright;
 
 #    if($page =~ /^(p|os)matrix/) {
@@ -1917,7 +1919,7 @@ F<http://wiki.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2005-2011 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2012 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.

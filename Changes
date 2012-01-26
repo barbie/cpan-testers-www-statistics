@@ -1,6 +1,6 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-0.95	current
+0.95	26/01/2012
 	- removed NNTP code from cpanmail.cgi.
 	- added cpanmail.ini to cgi templates.
 	- don't overwrite basic files in case they have changed.
