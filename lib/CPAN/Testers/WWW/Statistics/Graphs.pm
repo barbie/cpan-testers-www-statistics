@@ -341,27 +341,25 @@ sub _set_max {
 }
 
 sub _set_range {
-    my $max = shift;
-    my $lmt = 10;
+    my ($min,$max) = @_;
 
-    return $lmt   if($max <= $lmt);
+    my $len = length("$max") - 2;
+    my $pc0 = $max / 10;
 
-    my $len = length("$max") - 1;
-    my $num = substr("$max",0,1);
+    my $x1 = 10**$len * 1;
+    my $x2 = 10**$len * 2;
+    my $x5 = 10**$len * 5;
+    my $x0 = 10**$len * 10;
 
-    if($max < 100_000) {
-        my $lmt1 =  (10**$len) *  $num;
-        my $lmt2 = ((10**$len) *  $num) + ((1**($len-1)) * 5);
-        my $lmt3 =  (10**$len) * ($num + 1);
+    my $step = $pc0 <= $x1 ? $x1 : $pc0 <= $x2 ? $x2 : $pc0 <= $x5 ? $x5 : $x0;
 
-        return $lmt1    if($max <= $lmt1);
-        return $lmt2    if($max <= $lmt2);
-        return $lmt3    if($max <= $lmt3);
-    }
+    my @r;
+    for(my $r = $min; $r < ($max+$step); $r += $step) {
+        my $x = $r < 1000 ? $r : $r < 1000000 ? ($r/1000) . 'k' : ($r/1000000) . 'm';
+        push @r, $x;
+    };
 
-    $num += ($num % 2) ? 1 : 2;
-
-    return (10**$len) * $num;
+    return join('|',@r);
 }
 
 q('Will code for a nice Balti Lamb Tikka Bhuna');
