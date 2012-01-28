@@ -250,13 +250,6 @@ sub build_matrices {
 sub build_stats {
     my $self = shift;
 
-    ## BUILD INDEPENDENT STATS
-    $self->_report_cpan();
-    $self->_no_reports();
-
-    ## BUILD MONTHLY STATS
-    $self->_build_monthly_stats();
-
     $self->{parent}->_log("stats start");
     my $storage = $self->{parent}->mainstore();
     if($storage && -f $storage) {
@@ -273,6 +266,13 @@ sub build_stats {
         my @versions = sort {versioncmp($b,$a)} keys %{$self->{perls}};
         $self->{versions} = \@versions;
 
+        ## BUILD INDEPENDENT STATS
+        $self->_report_cpan();
+        $self->_no_reports();
+
+        ## BUILD MONTHLY STATS
+        $self->_build_monthly_stats();
+
         ## BUILD STATS PAGES
         $self->_report_interesting();
         $self->_build_monthly_stats_files();
@@ -282,6 +282,7 @@ sub build_stats {
         ## BUILD INDEX PAGE
         $self->_write_index();
     }
+
     $self->{parent}->_log("stats finish");
 }
 
@@ -1371,6 +1372,7 @@ sub _build_osname_leaderboards {
     my @posts = sort keys %$data;
     $self->{parent}->_log("5.posts[0]=$posts[0]");
 
+    # Update data for the missing months
     if($posts[0] != $post1) {
         my $p = $posts[0];
         while($p <= $post3) {
@@ -1384,6 +1386,7 @@ sub _build_osname_leaderboards {
         }
     }
 
+    # store data for the last 3 months, and in total
     my %oses;
     for my $post (keys %$data) {
         if($post == $post0 || $post == $post1 || $post == $post2 || $post == $post3) {
