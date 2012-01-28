@@ -1,7 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
 0.96	current
-	- set_max & set_range reworked (Graph.pm)
+	- set_max & set_range reworked (Graph.pm).
+	- fix dates for test database creation.
 
 0.95	26/01/2012
 	- removed NNTP code from cpanmail.cgi.

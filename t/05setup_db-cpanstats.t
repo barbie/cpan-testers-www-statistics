@@ -32,6 +32,7 @@ $dbh->do(q{
   )
 });
 
+# calculate dates
 my @date = localtime(time);
 my $THISMONTH = sprintf "%04d%02d", $date[5]+1900, $date[4]+1;
 my $LASTMONTH = sprintf "%04d%02d", $date[4] ? ($date[5]+1900, $date[4]) : ($date[5]+1899, 12);
@@ -39,9 +40,13 @@ my $LASTMONTH = sprintf "%04d%02d", $date[4] ? ($date[5]+1900, $date[4]) : ($dat
 while(<DATA>){
   next  unless(/^\d/);
   chomp;
+
+  # adjust dates to current months
   my @fields = split(/\|/,$_);
   $fields[3]  =~ s/201101/$LASTMONTH/;
-  $fields[11] =~ s/201101/$THISMONTH/;
+  $fields[3]  =~ s/201102/$THISMONTH/;
+  $fields[11] =~ s/201101/$LASTMONTH/;
+  $fields[11] =~ s/201102/$THISMONTH/;
   $dbh->do('INSERT INTO cpanstats ( id, guid, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate, type) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )', {}, @fields );
 }
 
