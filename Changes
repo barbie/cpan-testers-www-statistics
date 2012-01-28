@@ -1,10 +1,15 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.96	current
+	- set_max & set_range reworked (Graph.pm)
+
 0.95	26/01/2012
 	- removed NNTP code from cpanmail.cgi.
 	- added cpanmail.ini to cgi templates.
 	- don't overwrite basic files in case they have changed.
 	- added the ability to link basic files.
+	- changed date names
+	- leaderboard fixes.
 
 0.94	21/08/2011
 	- revised banner logo image by Jon 'JJ' Allen.
