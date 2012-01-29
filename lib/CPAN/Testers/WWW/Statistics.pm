@@ -274,8 +274,8 @@ sub ranges {
     my ($self,$section) = @_;
     return  unless($section);
     my @now = localtime(time);
-    if($now[4]==0) { $now[5]--; $now[4]=11; }
-    my $now = sprintf "%04d%02d", $now[5]+1900, $now[4]+1;
+    if($now[4]==0) { $now[5]--; $now[4]=12; }
+    my $now = sprintf "%04d%02d", $now[5]+1900, $now[4];
 
     my @RANGES;
     if($section eq 'NONE') {
