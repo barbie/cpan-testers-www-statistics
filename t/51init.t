@@ -4,7 +4,7 @@ use strict;
 use warnings;
 $|=1;
 
-use Test::More tests => 17;
+use Test::More tests => 20;
 use File::Spec;
 use lib 't';
 use CTWS_Testing;
@@ -44,3 +44,9 @@ is($page->{dates}{THISMONTH}, $date1, '..this month');
 is($page->{dates}{LASTMONTH}, $date2, '..last month');
 is($page->{dates}{THATMONTH}, $date3, '..previous month');
 
+my @full_range = ( '00000000-99999999' );
+my @test_range = ( '199901-200412', '200301-200712', '200601-201012', "200901-$page->{dates}{LASTMONTH}" );
+
+is($obj->ranges(), undef, '.. no range');
+is_deeply($obj->ranges('NONE'), \@full_range, '.. single full range');
+is_deeply($obj->ranges('TEST_RANGES'), \@test_range, '.. list of ranges');

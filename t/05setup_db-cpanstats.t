@@ -34,8 +34,8 @@ $dbh->do(q{
 
 # calculate dates
 my @date = localtime(time);
-my $THISMONTH = sprintf "%04d%02d", $date[5]+1900, $date[4]+1;
-my $LASTMONTH = sprintf "%04d%02d", $date[4] ? ($date[5]+1900, $date[4]) : ($date[5]+1899, 12);
+my $THISMONTH = sprintf "%04d%02d", $date[4] > 0 ? ($date[5]+1900, $date[4])   : ($date[5]+1899, 12);
+my $LASTMONTH = sprintf "%04d%02d", $date[4] > 1 ? ($date[5]+1900, $date[4]-1) : ($date[5]+1899, 11 + $date[4]);
 
 while(<DATA>){
   next  unless(/^\d/);
