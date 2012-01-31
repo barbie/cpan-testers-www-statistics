@@ -1,5 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.97	31/01/2012
+	- final leaderboard fixes (os and total).
+
 0.96	30/01/2012
 	- set_max & set_range reworked (Graph.pm).
 	- fix dates for test database creation.
