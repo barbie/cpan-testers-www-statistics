@@ -1409,6 +1409,8 @@ sub _build_osname_leaderboards {
         }
     }
 
+    #$self->{parent}->_log("6.data=".Dumper($data));
+
     # save data
     if($storage) {
         $json = encode_json($data);
@@ -1473,10 +1475,12 @@ sub _build_osname_leaderboards {
     my (%tvars,%stats,%testers) = ();
 
     $tvars{osnames} = \@oses;
-    for my $os (keys %{$data->{$post0}}) {
-        next    unless($os);
-        for my $tester (keys %{$data->{$post0}{$os}}) {
-            $testers{$tester} += $data->{$post0}{$os}{$tester};
+    for my $post ($post0, $post1, $post2, $post3) {
+        for my $os (keys %{$data->{$post}}) {
+            next    unless($os);
+            for my $tester (keys %{$data->{$post}{$os}}) {
+                $testers{$tester} += $data->{$post}{$os}{$tester};
+            }
         }
     }
 
@@ -1511,7 +1515,7 @@ sub _build_os_hash {
     my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql,$pd);
     while(my $row = $next->()) {
         my $name = $self->_tester_name($row->{tester});
-        $hash{$row->{osname}}{$name} += $row->{count};
+        $hash{lc $row->{osname}}{$name} += $row->{count};
     }
 
     return \%hash;
