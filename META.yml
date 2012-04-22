@@ -10,6 +10,7 @@ distribution_type:   module
 installdirs:         site
 
 requires:
+  perl:                             5.006
   CGI:                              0
   Class::Accessor::Fast:            0
   Config::IniFiles:                 0
@@ -44,6 +45,7 @@ build_requires:
   Archive::Extract:                 0
   Archive::Zip:                     0
   File::Spec:                       0
+  IO::File:                         0
   Test::Differences:                0
   Test::More:                       0.70
 
