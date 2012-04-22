@@ -17,6 +17,7 @@ WriteMakefile(
         # prereqs
         'Class::Accessor::Fast'             => 0,
         'Config::IniFiles'                  => 0,
+        'Data::Dumper'                      => 0,       # for debugging purposes
         'GD::Graph::lines'                  => 0,
         'File::Basename'                    => 0,
         'File::Copy'                        => 0,
@@ -47,12 +48,13 @@ WriteMakefile(
         'DBD::SQLite'                       => 0,
 
         # for testing
-        'Archive::Zip'                      => 0,     # for testing
-        'Archive::Extract'                  => 0,     # for testing
-        'File::Spec'                        => 0,     # for testing
+        'Archive::Zip'                      => 0,       # for testing
+        'Archive::Extract'                  => 0,       # for testing
+        'Cwd'                               => 0,       # for testing
+        'File::Spec'                        => 0,       # for testing
         'IO::File'                          => 0,
-        'Test::Differences'                 => 0,     # for testing
-        'Test::More'                        => 0.70
+        'Test::Differences'                 => 0,       # for testing
+        'Test::More'                        => 0.70     # for testing
 
     },
 );

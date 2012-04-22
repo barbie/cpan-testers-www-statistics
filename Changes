@@ -1,5 +1,9 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.99	22/04/2012
+	- META tests no longer require specific versions.
+	- fixed pre-requisite lists.
+
 0.98	22/04/2012
 	- SEE ALSO package name fixes.
 	- reworded index and failure pages.

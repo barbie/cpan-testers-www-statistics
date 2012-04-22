@@ -1,6 +1,6 @@
 {
     "name": "CPAN-Testers-WWW-Statistics",
-    "version": "0.98",
+    "version": "0.99",
     "abstract": "Scripts to create the CPAN Testers Statistics website",
     "author": [
         "Barbie (BARBIE) <barbie@cpan.org>"
@@ -28,6 +28,7 @@
                 "Class::Accessor::Fast": "0",
                 "Config::IniFiles": "0",
                 "CPAN::Testers::Common::DBUtils": "0.03",
+                "Data::Dumper": "0",
                 "DBI": "0",
                 "DBD::mysql": "0",
                 "DBD::SQLite": "1.07",
@@ -53,14 +54,15 @@
             "requires": {
                 "Archive::Extract": "0",
                 "Archive::Zip": "0",
+                "Cwd": "0",
                 "File::Spec": "0",
                 "IO::File": "0",
                 "Test::Differences": "0",
                 "Test::More": "0.70"
             },
             "recommends": {
-                "Test::CPAN::Meta": "0.13",
-                "Test::CPAN::Meta::JSON": "0.10",
+                "Test::CPAN::Meta": "0",
+                "Test::CPAN::Meta::JSON": "0",
                 "Test::MockObject": "0",
                 "Test::Pod": "1.00",
                 "Test::Pod::Coverage": "0.08"
@@ -71,15 +73,15 @@
     "provides": {
         "CPAN::Testers::WWW::Statistics": {
             "file": "lib/CPAN/Testers/WWW/Statistics.pm",
-            "version": "0.98"
+            "version": "0.99"
         },
         "CPAN::Testers::WWW::Statistics::Page": {
             "file": "lib/CPAN/Testers/WWW/Statistics/Page.pm",
-            "version": "0.98"
+            "version": "0.99"
         },
         "CPAN::Testers::WWW::Statistics::Graphs": {
             "file": "lib/CPAN/Testers/WWW/Statistics/Graphs.pm",
-            "version": "0.98"
+            "version": "0.99"
         }
     },
     "no_index": {

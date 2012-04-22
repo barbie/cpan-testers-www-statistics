@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.98';
+$VERSION = '0.99';
 
 #----------------------------------------------------------------------------
 
@@ -360,7 +360,6 @@ sub build_data {
         $self->{xlast} = { posters => [], entries => [], reports => [] },
     }
 
-#use Data::Dumper;
 #$self->{parent}->_log("build:1.".Dumper($self->{build}));
 
     # reports builder performance stats
@@ -466,7 +465,6 @@ $self->{parent}->_log("checkpoint: count=$self->{count}{$type}, lastid=$lastid")
             $self->{xlast}{$type} = \@row;
         }
     }
-#use Data::Dumper;
 #$self->{parent}->_log("build:3.".Dumper($self->{build}));
 #$self->{parent}->_log("build:4.".Dumper($testers));
 
@@ -1779,7 +1777,6 @@ sub _writepage {
     $vars->{$_}         = $self->{dates}{$_}    for(keys %{ $self->{dates} });
 
 #    if($page =~ /^(p|os)matrix/) {
-#        use Data::Dumper;
 #        print STDERR "$page:" . Dumper($vars);
 #    }
 
