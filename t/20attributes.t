@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 29;
+use Test::More tests => 25;
 use CPAN::Testers::WWW::Statistics;
 
 use lib 't';
@@ -16,7 +16,6 @@ ok( my $obj = CTWS_Testing::getObj(), "got object" );
 # predefined attributes
 foreach my $k ( qw/
 	directory
-	database
 	templates
     address
     logclean

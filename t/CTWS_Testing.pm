@@ -7,6 +7,8 @@ use CPAN::Testers::WWW::Statistics;
 use CPAN::Testers::WWW::Statistics::Pages;
 use CPAN::Testers::WWW::Statistics::Graphs;
 
+use Test::More;
+
 use File::Path;
 use File::Temp;
 use File::Find;
@@ -22,6 +24,7 @@ sub getObj {
     _cleanDir( $opts{directory} ) or return;
 
     eval { $parent = CPAN::Testers::WWW::Statistics->new(%opts); };
+    diag($@)    if($@);
     return $parent;
 }
 
@@ -105,7 +108,6 @@ mainstore=t/_TMPDIR/cpanstats.json
 leadstore=t/_TMPDIR/leaderboard.json
 monthstore=t/_TMPDIR/cpanstats-%s.json
 
-database=t/_DBDIR/test.db
 address=t/data/addresses.txt
 templates=templates
 builder=t/_TMPDIR/log-parser.txt

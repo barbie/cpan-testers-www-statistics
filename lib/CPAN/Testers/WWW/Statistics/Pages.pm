@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.97';
+$VERSION = '0.98';
 
 #----------------------------------------------------------------------------
 
@@ -98,8 +98,7 @@ my %matrix_limits = (
 Page creation object. Allows the user to turn or off the progress tracking.
 
 new() takes an option hash as an argument, which may contain 'progress => 1'
-to turn on the progress tracker and/or 'database => $db' to indicate the path
-to the database. If no database path is supplied, './cpanstats.db' is used.
+to turn on the progress tracker.
 
 =back
 
@@ -179,9 +178,8 @@ sub setdates {
     }
 
     # LASTMONTH is the Month/Year stats are run for
-    $self->{dates}{LASTMONTH} = sprintf "%04d%02d", $THATYEAR, int($datetime[4]);
-    $self->{dates}{LASTDATE}  = sprintf "%s %d", $month{int($datetime[4])-1}, $THATYEAR;
-    $self->{dates}{PREVMONTH} = sprintf "%02d/%02d", int($datetime[4]), $THATYEAR - 2000;
+    $self->{dates}{LASTMONTH} = sprintf "%04d%02d", $THATYEAR, int($datetime[4]+1);
+    $self->{dates}{LASTDATE}  = sprintf "%s %d", $month{int($datetime[4])}, $THATYEAR;
 
     $datetime[4]--;
     if($datetime[4] < 0) {
@@ -190,11 +188,18 @@ sub setdates {
     }
 
     # THATMONTH is the previous Month/Year for a full matrix
-    $self->{dates}{THATMONTH} = sprintf "%04d%02d", $THATYEAR, int($datetime[4]);
+    $self->{dates}{THATMONTH} = sprintf "%04d%02d", $THATYEAR, int($datetime[4]+1);
+    $self->{dates}{PREVMONTH} = sprintf "%02d/%02d", int($datetime[4]+1), $THATYEAR - 2000;
     
     $self->{parent}->_log( "THISYEAR=[$THISYEAR]" );
     $self->{parent}->_log( "THATYEAR=[$THATYEAR]" );
     $self->{parent}->_log( "DATES=" . Dumper( $self->{dates} ) );
+
+    # calculate database metrics
+    my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT fulldate FROM cpanstats ORDER BY id DESC LIMIT 1");
+    my @time = $rows[0]->[0] =~ /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/;
+    $self->{dates}{RUNDATE2} = sprintf "%d%s %s %d",            $time[2],_ext($time[2]),$month{$time[1]-1},$time[0];
+    $self->{dates}{RUNDATE3} = sprintf "%d%s %s %d, %02d:%02d", $time[2],_ext($time[2]),$month{$time[1]-1},$time[0],$time[3],$time[4];
 }
 
 sub update_full {
@@ -515,7 +520,6 @@ sub _write_basics {
     my $self = shift;
     my $directory = $self->{parent}->directory;
     my $templates = $self->{parent}->templates;
-    my $database  = $self->{parent}->database;
     my $results   = "$directory/stats";
     mkpath($results);
 
@@ -589,7 +593,6 @@ sub _write_index {
     my $self = shift;
     my $directory = $self->{parent}->directory;
     my $templates = $self->{parent}->templates;
-    my $database  = $self->{parent}->database;
 
     $self->{parent}->_log("writing index file");
 
@@ -606,25 +609,14 @@ sub _write_index {
     $self->{rates}{report} = 1000 if($self->{rates}{report} < 1000);
     $self->{rates}{distro} = 1000 if($self->{rates}{distro} < 1000);
 
-    # calculate database metrics
-    my $mtime = (stat($database))[9];
-    my @ltime = localtime($mtime);
-    $self->{DATABASE2} = sprintf "%d%s %s %d", $ltime[3],_ext($ltime[3]),$month{$ltime[4]},$ltime[5]+1900;
-    my $DATABASE1 = sprintf "%04d/%02d/%02d", $ltime[5]+1900,$ltime[4]+1,$ltime[3];
-    my $DBSZ_UNCOMPRESSED = int((-s $database        ) / (1024 * 1024));
-    my $DBSZ_COMPRESSED   = int((-s $database . '.gz') / (1024 * 1024));
-
     # index page
     my %pages = (
         index    => {
-            LASTMONTH            => $self->{dates}{LASTMONTH},
-            DATABASE            => $DATABASE1,
-            DBSZ_COMPRESSED     => $DBSZ_COMPRESSED,
-            DBSZ_UNCOMPRESSED   => $DBSZ_UNCOMPRESSED,
-            report_count        => $self->{count}{reports},
-            distro_count        => $self->{count}{distros},
-            report_rate         => $self->{rates}{report},
-            distro_rate         => $self->{rates}{distro}
+            LASTMONTH       => $self->{dates}{LASTMONTH},
+            report_count    => $self->{count}{reports},
+            distro_count    => $self->{count}{distros},
+            report_rate     => $self->{rates}{report},
+            distro_rate     => $self->{rates}{distro}
         },
     );
 
@@ -1677,12 +1669,6 @@ sub _build_failure_rates {
         last    if($count > 100);
     }
 
-    my $database  = $self->{parent}->database;
-    my $mtime = (stat($database))[9];
-    my @ltime = localtime($mtime);
-    $self->{DATABASE2} = sprintf "%d%s %s %d", $ltime[3],_ext($ltime[3]),$month{$ltime[4]},$ltime[5]+1900;
-
-    $tvars{DATABASE} = $self->{DATABASE2};
     $self->_writepage('wdists',\%tvars);
     undef %tvars;
 
@@ -1697,7 +1683,6 @@ sub _build_failure_rates {
         last    if($count > 100);
     }
 
-    $tvars{DATABASE} = $self->{DATABASE2};
     $self->_writepage('wpcent',\%tvars);
     undef %tvars;
 
@@ -1722,12 +1707,6 @@ sub _build_failure_rates {
         last    if($count > 100);
     }
 
-    $database  = $self->{parent}->database;
-    $mtime = (stat($database))[9];
-    @ltime = localtime($mtime);
-    $self->{DATABASE2} = sprintf "%d%s %s %d", $ltime[3],_ext($ltime[3]),$month{$ltime[4]},$ltime[5]+1900;
-
-    $tvars{DATABASE} = $self->{DATABASE2};
     $self->_writepage('wdists-recent',\%tvars);
     undef %tvars;
 
@@ -1742,7 +1721,6 @@ sub _build_failure_rates {
         last    if($count > 100);
     }
 
-    $tvars{DATABASE} = $self->{DATABASE2};
     $self->_writepage('wpcent-recent',\%tvars);
 }
 
@@ -1797,12 +1775,8 @@ sub _writepage {
 
     $vars->{SOURCE}     = $source;
     $vars->{VERSION}    = $VERSION;
-    $vars->{RUNDATE}    = $self->{dates}{RUNDATE};
-    $vars->{RUNTIME}    = $self->{dates}{RUNTIME};
-    $vars->{THISDATE}   = $self->{dates}{THISDATE};
-    $vars->{LASTDATE}   = $self->{dates}{LASTDATE};
-    $vars->{PREVMONTH}  = $self->{dates}{PREVMONTH};
     $vars->{copyright}  = $self->{parent}->copyright;
+    $vars->{$_}         = $self->{dates}{$_}    for(keys %{ $self->{dates} });
 
 #    if($page =~ /^(p|os)matrix/) {
 #        use Data::Dumper;
@@ -1904,7 +1878,7 @@ There are no known bugs at the time of this release. However, if you spot a
 bug or are experiencing difficulties, that is not explained within the POD
 documentation, please send bug reports and patches to the RT Queue (see below).
 
-Fixes are dependant upon their severity and my availablity. Should a fix not
+Fixes are dependent upon their severity and my availability. Should a fix not
 be forthcoming, please feel free to (politely) remind me.
 
 RT Queue -

@@ -26,9 +26,9 @@ unlink('50logging.log') if(-f '50logging.log');
     my @log = do { open FILE, '<', '50logging.log'; <FILE> };
     chomp @log;
 
-    is(scalar(@log),14, 'log written');
-    like($log[12], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Hello!,   'line 1 of log');
-    like($log[13], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Goodbye!, 'line 2 of log');
+    is(scalar(@log),13, 'log written');
+    like($log[11], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Hello!,   'line 1 of log');
+    like($log[12], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Goodbye!, 'line 2 of log');
 }
 
 {
@@ -44,10 +44,10 @@ unlink('50logging.log') if(-f '50logging.log');
     my @log = do { open FILE, '<', '50logging.log'; <FILE> };
     chomp @log;
 
-    is(scalar(@log),27, 'log extended');
-    like($log[12], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Hello!,      'line 1 of log');
-    like($log[13], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Goodbye!,    'line 2 of log');
-    like($log[26], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Back Again!, 'line 3 of log');
+    is(scalar(@log),25, 'log extended');
+    like($log[11], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Hello!,      'line 1 of log');
+    like($log[12], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Goodbye!,    'line 2 of log');
+    like($log[24], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Back Again!, 'line 3 of log');
 }
 
 {

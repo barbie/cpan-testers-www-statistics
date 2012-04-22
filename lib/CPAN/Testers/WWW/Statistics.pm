@@ -5,7 +5,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.97';
+$VERSION = '0.98';
 
 #----------------------------------------------------------------------------
 
@@ -59,7 +59,6 @@ keys.
   mainstore => path to main data storage file
   leadstore => path to leaderboard data storage file
   templates => path to templates directory
-  database  => path to SQLite database file
   address   => path to address file
   mailrc    => path to 01mailrc.txt file
   builder   => path to output file from builder log parser
@@ -67,8 +66,8 @@ keys.
   logfile   => path to logfile
   logclean  => will overwrite any existing logfile if set
 
-Note that while 'directory', 'templates', 'database' and 'address' are optional
-as parameters, if they are not provided as parameters, then they MUST be
+Note that while 'directory', 'templates' and 'address' are optional as
+parameters, if they are not provided as parameters, then they MUST be
 specified within the 'MASTER' section of the configuration file.
 
 =back
@@ -133,7 +132,6 @@ sub new {
     $self->leadstore( _defined_or( $hash{leadstore},  $cfg->val('MASTER','leadstore' ) ));
     $self->monthstore(_defined_or( $hash{monthstore}, $cfg->val('MASTER','monthstore'), 'cpanstats-%s.json' ));
     $self->templates( _defined_or( $hash{templates},  $cfg->val('MASTER','templates' ) ));
-    $self->database(  _defined_or( $hash{database},   $cfg->val('MASTER','database'  ) ));
     $self->address(   _defined_or( $hash{address},    $cfg->val('MASTER','address'   ) ));
     $self->missing(   _defined_or( $hash{missing},    $cfg->val('MASTER','missing'   ) ));
     $self->mailrc(    _defined_or( $hash{mailrc},     $cfg->val('MASTER','mailrc'    ) ));
@@ -147,7 +145,6 @@ sub new {
     $self->_log("leadstore =".($self->leadstore  || ''));
     $self->_log("monthstore=".($self->monthstore || ''));
     $self->_log("templates =".($self->templates  || ''));
-    $self->_log("database  =".($self->database   || ''));
     $self->_log("address   =".($self->address    || ''));
     $self->_log("missing   =".($self->missing    || ''));
     $self->_log("mailrc    =".($self->mailrc     || ''));
@@ -212,7 +209,7 @@ Returns the print form of a recorded OS name.
 =cut
 
 __PACKAGE__->mk_accessors(
-    qw( directory mainstore leadstore monthstore templates database address 
+    qw( directory mainstore leadstore monthstore templates address 
         builder missing mailrc logfile logclean copyright noreports tocopy 
         tolink osnames));
 
@@ -305,8 +302,6 @@ sub osname {
 sub _check_files {
     my $self = shift;
     die "Template directory not found\n"                unless(-d $self->templates);
-    die "Must specify the path of the SQL database\n"   unless(   $self->database);
-    die "Archive SQLite database not found\n"           unless(-f $self->database);
     die "Must specify the path of the address file\n"   unless(   $self->address);
     die "Address file not found\n"                      unless(-f $self->address);
 }
@@ -346,7 +341,7 @@ There are no known bugs at the time of this release. However, if you spot a
 bug or are experiencing difficulties, that is not explained within the POD
 documentation, please send bug reports and patches to the RT Queue (see below).
 
-Fixes are dependant upon their severity and my availablity. Should a fix not
+Fixes are dependent upon their severity and my availability. Should a fix not
 be forthcoming, please feel free to (politely) remind me.
 
 RT Queue -

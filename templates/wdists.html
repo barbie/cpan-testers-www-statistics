@@ -5,7 +5,7 @@
     crumb1_name = 'Failure Counts' ;
 %]
 
-<h2>HIGHEST FAILURE COUNTS (as of [% DATABASE %])</h2>
+<h2>HIGHEST FAILURE COUNTS (as of [% RUNDATE2 %])</h2>
 <p>Order by Failure Count or Failure Percentage by clicking the appropriate column headings.</p>
 
 <table summary="HIGHEST FAILURE COUNTS">
@@ -29,6 +29,4 @@
 Failures are counted as reports posted as FAIL or UNKNOWN. Currently all reports are counted
 individually, so any duplicate reports that are for the same version of Perl on the same platform
 for the same distribution are NOT ignored. This may change in the future.</p>
-<p>Missing Upload Dates - not all PAUSE uploads get posted to the cpan-testers mailing, as such
-the local database doesn't record some upload dates.</p>
-<p>All counts are recorded up until [% DATABASE %].</p>
+<p>All counts are recorded up until [% RUNDATE3 %].</p>

@@ -2,7 +2,7 @@
 use strict;
 $|++;
 
-my $VERSION = '0.50';
+my $VERSION = '0.51';
 
 #----------------------------------------------------------------------------
 
@@ -16,9 +16,8 @@ cpanstats-writepages - script to create the CPAN Testers Statistics website.
 
 =head1 DESCRIPTION
 
-Using the cpanstats database, which should in the local directory, extracts
-all the data into the components of each page. Then creates each HTML page for
-the site.
+Using the cpanstats database, extracts all the data into the components of 
+each page. Then creates each HTML page for the site.
 
 =cut
 
@@ -46,7 +45,6 @@ my $stats = CPAN::Testers::WWW::Statistics->new(
         config    => $options{config},
         directory => $options{directory},
         templates => $options{templates},
-        database  => $options{database},
         address   => $options{address},
         logfile   => $options{logfile},
         logclean  => $options{logclean}
@@ -79,7 +77,6 @@ sub init_options {
         'config=s',
         'templates=s',
         'directory=s',
-        'database|d=s',
         'address|a=s',
 
         'logfile=s',
@@ -111,7 +108,6 @@ sub help {
         print "Usage:$0 --config=<file> \\\n";
         print "         [--templates=<dir>]   \\\n";
         print "         [--directory=<dir>]   \\\n";
-        print "         [--database|d=<file>] \\\n";
         print "         [--address|a=<file>]  \\\n";
         print "         [--logfile=<file> [--logclean=<1|0>]] \\\n";
         print "         [--all] [--basics] [--update] [--matrix] [--stats] \\\n";
@@ -124,7 +120,6 @@ sub help {
         print "  [--config=<file>]          # path to config file [required]\n";
         print "  [--templates=<dir>]        # path to templates\n";
         print "  [--directory=<dir>]        # path to website directory\n";
-        print "  [--database=<file>]        # path to SQLite database file\n";
         print "  [--address=<file>]         # path to address file\n";
         print "  [--logfile=<file>]         # path to logfile\n";
         print "  [--logclean]		        # overwrite log if specified\n";
@@ -158,7 +153,7 @@ There are no known bugs at the time of this release. However, if you spot a
 bug or are experiencing difficulties, that is not explained within the POD
 documentation, please send bug reports and patches to the RT Queue (see below).
 
-Fixes are dependant upon their severity and my availablity. Should a fix not
+Fixes are dependent upon their severity and my availability. Should a fix not
 be forthcoming, please feel free to (politely) remind me.
 
 RT Queue -
@@ -167,7 +162,7 @@ http://rt.cpan.org/Public/Dist/Display.html?Name=CPAN-Testers-WWW-Statistics
 =head1 SEE ALSO
 
 L<CPAN::Testers::Data::Generator>,
-L<CPAN::WWW::Testers>
+L<CPAN::Testers::WWW::Reports>,
 
 F<http://www.cpantesters.org/>,
 F<http://stats.cpantesters.org/>,
@@ -180,7 +175,7 @@ F<http://wiki.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2005-2011 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2012 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.

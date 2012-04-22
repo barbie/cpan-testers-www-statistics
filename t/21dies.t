@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More tests => 14;
 use CPAN::Testers::WWW::Statistics;
 use CPAN::Testers::WWW::Statistics::Pages;
 use CPAN::Testers::WWW::Statistics::Graphs;
@@ -22,8 +22,6 @@ for my $config (sort keys %config) {
 
 %config = (
     't/data/21config07.ini' => "Template directory not found\n",
-    't/data/21config08.ini' => "Must specify the path of the SQL database\n",
-    't/data/21config09.ini' => "Archive SQLite database not found\n",
     't/data/21config10.ini' => "Must specify the path of the address file\n",
     't/data/21config11.ini' => "Address file not found\n",
 );
@@ -33,7 +31,6 @@ for my $config (sort keys %config) {
     eval { $obj->make_pages };
     is($@, $config{$config}, "config: $config");
 }
-
 
 eval { CPAN::Testers::WWW::Statistics->new() };
 is($@,"Must specify the configuration file\n");

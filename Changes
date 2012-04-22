@@ -1,5 +1,19 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+0.98	current
+	- SEE ALSO package name fixes.
+	- reworded index and failure pages.
+	- removed requirement on local SQLite database.
+	- spelling fixes. (thanks to Florian Schlichting & Gregor Herrmann).
+	- changes to scripts with above fixes:
+	  - bin/addresses.pl		(v0.16)
+	    bin/cpanstats-writegraphs	(v0.51)
+	    bin/cpanstats-writepages	(v0.51)
+	  - bin/getmailrc.pl		(v0.03)
+	- removed files, as no longer required:
+	  - t/data/21config08.ini
+	  - t/data/21config09.ini
+
 0.97	31/01/2012
 	- final leaderboard fixes (os and total).
 
