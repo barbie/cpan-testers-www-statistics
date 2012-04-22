@@ -9,7 +9,6 @@ cd $BASE
 perl bin/cpanstats-writepages   \
      --config=data/settings.ini	\
      --logclean=1		\
-     --database=../db/cpanstats.db \
      --basics --update --stats --leader
 
 perl bin/cpanstats-writegraphs	\
@@ -19,6 +18,5 @@ perl bin/cpanstats-writegraphs	\
 perl bin/cpanstats-writepages   \
      --config=data/settings.ini	\
      --logclean=1		\
-     --database=../db/cpanstats.db \
      --matrix
 
