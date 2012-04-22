@@ -219,7 +219,7 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 # Tests for creating graphs
 
 SKIP: {
-	skip "Can't see a network connection", 117	if(pingtest($CHECK_DOMAIN));
+	skip "Can't see a network connection", 130	if(pingtest($CHECK_DOMAIN));
 
     $obj->directory($dir . '/update_full'),
     $page->update_full();
@@ -259,7 +259,7 @@ SKIP: {
 
 
 SKIP: {
-	skip "Can't see a network connection", 11	if(pingtest($CHECK_DOMAIN));
+	skip "Can't see a network connection", 18	if(pingtest($CHECK_DOMAIN));
 
     CTWS_Testing::saveFiles($dir . '/make_graphs');
 
