@@ -29,6 +29,7 @@ use Config::IniFiles;
 use CPAN::Testers::Common::DBUtils;
 use File::Basename;
 use File::Path;
+use HTML::Entities;
 use IO::File;
 use Regexp::Assemble;
 
@@ -128,6 +129,9 @@ sub new {
     }
     $self->tolink(\%TOLINK);
 
+    $self->known_t( 0 );
+    $self->known_s( 0 );
+
     $self->mainstore( _defined_or( $hash{mainstore},  $cfg->val('MASTER','mainstore' ) ));
     $self->leadstore( _defined_or( $hash{leadstore},  $cfg->val('MASTER','leadstore' ) ));
     $self->monthstore(_defined_or( $hash{monthstore}, $cfg->val('MASTER','monthstore'), 'cpanstats-%s.json' ));
@@ -211,7 +215,7 @@ Returns the print form of a recorded OS name.
 __PACKAGE__->mk_accessors(
     qw( directory mainstore leadstore monthstore templates address 
         builder missing mailrc logfile logclean copyright noreports tocopy 
-        tolink osnames));
+        tolink osnames known_t known_s ));
 
 sub make_pages {
     my $self = shift;
@@ -294,6 +298,43 @@ sub osname {
     my ($self,$name) = @_;
     my $osnames = $self->osnames();
     return $osnames->{lc $name} || $name;
+}
+
+=item * tester
+
+Returns either the known name of the tester for the given email address, or
+returns a doctored version of the address for displaying in HTML.
+
+=cut
+
+sub tester {
+    my ($self,$name) = @_;
+
+    $self->{addresses} ||= do {
+        my (%map,%known);
+        my $address = $self->address;
+
+        my $fh = IO::File->new($address)    or die "Cannot open address file [$address]: $!";
+        while(<$fh>) {
+            chomp;
+            my ($source,$target) = (/(.*),(.*)/);
+            next    unless($source && $target);
+            $map{$source} = $target;
+            $known{$target}++;
+        }
+        $fh->close;
+        $self->known_t( scalar(keys %known) );
+        $self->known_s( scalar(keys %map)   );
+        \%map;
+    };
+
+    my $addr = ($self->{addresses}{$name} && $self->{addresses}{$name} =~ /\&\#x?\d+\;/)
+                ? $self->{addresses}{$name}
+                : encode_entities( ($self->{addresses}{$name} || $name) );
+    $addr =~ s/\./ /g if($addr =~ /\@/);
+    $addr =~ s/\@/ \+ /g;
+    $addr =~ s/</&lt;/g;
+    return $addr;
 }
 
 # -------------------------------------

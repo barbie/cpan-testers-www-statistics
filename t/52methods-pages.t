@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 35;
+use Test::More tests => 33;
 use CPAN::Testers::WWW::Statistics::Pages;
 
 use lib 't';
@@ -12,17 +12,6 @@ use CTWS_Testing;
 ok( my $obj = CTWS_Testing::getObj(), "got parent object" );
 ok( my $pages = CTWS_Testing::getPages(), "got pages object" );
 
-$obj->address('t/data/addresses.txt');
-
-
-my %names = (
-    'barbie@missbarbell.co.uk' => 'Barbie (BARBIE)',
-    'barbie@cpan.org' => 'barbie + cpan org'
-);
-
-for my $name (keys %names) {
-    is($pages->_tester_name($name), $names{$name}, "tester name matches: $name");
-}
 my %exts = (     1 => 'st',  2 => 'nd',  3 => 'rd',  4 => 'th',  5 => 'th',
                  6 => 'th',  7 => 'th',  8 => 'th',  9 => 'th', 10 => 'th',
                 11 => 'th', 12 => 'th', 13 => 'th', 14 => 'th', 15 => 'th',

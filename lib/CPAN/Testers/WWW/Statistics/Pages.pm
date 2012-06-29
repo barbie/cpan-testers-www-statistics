@@ -69,8 +69,6 @@ use Time::Piece;
 # -------------------------------------
 # Variables
 
-my ($known_s,$known_t) = (0,0);
-
 my %month = (
     0 => 'January',   1 => 'February', 2 => 'March',     3 => 'April',
     4 => 'May',       5 => 'June',     6 => 'July',      7 => 'August',
@@ -397,7 +395,7 @@ sub build_data {
 
         {
             my $osname = $self->{parent}->osname($row->[9]);
-            my $name   = $self->_tester_name($row->[4]);
+            my $name   = $self->{parent}->tester($row->[4]);
 
             $self->{stats}{$row->[3]}{reports}++;
             $self->{stats}{$row->[3]}{state   }{$row->[2]}++;
@@ -656,7 +654,7 @@ sub _report_interesting {
 
         $row[0] = $key;
         $row[3] = uc $row[3];
-        $row[5] = $self->_tester_name($row[5])  if($row[5] && $row[5] =~ /\@/);
+        $row[5] = $self->{parent}->tester($row[5])  if($row[5] && $row[5] =~ /\@/);
         push @{ $tvars{ uc($type) } }, \@row;
     }
 
@@ -1302,7 +1300,7 @@ sub _build_monthly_stats {
         my $sql = sprintf $query, $type, $postdate, $type;
         my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
         while(my $row = $next->()) {
-            my $name = $self->_tester_name($row->{tester});
+            my $name = $self->{parent}->tester($row->{tester});
             $testers{$name}                         += $row->{count};
             $stats{$row->{postdate}}{list}{$name}   += $row->{count};
             $monthly{$row->{postdate}}{$type}{$name} = 1;
@@ -1481,14 +1479,20 @@ sub _build_osname_leaderboards {
 
     $count--;
 
-    $self->{parent}->_log("Unknown Addresses: ".($count-$known_t));
-    $self->{parent}->_log("Known Addresses:   ".($known_s));
-    $self->{parent}->_log("Listed Addresses:  ".($known_s+$count-$known_t));
-    $self->{parent}->_log("Unknown Testers:   ".($count-$known_t));
-    $self->{parent}->_log("Known Testers:     ".($known_t));
+    $self->{parent}->_log("Unknown Addresses: ".($count-$self->{parent}->known_t));
+    $self->{parent}->_log("Known Addresses:   ".($self->{parent}->known_s));
+    $self->{parent}->_log("Listed Addresses:  ".($self->{parent}->known_s + $count - $self->{parent}->known_t));
+    $self->{parent}->_log("Unknown Testers:   ".($count-$self->{parent}->known_t));
+    $self->{parent}->_log("Known Testers:     ".($self->{parent}->known_t));
     $self->{parent}->_log("Listed Testers:    ".($count));
 
-    push @{$tvars{COUNTS}}, ($count-$known_t),$known_s,($known_s+$count-$known_t),($count-$known_t),$known_t,$count;
+    push @{$tvars{COUNTS}}, 
+        ($count-$self->{parent}->known_t),
+        $self->{parent}->known_s,
+        ($self->{parent}->known_s + $count - $self->{parent}->known_t),
+        ($count - $self->{parent}->known_t),
+        $self->{parent}->known_t,
+        $count;
 
     $self->_writepage('testers',\%tvars);
 }
@@ -1504,7 +1508,7 @@ sub _build_os_hash {
 
     my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql,$pd);
     while(my $row = $next->()) {
-        my $name = $self->_tester_name($row->{tester});
+        my $name = $self->{parent}->tester($row->{tester});
         $hash{lc $row->{osname}}{$name} += $row->{count};
     }
 
@@ -1792,44 +1796,6 @@ sub _writepage {
     my $parser = Template->new(\%config);   # initialise parser
     $parser->process($layout,$vars,$target) # parse the template
         or die $parser->error() . "\n";
-}
-
-=item * _tester_name
-
-Returns either the known name of the tester for the given email address, or
-returns a doctored version of the address for displaying in HTML.
-
-=cut
-
-my $address;
-sub _tester_name {
-    my ($self,$name) = @_;
-
-    $address ||= do {
-        my (%address_map,%known);
-        my $address = $self->{parent}->address;
-
-        my $fh = IO::File->new($address)    or die "Cannot open address file [$address]: $!";
-        while(<$fh>) {
-            chomp;
-            my ($source,$target) = (/(.*),(.*)/);
-            next    unless($source && $target);
-            $address_map{$source} = $target;
-            $known{$target}++;
-        }
-        $fh->close;
-        $known_t = scalar(keys %known);
-        $known_s = scalar(keys %address_map);
-        \%address_map;
-    };
-
-    my $addr = ($address->{$name} && $address->{$name} =~ /\&\#x?\d+\;/)
-                ? $address->{$name}
-                : encode_entities( ($address->{$name} || $name) );
-    $addr =~ s/\./ /g if($addr =~ /\@/);
-    $addr =~ s/\@/ \+ /g;
-    $addr =~ s/</&lt;/g;
-    return $addr;
 }
 
 # Provides the ordinal for dates.
