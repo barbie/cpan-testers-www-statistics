@@ -1,11 +1,11 @@
 package CPAN::Testers::WWW::Statistics;
 
-use 5.006; #due to 'warnings' pragma
+use 5.006;
 use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.99';
+$VERSION = '1.00';
 
 #----------------------------------------------------------------------------
 
@@ -204,17 +204,6 @@ Method to manage the creation of the OS leaderboard web pages.
 
 Method to manage the creation of all the statistics graphs.
 
-=item * ranges
-
-Returns the specific date range array reference, as held in the configuration
-file.
-
-=item * osname
-
-Returns the print form of a recorded OS name.
-
-=back
-
 =cut
 
 __PACKAGE__->mk_accessors(
@@ -289,6 +278,24 @@ sub make_graphs {
     $stats->create();
 }
 
+=item * ranges
+
+Returns the specific date range array reference, as held in the configuration
+file.
+
+=item * osname
+
+Returns the print form of a recorded OS name.
+
+=item * tester
+
+Returns either the known name of the tester for the given email address, or
+returns a doctored version of the address for displaying in HTML.
+
+=back
+
+=cut
+
 sub ranges {
     my ($self,$section) = @_;
     return  unless($section);
@@ -317,13 +324,6 @@ sub osname {
     my $osnames = $self->osnames();
     return $osnames->{lc $name} || $name;
 }
-
-=item * tester
-
-Returns either the known name of the tester for the given email address, or
-returns a doctored version of the address for displaying in HTML.
-
-=cut
 
 sub tester {
     my ($self,$name) = @_;
@@ -393,6 +393,30 @@ sub _defined_or {
 q("I am NOT a number!");
 
 __END__
+
+=head1 CPAN TESTERS FUND
+
+CPAN Testers wouldn't exist without the help and support of the Perl 
+community. However, since 2008 CPAN Testers has grown far beyond the 
+expectations of it's original creators. As a consequence it now requires
+considerable funding to help support the infrastructure.
+
+In early 2012 the Enlightened Perl Organisation very kindly set-up a
+CPAN Testers Fund within their donatation structure, to help the project
+cover the costs of servers and services.
+
+If you would like to donate to the CPAN Testers Fund, please follow the link
+below to the Enlightened Perl Organisation's donation site.
+
+F<https://members.enlightenedperl.org/drupal/donate-cpan-testers>
+
+If your company would like to support us, you can donate financially via the
+fund link above, or if you have servers or services that we might use, please
+send an email to admin@cpantesters.org with details.
+
+Our full list of current sponsors can be found at our I <3 CPAN Testers site.
+
+F<http://iheart.cpantesters.org>
 
 =head1 BUGS, PATCHES & FIXES
 

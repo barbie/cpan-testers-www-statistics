@@ -3,6 +3,7 @@ Revision history for CPAN-Testers-WWW-Statistics
 1.00	current
 	- moved _tester_name() into parent as tester().
 	- added Leaderboard management module.
+	- updated POD
 
 0.99	22/04/2012
 	- META tests no longer require specific versions.

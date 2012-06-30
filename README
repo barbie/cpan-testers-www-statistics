@@ -57,6 +57,30 @@ Gets the latest copy of the 01mailrc.txt.gz and extracts the text file.
 Used in association with the cpanstats-data-latest.tar.gz tarball to update
 templates and the RSS feed.
 
+CPAN TESTERS FUND
+
+CPAN Testers wouldn't exist without the help and support of the Perl 
+community. However, since 2008 CPAN Testers has grown far beyond the 
+expectations of it's original creators. As a consequence it now requires
+considerable funding to help support the infrastructure.
+
+In early 2012 the Enlightened Perl Organisation very kindly set-up a
+CPAN Testers Fund within their donatation structure, to help the project
+cover the costs of servers and services.
+
+If you would like to donate to the CPAN Testers Fund, please follow the link
+below to the Enlightened Perl Organisation's donation site.
+
+https://members.enlightenedperl.org/drupal/donate-cpan-testers
+
+If your company would like to support us, you can donate financially via the
+fund link above, or if you have servers or services that we might use, please
+send an email to admin@cpantesters.org with details.
+
+Our full list of current sponsors can be found at our I <3 CPAN Testers site.
+
+http://iheart.cpantesters.org
+
 COPYRIGHT AND LICENCE
 
   Copyright (C) 2005-2012 Barbie for Miss Barbell Productions
