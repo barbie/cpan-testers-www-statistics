@@ -59,7 +59,6 @@ keys.
 
   directory => path to output directory
   mainstore => path to main data storage file
-  leadstore => path to leaderboard data storage file
   templates => path to templates directory
   address   => path to address file
   mailrc    => path to 01mailrc.txt file
@@ -134,7 +133,6 @@ sub new {
     $self->known_s( 0 );
 
     $self->mainstore( _defined_or( $hash{mainstore},  $cfg->val('MASTER','mainstore' ) ));
-    $self->leadstore( _defined_or( $hash{leadstore},  $cfg->val('MASTER','leadstore' ) ));
     $self->monthstore(_defined_or( $hash{monthstore}, $cfg->val('MASTER','monthstore'), 'cpanstats-%s.json' ));
     $self->templates( _defined_or( $hash{templates},  $cfg->val('MASTER','templates' ) ));
     $self->address(   _defined_or( $hash{address},    $cfg->val('MASTER','address'   ) ));
@@ -147,7 +145,6 @@ sub new {
     $self->builder(   _defined_or( $hash{builder},    $cfg->val('MASTER','builder'   ) ));
 
     $self->_log("mainstore =".($self->mainstore  || ''));
-    $self->_log("leadstore =".($self->leadstore  || ''));
     $self->_log("monthstore=".($self->monthstore || ''));
     $self->_log("templates =".($self->templates  || ''));
     $self->_log("address   =".($self->address    || ''));
@@ -207,9 +204,9 @@ Method to manage the creation of all the statistics graphs.
 =cut
 
 __PACKAGE__->mk_accessors(
-    qw( directory mainstore leadstore monthstore templates address 
-        builder missing mailrc logfile logclean copyright noreports tocopy 
-        tolink osnames known_t known_s ));
+    qw( directory mainstore monthstore templates address builder missing 
+        mailrc logfile logclean copyright noreports tocopy tolink osnames
+        known_t known_s ));
 
 sub leaderboard {
     my ($self,%options) = @_;

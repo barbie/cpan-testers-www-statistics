@@ -40,7 +40,6 @@ use CTWS_Testing;
 ok( my $obj = CTWS_Testing::getObj(), "got object" );
 ok( CTWS_Testing::cleanDir($obj), 'directory removed' );
 unlink($obj->mainstore) if(-f $obj->mainstore);
-unlink($obj->leadstore) if(-f $obj->leadstore);
 
 my $rc;
 my @files;
