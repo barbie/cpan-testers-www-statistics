@@ -335,7 +335,8 @@ sub tester {
         my $fh = IO::File->new($address)    or die "Cannot open address file [$address]: $!";
         while(<$fh>) {
             chomp;
-            my ($source,$target) = (/(.*),(.*)/);
+            my ($source,$target) = split(',',$_,2);
+            $target =~ s/\s+$//;
             next    unless($source && $target);
             $map{$source} = $target;
             $known{$target}++;
