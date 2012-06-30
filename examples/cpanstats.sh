@@ -6,6 +6,10 @@ mkdir -p $BASE/logs
 date
 cd $BASE
 
+perl bin/cpanstats-leaderboard	\
+     --config=data/settings.ini
+     --update
+
 perl bin/cpanstats-writepages   \
      --config=data/settings.ini	\
      --logclean=1		\
