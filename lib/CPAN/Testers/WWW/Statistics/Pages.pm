@@ -1349,6 +1349,7 @@ sub _build_osname_leaderboards {
 
     # load data
     my $data = $self->{parent}->leaderboard( results => \@dates );
+    $self->{parent}->tester( 'test' );
 
     my @posts = sort keys %$data;
     $self->{parent}->_log("5.posts[0]=$posts[0]");
