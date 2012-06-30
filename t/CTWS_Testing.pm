@@ -105,7 +105,6 @@ __DATA__
 
 [MASTER]
 mainstore=t/_TMPDIR/cpanstats.json
-leadstore=t/_TMPDIR/leaderboard.json
 monthstore=t/_TMPDIR/cpanstats-%s.json
 
 address=t/data/addresses.txt
