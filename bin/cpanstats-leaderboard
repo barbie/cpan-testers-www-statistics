@@ -1,0 +1,128 @@
+#!/usr/bin/perl
+use strict;
+$|++;
+
+my $VERSION = '0.01';
+
+#----------------------------------------------------------------------------
+
+
+# -------------------------------------
+# Library Modules
+
+use CPAN::Testers::WWW::Statistics;
+use Getopt::Long;
+
+# -------------------------------------
+# Variables
+
+my (%options);
+
+# -------------------------------------
+# Program
+
+init_options();
+
+my $ctws = CPAN::Testers::WWW::Statistics->new();
+my $data = $ctws->leaderboard( %options );
+
+check( $data )  if($options{check});
+
+# -------------------------------------
+# Subroutines
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item check
+
+Display check results.
+
+=item init_options
+
+Prepare command line options.
+
+=item help
+
+Help screen.
+
+=back
+
+=cut
+
+sub check {
+    my $data = shift;
+
+    for my $date (sort keys %$data) {
+        print "$date,$data{$date}->{cpanstats},$data{$date}->{leaderboard}\n";
+    }
+}
+
+sub init_options {
+    GetOptions( \%options,
+        'config=s',
+        'logfile=s',
+        'logclean=i',
+        
+        'renew',
+        'update',
+        'check',
+        'postdate=s',
+        
+        'help|h',
+        'version|v'
+    ) or help(1);
+
+    help(1) if($options{help});
+    help(0) if($options{version});
+
+    $options{update} = 1    unless($options{renew} || $options{update} || $options{check} || $options{postdate});
+}
+
+sub help {
+    my $full = shift;
+
+    if($full) {
+        print "\n";
+        print "Usage:$0 --config=<file> \\\n";
+        print "         [--logfile=<file> [--logclean=<1|0>]] \\\n";
+        print "         [--renew] [--update] \\\n";
+        print "         [--help|h] [--version|v] \n\n";
+
+#              12345678901234567890123456789012345678901234567890123456789012345678901234567890
+        print "This program builds the CPAN Testers Statistics website.\n";
+
+        print "\nFunctional Options:\n";
+        print "  [--config=<file>]          # path to config file [required]\n";
+        print "  [--logfile=<file>]         # path to logfile\n";
+        print "  [--logclean]		        # overwrite log if specified\n";
+
+        print "\nRun Mode Options:\n";
+        print "  [--renew]                  # renew leaderboard\n";
+        print "  [--update]                 # update leaderboard\n";
+
+        print "\nOther Options:\n";
+        print "  [--version]                # program version\n";
+        print "  [--help]                   # this screen\n";
+
+        print "\nFor further information type 'perldoc $0'\n";
+    }
+
+    print "$0 v$VERSION\n";
+    exit(0);
+}
+
+__END__
+
+DROP TABLE IF EXISTS leaderboard;
+CREATE TABLE leaderboard (
+    postdate    varchar(8)      NOT NULL,
+    osname      varchar(255)    NOT NULL,
+    tester      varchar(255)    NOT NULL,  
+    score       int(10)         DEFAULT 0,
+    PRIMARY KEY (postdate,osname,tester),
+    KEY IXOS   (osname),
+    KEY IXTEST (tester)
+);
+

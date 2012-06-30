@@ -36,6 +36,10 @@ SCRIPTS
 Selects all the tester email addresses and attempts to guess the mapping of
 any addresses not mapped to known people in the address.txt file.
 
+* cpanstats-leaderboard
+
+Data table management script. Generates all the leaderboard entries.
+
 * cpanstats-writepages
 
 Web page creation script. Generates all the HTML files.

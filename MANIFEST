@@ -1,5 +1,6 @@
 bin/addresses.pl
 bin/cpanstats-writegraphs
+bin/cpanstats-leaderboard
 bin/cpanstats-writepages
 bin/getmailrc.pl
 Changes
@@ -12,6 +13,7 @@ examples/example-settings.ini
 examples/reset.sh
 lib/CPAN/Testers/WWW/Statistics.pm
 lib/CPAN/Testers/WWW/Statistics/Graphs.pm
+lib/CPAN/Testers/WWW/Statistics/Leaderboard.pm
 lib/CPAN/Testers/WWW/Statistics/Pages.pm
 Makefile.PL
 MANIFEST
@@ -21,6 +23,7 @@ README
 t/01base.t
 t/05setup_db-cpanstats.t
 t/05setup_db-ixlatest.t
+t/05setup_db-leaderboard.t
 t/05setup_db-osname.t
 t/05setup_db-release_summary.t
 t/05setup_db-uploads.t
@@ -30,6 +33,7 @@ t/50logging.ini
 t/50logging.t
 t/51init.t
 t/52methods-graphs.t
+t/52methods-leaderboard.t
 t/52methods-pages.t
 t/52methods-stats.t
 t/56writes-update.txt

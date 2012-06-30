@@ -1330,21 +1330,8 @@ sub _build_monthly_stats {
 
 sub _build_osname_leaderboards {
     my $self = shift;
-    my ($json,$data);
 
     $self->{parent}->_log("building osname leaderboards");
-
-    # load data
-    my $storage = $self->{parent}->leadstore();
-    if($storage && -f $storage) {
-        $json = read_file($storage);
-        $data = decode_json($json);
-    }
-
-    unless($data) {
-        $data->{'999999'} = {}, # all counter
-        $data->{'199908'} = {}  # first report date
-    }
 
     # set dates
     my $post0 = '999999';
@@ -1352,32 +1339,24 @@ sub _build_osname_leaderboards {
     my $post2 = $self->{dates}{LASTMONTH};
     my $post3 = $self->{dates}{THISMONTH};
 
+    my @dates = ($post0, $post1, $post2, $post3);
+    my %dates = map {$_ => 1} @dates;
+
     $self->{parent}->_log("1.post0=$post0");
     $self->{parent}->_log("2.post1=$post1");
     $self->{parent}->_log("3.post2=$post2");
     $self->{parent}->_log("4.post3=$post3");
 
+    # load data
+    my $data = $self->{parent}->leaderboard( results => \@dates );
+
     my @posts = sort keys %$data;
     $self->{parent}->_log("5.posts[0]=$posts[0]");
-
-    # Update data for the missing months
-    if($posts[0] != $post1) {
-        my $p = $posts[0];
-        while($p <= $post3) {
-            $data->{$p} = $self->_build_os_hash($p);
-            $p++;
-            $p += 88    if($p % 100 > 12);
-        }
-    } else {
-        for my $p ($post1,$post2,$post3) {
-            $data->{$p} = $self->_build_os_hash($p);
-        }
-    }
 
     # store data for the last 3 months, and in total
     my %oses;
     for my $post (keys %$data) {
-        if($post == $post0 || $post == $post1 || $post == $post2 || $post == $post3) {
+        if($dates{$post}) {
             for my $os (keys %{$data->{$post}}) {
                 next    unless($os);
                 $oses{$os} = 1;
@@ -1398,12 +1377,6 @@ sub _build_osname_leaderboards {
     }
 
     #$self->{parent}->_log("6.data=".Dumper($data));
-
-    # save data
-    if($storage) {
-        $json = encode_json($data);
-        write_file($storage,$json);
-    }
 
     # reorganise data
     my %hash;
@@ -1495,24 +1468,6 @@ sub _build_osname_leaderboards {
         $count;
 
     $self->_writepage('testers',\%tvars);
-}
-
-sub _build_os_hash {
-    my ($self,$pd) = @_;
-    my %hash;
-
-    my $sql = 
-        'SELECT osname,tester,COUNT(id) AS count FROM cpanstats '.
-        'WHERE postdate=? AND type=2 '.
-        'GROUP BY osname,tester';
-
-    my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql,$pd);
-    while(my $row = $next->()) {
-        my $name = $self->{parent}->tester($row->{tester});
-        $hash{lc $row->{osname}}{$name} += $row->{count};
-    }
-
-    return \%hash;
 }
 
 sub _build_monthly_stats_files {
@@ -1866,6 +1821,6 @@ F<http://wiki.cpantesters.org/>
   Copyright (C) 2005-2012 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
-  modify it under the same terms as Perl itself.
+  modify it under the Artistic Licence v2.
 
 =cut

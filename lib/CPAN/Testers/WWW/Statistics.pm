@@ -33,6 +33,7 @@ use HTML::Entities;
 use IO::File;
 use Regexp::Assemble;
 
+use CPAN::Testers::WWW::Statistics::Leaderboard;
 use CPAN::Testers::WWW::Statistics::Pages;
 use CPAN::Testers::WWW::Statistics::Graphs;
 
@@ -168,6 +169,10 @@ sub new {
 
 =over 4
 
+=item * leaderboard
+
+Maintain the leaderboard table as requested.
+
 =item * make_pages
 
 Method to manage the data update and creation of all the statistics web pages.
@@ -216,6 +221,19 @@ __PACKAGE__->mk_accessors(
     qw( directory mainstore leadstore monthstore templates address 
         builder missing mailrc logfile logclean copyright noreports tocopy 
         tolink osnames known_t known_s ));
+
+sub leaderboard {
+    my ($self,%options) = @_;
+
+    my $lb = CPAN::Testers::WWW::Statistics::Leaderboard->new(parent => $self);
+
+    return $lb->results( $options{results} )    if($options{results});
+    return $lb->check()                         if($options{check});
+    return $lb->renew()                         if($options{renew});
+    
+    $lb->update()                               if($options{update});
+    $lb->postdate( $options{postdate} )         if($options{postdate});
+}
 
 sub make_pages {
     my $self = shift;
@@ -407,6 +425,6 @@ F<http://wiki.cpantesters.org/>
   Copyright (C) 2005-2012 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
-  modify it under the same terms as Perl itself.
+  modify it under the Artistic Licence v2.
 
 =cut
