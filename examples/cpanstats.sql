@@ -91,3 +91,14 @@ CREATE TABLE osname (
      PRIMARY KEY (id)
 );
 
+DROP TABLE IF EXISTS leaderboard;
+CREATE TABLE leaderboard (
+    postdate    varchar(8)      NOT NULL,
+    osname      varchar(255)    NOT NULL,
+    tester      varchar(255)    NOT NULL,  
+    score       int(10)         DEFAULT 0,
+    PRIMARY KEY (postdate,osname,tester),
+    KEY IXOS   (osname),
+    KEY IXTEST (tester)
+);
+
