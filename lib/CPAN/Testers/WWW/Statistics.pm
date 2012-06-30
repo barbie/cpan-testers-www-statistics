@@ -344,7 +344,7 @@ sub tester {
         \%map;
     };
 
-    my $addr = ($self->{addresses}{$name} && $self->{addresses}{$name} =~ /\&\#x?\d+\;/)
+    my $addr = ($self->{addresses}{$name} && $self->{addresses}{$name} =~ /\&(\#x?\d+|\w+)\;/)
                 ? $self->{addresses}{$name}
                 : encode_entities( ($self->{addresses}{$name} || $name) );
     $addr =~ s/\./ /g if($addr =~ /\@/);
