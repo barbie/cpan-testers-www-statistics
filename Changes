@@ -1,9 +1,13 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
-1.00    current
+1.00    01/07/2012
         - moved _tester_name() into parent as tester().
         - added Leaderboard management module.
         - updated POD
+        - updated/new scripts:
+            bin/cpanstats-writegraphs   (v0.52)
+            bin/cpanstats-writepages    (v0.52)
+          - bin/cpanstats-leaderboard   (v0.01)
 
 0.99    22/04/2012
         - META tests no longer require specific versions.
@@ -68,10 +72,6 @@ Revision history for CPAN-Testers-WWW-Statistics
         - updated favicon links.
         - added 'no report' functionality.
         - made path to 01mailrc.txt a configurable parameter.
-        - update/new scripts:
-            bin/cpanstats-writegraphs   (v0.52)
-            bin/cpanstats-writepages    (v0.52)
-            bin/cpanstats-leaderboard   (v0.01)
 
 0.90    03/07/2011
         - fixes to prevent blank oses being displayed in leaderboards.
