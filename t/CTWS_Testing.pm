@@ -3,6 +3,8 @@ package CTWS_Testing;
 use strict;
 use warnings;
 
+use lib qw(./lib);
+
 use CPAN::Testers::WWW::Statistics;
 use CPAN::Testers::WWW::Statistics::Pages;
 use CPAN::Testers::WWW::Statistics::Graphs;
