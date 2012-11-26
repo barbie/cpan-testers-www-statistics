@@ -55,7 +55,7 @@ CREATE TABLE `uploads` (
   `filename`    varchar(255)    NOT NULL,
   `released`    int(16)		NOT NULL,
   PRIMARY KEY  (`author`,`dist`,`version`)
-) ENGINE=MyISAM;
+);
 
 DROP TABLE IF EXISTS `ixlatest`;
 CREATE TABLE `ixlatest` (
@@ -65,7 +65,7 @@ CREATE TABLE `ixlatest` (
   `author`      varchar(32)     NOT NULL,
   `oncpan`      tinyint(4)      DEFAULT 0,
   PRIMARY KEY  (`dist`)
-) ENGINE=MyISAM;
+);
 
 DROP TABLE IF EXISTS `summary`;
 CREATE TABLE `summary` (
@@ -74,14 +74,14 @@ CREATE TABLE `summary` (
   `lastid`	int(10) unsigned NOT NULL,
   `dataset`	blob,
   PRIMARY KEY  (`type`,`name`)
-) ENGINE=MyISAM;
+);
 
 DROP TABLE IF EXISTS `page_requests`;
 CREATE TABLE `page_requests` (
   `type`	varchar(8)	 NOT NULL,
   `name`	varchar(255)     NOT NULL,
   `weight`	int(2) unsigned  NOT NULL
-) ENGINE=MyISAM;
+);
 
 DROP TABLE IF EXISTS osname;
 CREATE TABLE osname (
