@@ -52,7 +52,6 @@ WriteMakefile(
         'Archive::Extract'                  => 0,       # for testing
         'Cwd'                               => 0,       # for testing
         'File::Spec'                        => 0,       # for testing
-        'IO::File'                          => 0,
         'Test::Differences'                 => 0,       # for testing
         'Test::More'                        => 0.70     # for testing
 

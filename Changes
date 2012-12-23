@@ -1,14 +1,18 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+1.01    2012-12-23
         - change file dates changed to meet W3CDTF standards.
+        - provide skips if Google Chart API returns an error.
+        - fixed labelling on percentage tables.
+        - removed prototypes for alarm_handler.
 
 1.00    2012-07-01
         - moved _tester_name() into parent as tester().
         - added Leaderboard management module.
         - updated POD
         - updated/new scripts:
-            bin/cpanstats-writegraphs   (v0.52)
-            bin/cpanstats-writepages    (v0.52)
+          - bin/cpanstats-writegraphs   (v0.52)
+          - bin/cpanstats-writepages    (v0.52)
           - bin/cpanstats-leaderboard   (v0.01)
 
 0.99    2012-04-22
@@ -22,8 +26,8 @@ Revision history for CPAN-Testers-WWW-Statistics
         - spelling fixes. (thanks to Florian Schlichting & Gregor Herrmann).
         - changes to scripts with above fixes:
           - bin/addresses.pl            (v0.16)
-            bin/cpanstats-writegraphs   (v0.51)
-            bin/cpanstats-writepages    (v0.51)
+          - bin/cpanstats-writegraphs   (v0.51)
+          - bin/cpanstats-writepages    (v0.51)
           - bin/getmailrc.pl            (v0.03)
         - removed files, as no longer required:
           - t/data/21config08.ini
@@ -85,8 +89,8 @@ Revision history for CPAN-Testers-WWW-Statistics
         - limit data updates to 1000000 records, to reduce memory consumption.
         - more environment info passed to matrix list templates.
         - changes to scripts to use new interface:
-            bin/cpanstats-writegraphs   (v0.50)
-            bin/cpanstats-writepages    (v0.50)
+          - bin/cpanstats-writegraphs   (v0.50)
+          - bin/cpanstats-writepages    (v0.50)
         - major XHTML updates for WAI WCAG v2.0 compliance.
         - reorganised links and names to be consistent across pages.
         - restructured Pages.pm, to allow process to be called in stages.
