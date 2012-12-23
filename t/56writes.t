@@ -235,13 +235,16 @@ SKIP: {
     CTWS_Testing::saveFiles($dir . '/graphs');
 
 	$obj->directory($dir . '/graphs'),
-	$graph->create();
-	check_dir_contents(
-		"[graphs]",
-		$obj->directory,
-		File::Spec->catfile($EXPECTEDPATH,'56writes.graphs'),
-	);
-	ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+	my $status = $graph->create();
+    SKIP: {
+        skip "Google Chart API returned an error", 10 if($status);
+        check_dir_contents(
+            "[graphs]",
+            $obj->directory,
+            File::Spec->catfile($EXPECTEDPATH,'56writes.graphs'),
+        );
+    }
+    ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 };
 
 #---------------------------------------
@@ -256,17 +259,17 @@ SKIP: {
 #);
 #ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
-
 SKIP: {
 	skip "Can't see a network connection", 18	if(pingtest($CHECK_DOMAIN));
 
     CTWS_Testing::saveFiles($dir . '/make_graphs');
 
+    my $status;
     $obj->directory($dir . '/make_graphs');
-    eval { $obj->make_graphs() };
+    eval { $status = $obj->make_graphs() };
 
     SKIP: {
-        skip "could not retrieve graphs", 1    if($@ =~ /- (request failed|Cannot access page) -/);
+        skip "Google Chart API returned an error", 10    if($@ =~ /- (request failed|Cannot access page) -/ || $status);
         check_dir_contents(
             "[make_graphs]",
             $obj->directory,
@@ -347,7 +350,7 @@ sub check_dir_contents {
                     $_[0] =~ s!\(\d{2}/\d{2}\)!(==TIMESTAMP==)!gmi;
 #                    $_[0] =~ s!\d{2}/\d{2}!==TIMESTAMP==!gmi;
                     $_[0] =~ s!\w+ \d{4}!==TIMESTAMP==!gmi;
-                    $_[0] =~ s!CPAN-Testers-WWW-Statistics-0.\d{2}!==DISTRO==!gmi;
+                    $_[0] =~ s!CPAN-Testers-WWW-Statistics-\d.\d{2}!==DISTRO==!gmi;
                     $_[0] =~ s/\d{4}\s*\-\s*\d{4}/==DATERANGE==/gmi;
                 }
                 $_[0];
