@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 #----------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ my @graphs = (
 ['stats6' ,'CPAN Statistics - Uploads',             [qw(AUTHORS DISTROS)],              'CPAN_RANGES', 'month'],
 ['stats12','CPAN Statistics - New Uploads',         [qw(AUTHORS DISTROS)],              'CPAN_RANGES', 'month'],
 ['build1' ,'CPAN Testers Performance Graph',        [qw(REQUESTS PAGES REPORTS)],       'NONE',        'daily'],
-['pcent1' ,'CPAN Testers Statistics - Percentages', [qw(PASS FAIL OTHER)],              'TEST_RANGES', 'month'],
+['pcent1' ,'CPAN Testers Statistics - Percentages', [qw(FAIL OTHER PASS)],              'TEST_RANGES', 'month'],
 );
 
 my $lwp = LWP::UserAgent->new();
