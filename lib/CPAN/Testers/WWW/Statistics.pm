@@ -1,11 +1,10 @@
 package CPAN::Testers::WWW::Statistics;
 
-use 5.006;
 use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 #----------------------------------------------------------------------------
 
@@ -75,7 +74,7 @@ specified within the 'MASTER' section of the configuration file.
 
 =cut
 
-sub _alarm_handler () { return; }
+sub _alarm_handler { return; }
 
 sub new {
     my $class = shift;

@@ -140,7 +140,7 @@ sub write_results {
 		or die $parser->error();
 }
 
-sub _alarm_handler () { return; }
+sub _alarm_handler { return; }
 
 __END__
 
