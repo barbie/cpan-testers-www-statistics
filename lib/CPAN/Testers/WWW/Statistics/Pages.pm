@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 #----------------------------------------------------------------------------
 
@@ -157,7 +157,7 @@ sub setdates {
 
     # timestamp for now
     my $t = localtime;
-    $self->{dates}{RUNTIME} = $t->strftime();
+    $self->{dates}{RUNTIME} = $t->strftime("%a, %e %b %Y %T %Z");
 
     # todays date
     my @datetime = localtime;
@@ -178,6 +178,7 @@ sub setdates {
     # LASTMONTH is the Month/Year stats are run for
     $self->{dates}{LASTMONTH} = sprintf "%04d%02d", $THATYEAR, int($datetime[4]+1);
     $self->{dates}{LASTDATE}  = sprintf "%s %d", $month{int($datetime[4])}, $THATYEAR;
+    $self->{dates}{PREVMONTH} = sprintf "%02d/%02d", int($datetime[4]+1), $THATYEAR - 2000;
 
     $datetime[4]--;
     if($datetime[4] < 0) {
@@ -187,7 +188,6 @@ sub setdates {
 
     # THATMONTH is the previous Month/Year for a full matrix
     $self->{dates}{THATMONTH} = sprintf "%04d%02d", $THATYEAR, int($datetime[4]+1);
-    $self->{dates}{PREVMONTH} = sprintf "%02d/%02d", int($datetime[4]+1), $THATYEAR - 2000;
     
     $self->{parent}->_log( "THISYEAR=[$THISYEAR]" );
     $self->{parent}->_log( "THATYEAR=[$THATYEAR]" );
