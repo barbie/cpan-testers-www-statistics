@@ -148,10 +148,10 @@ sub load_addresses {
     # retrieve testers for reports
     my @rows;
     if($options{month}) {
-        print STDERR "sql = $phrasebook{SRCHMNTH} [$options{month}]\n" if($options{verbose})
+        print STDERR "sql = $phrasebook{SRCHMNTH} [$options{month}]\n" if($options{verbose});
         @rows = $dbi->get_query('array',$phrasebook{SRCHMNTH},$options{month});
     } else {
-        print STDERR "sql = $phrasebook{SRCHALL}\n" if($options{verbose})
+        print STDERR "sql = $phrasebook{SRCHALL}\n" if($options{verbose});
         @rows = $dbi->get_query('array',$phrasebook{SRCHALL});
     }
 
@@ -276,7 +276,7 @@ sub map_metabase {
 
     my @rows = $dbi->query_query('array',$phrasebook{MBEMAIL},$email);
     if(@rows) {
-        $unparsed_map{$key} = $row[0]->[0] . ' #[METABASE]';
+        $unparsed_map{$key} = $rows[0]->[0] . ' #[METABASE]';
         return 1;
     }
     return 0;
