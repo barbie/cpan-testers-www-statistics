@@ -205,7 +205,7 @@ sub check_addresses {
 
 sub match_addresses {
     for my $key (keys %unparsed_map) {
-        my ($email) = $key =~ /([-+=\w]+\@(?:[-\w]+\.)+(?:com|net|org|info|biz|edu|museum|mil|gov|[a-z]{2,2}))/i;
+        my ($email) = $key =~ /([-+=\w]+\@(?:[-\w]+\.)+(?:com|net|org|info|biz|edu|museum|mil|gov|pro|xxx|name|mobi|tel|asia|[a-z]{2,2}))/i;
         unless($email) {
             push @{$result{NOEMAIL}}, $key;
             next;
