@@ -196,6 +196,10 @@ Method to manage the creation of the tabular style statistics web pages.
 
 Method to manage the creation of the OS leaderboard web pages.
 
+=item * make_noreports
+
+Method to manage the creation of the no reports pages.
+
 =item * make_graphs
 
 Method to manage the creation of all the statistics graphs.
