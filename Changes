@@ -1,5 +1,6 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+1.02    2012-12-31
         - updated script:
           - bin/addresses.pl            (v0.17)
             - add metabase lookup.
