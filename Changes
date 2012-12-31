@@ -6,6 +6,7 @@ Revision history for CPAN-Testers-WWW-Statistics
             - switch to using phrasebook patterns.
             - added more legitimate 3/4 character gTLDs.
         - added new test script, 30setdates.t.
+        - added new nreports functionality.
 
 1.01    2012-12-23
         - change file dates changed to meet W3CDTF standards.

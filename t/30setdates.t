@@ -4,8 +4,8 @@ use strict;
 use warnings;
 
 use CPAN::Testers::WWW::Statistics;
-use Data::Dumper;
-use Test::More tests => 10;
+#use Data::Dumper;
+use Test::More tests => 12;
 
 use lib 't';
 use CTWS_Testing;
@@ -14,7 +14,7 @@ ok( my $obj = CTWS_Testing::getObj(), "got parent object" );
 ok( my $pages = CTWS_Testing::getPages(), "got pages object" );
 
 $pages->setdates();
-diag(Dumper($obj->{dates}));
+#diag(Dumper($pages->{dates}));
 
 like($pages->{dates}{RUNTIME},      qr{^\w{3}, \d{1,2} \w{3} \d{4} \d{2}:\d{2}:\d{2} \w+$}, 'RUNTIME matches pattern');
 like($pages->{dates}{RUNDATE},      qr{^\d{1,2}\w{2} \w+ \d{4}$},                           'RUNDATE matches pattern');

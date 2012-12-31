@@ -57,6 +57,7 @@ else                        {
     if($options{matrix})    { $stats->make_matrix();    }
     if($options{stats})     { $stats->make_stats();     }
     if($options{leader})    { $stats->make_leaders();   }
+    if($options{noreports}) { $stats->make_noreports(); }
 }
 
 # -------------------------------------
@@ -94,6 +95,7 @@ sub init_options {
         'matrix|m',
         'stats|s',
 	    'leader|l',
+	    'noreports|n',
         
         'help|h',
         'version|v'
@@ -103,7 +105,7 @@ sub init_options {
     help(0) if($options{version});
 
     $options{all} = 1
-        unless($options{basics} || $options{update} || $options{matrix} || $options{stats} || $options{leader});
+        unless($options{basics} || $options{update} || $options{matrix} || $options{stats} || $options{leader} || $options{noreports});
 }
 
 sub help {

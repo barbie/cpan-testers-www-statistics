@@ -1,8 +1,16 @@
 [% 
-    title = 'Distributions With No Reports' ;
     box_sites = 1 ;
 
-    crumb1_name = 'No Reports' ;
+    IF ostitle == 'ALL' ; THEN ; 
+      title = 'Distributions With No Reports' ;
+      crumb1_name = 'No Reports' ;
+    ELSE ; 
+      title = ostitle _ ' - Distributions With No Reports' ;
+      crumb2_name = 'No Reports' ;
+      crumb2_href = '/noreports/all.html' ;
+      crumb1_name = ostitle ;
+    END ;
+
 %]
 
 <p>All distributions within the list below are all the latest versions of the respective distributions.
@@ -27,9 +35,20 @@ exceed this 28 day grace period.</p>
 <li><a href="http://code.google.com/p/devogon-cpan-prefs/" title="Daniel Bosold">Daniel Bosold (DEVOGON)</a></li>
 </ul>
 
-<p>If you resolve any issues which may have resulted in your distribution being added to an ignore list, 
+<p>If you resolve any issues, which may have resulted in your distribution being added to an ignore list, 
 please post to the <a href="http://lists.perl.org/list/cpan-testers-discuss.html" title="CPAN Testers Discuss mailing list">CPAN Testers Discuss</a> 
 mailing list.</p>
+
+<p>Filter on Operating System: 
+<select id="noreports" name="noreports" onchange="noreports()">
+<option value="/noreports/all.html">All</option>
+[% FOREACH os = osnames %]
+<option value="/noreports/[% os.osname %].html"[% IF ostitle == os.ostitle %] selected="selected"[% END %]>[% os.ostitle %]</option>
+[% END %]
+</select>
+</p>
+
+<h2>OS: [% ostitle %]</h2>
 
 <table summary="Distributions with no reports">
 <tr><th class="top">DISTRIBUTION</th>
@@ -37,15 +56,23 @@ mailing list.</p>
     <th class="top">AUTHOR</th>
     <th class="top">RELEASED</th></tr>
 [% FOREACH row = rows %]
-[% IF row.display %]
 <tr><td>[% row.dist %]</td>
     <td>[% row.version %]</td>
     <td>[% row.author %]</td>
     <td>[% row.datetime %]</td></tr>
-[% END %]
 [% END %]
 </table>
 
 <p>[% rowcount %] current distributions without reports.</p>
 
 <p>If any distribution should not be listed, please let <a href="mailto:barbie@cpan.org" title="Contact Barbie">me</a> know.</p>
+
+<script type="text/javascript">
+
+function noreports() {
+  var e = document.getElementById("noreports");
+  var l = e.options[e.selectedIndex].value;
+  window.location.href=l;
+}
+
+</script>

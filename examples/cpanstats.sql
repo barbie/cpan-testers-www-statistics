@@ -102,3 +102,11 @@ CREATE TABLE leaderboard (
     KEY IXTEST (tester)
 );
 
+DROP TABLE IF EXISTS noreports;
+CREATE TABLE noreports (
+     dist       varchar(255),
+     version    varchar(255),
+     osname     varchar(255),
+     KEY NRIX (dist,version,osname),
+     KEY OSIX (osname)
+);

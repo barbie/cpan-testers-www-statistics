@@ -13,7 +13,7 @@ perl bin/cpanstats-leaderboard	\
 perl bin/cpanstats-writepages   \
      --config=data/settings.ini	\
      --logclean=1		\
-     --basics --update --stats --leader
+     --basics --update --stats --leader --noreports
 
 perl bin/cpanstats-writegraphs	\
      --config=data/settings.ini

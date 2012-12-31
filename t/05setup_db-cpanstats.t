@@ -14,6 +14,15 @@ unlink $f if -f $f;
 mkpath( dirname($f) );
 
 my $dbh = DBI->connect("dbi:SQLite:dbname=$f", '', '', {AutoCommit=>1});
+
+$dbh->do(q{
+  CREATE TABLE noreports (
+    dist          TEXT,
+    version       TEXT,
+    osname        TEXT
+  )
+});
+
 $dbh->do(q{
   CREATE TABLE cpanstats (
     id            INTEGER PRIMARY KEY,

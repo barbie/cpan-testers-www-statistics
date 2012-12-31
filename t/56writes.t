@@ -23,7 +23,7 @@ my $CHECK_DOMAIN    = 'www.google.com';
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 290;
+use Test::More tests => 318;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;
@@ -212,6 +212,19 @@ check_dir_contents(
 	File::Spec->catfile($EXPECTEDPATH,'56writes._build_osname_leaderboards'),
 );
 ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+
+
+## BUILD NO REPORTS
+
+$obj->directory($dir . '/_build_noreports'),
+$page->build_noreports();
+check_dir_contents(
+	"[_build_noreports]",
+	$obj->directory,
+	File::Spec->catfile($EXPECTEDPATH,'56writes._build_noreports'),
+);
+ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
+
 
 
 #---------------------------------------
