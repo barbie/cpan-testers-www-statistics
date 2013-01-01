@@ -18,6 +18,8 @@ use File::Spec;
 
 my $parent;
 
+$ENV{TZ} = 'GMT';
+
 sub getObj {
     my %opts = @_;
     $opts{directory} ||= File::Spec->catfile('t','_TMPDIR');
