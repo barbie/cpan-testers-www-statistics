@@ -50,17 +50,21 @@ mailing list.</p>
 
 <h2>OS: [% ostitle %]</h2>
 
-<table summary="Distributions with no reports">
+<table class="sortable" summary="Distributions with no reports">
+<thead>
 <tr><th class="top">DISTRIBUTION</th>
     <th class="top">VERSION</th>
     <th class="top">AUTHOR</th>
     <th class="top">RELEASED</th></tr>
+</thead>
+<tbody>
 [% FOREACH row = rows %]
 <tr><td>[% row.dist %]</td>
     <td>[% row.version %]</td>
     <td>[% row.author %]</td>
     <td>[% row.datetime %]</td></tr>
 [% END %]
+</tbody>
 </table>
 
 <p>[% rowcount %] current distributions without reports.</p>
