@@ -157,41 +157,44 @@ Create all OS no report pages.
 
 sub setdates {
     my $self = shift;
+    my $time = shift || time;
+
     $self->{parent}->_log("init");
 
     # timestamp for now
-    my $t = localtime;
+    my $t = localtime($time);
     $self->{dates}{RUNTIME} = $t->strftime("%a, %e %b %Y %T %Z");
 
     # todays date
-    my @datetime = localtime;
-    my $THISYEAR = ($datetime[5] +1900);
-    $self->{dates}{RUNDATE} = sprintf "%d%s %s %d", $datetime[3], _ext($datetime[3]), $month{$datetime[4]}, $THISYEAR;
+    my @datetime  = localtime($time);
+    my $THISYEAR  = ($datetime[5] + 1900);
+    my $THISMONTH = ($datetime[4]);
+    $self->{dates}{RUNDATE} = sprintf "%d%s %s %d", $datetime[3], _ext($datetime[3]), $month{$THISMONTH}, $THISYEAR;
 
     # THISMONTH is the last date for all data
-    $self->{dates}{THISMONTH} = ($THISYEAR) * 100 + $datetime[4] + 1;
-    $self->{dates}{THISDATE}  = sprintf "%s %d", $month{int($datetime[4])}, $THISYEAR;
+    $self->{dates}{THISMONTH} = ($THISYEAR) * 100 + $THISMONTH + 1;
+    $self->{dates}{THISDATE}  = sprintf "%s %d", $month{int($THISMONTH)}, $THISYEAR;
 
-    $datetime[4]--;
+    my $THATMONTH = $THISMONTH - 1;
     my $THATYEAR = $THISYEAR;
-    if($datetime[4] < 0) {
-        $datetime[4] = 12;
+    if($THATMONTH < 0) {
+        $THATMONTH = 11;
         $THATYEAR--;
     }
 
     # LASTMONTH is the Month/Year stats are run for
-    $self->{dates}{LASTMONTH} = sprintf "%04d%02d", $THATYEAR, int($datetime[4]+1);
-    $self->{dates}{LASTDATE}  = sprintf "%s %d", $month{int($datetime[4])}, $THATYEAR;
-    $self->{dates}{PREVMONTH} = sprintf "%02d/%02d", int($datetime[4]+1), $THATYEAR - 2000;
+    $self->{dates}{LASTMONTH} = sprintf "%04d%02d", $THATYEAR, int($THATMONTH+1);
+    $self->{dates}{LASTDATE}  = sprintf "%s %d", $month{int($THATMONTH)}, $THATYEAR;
+    $self->{dates}{PREVMONTH} = sprintf "%02d/%02d", int($THATMONTH+1), $THATYEAR - 2000;
 
-    $datetime[4]--;
-    if($datetime[4] < 0) {
-        $datetime[4] = 12;
+    $THATMONTH--;
+    if($THATMONTH < 0) {
+        $THATMONTH = 11;
         $THATYEAR--;
     }
 
     # THATMONTH is the previous Month/Year for a full matrix
-    $self->{dates}{THATMONTH} = sprintf "%04d%02d", $THATYEAR, int($datetime[4]+1);
+    $self->{dates}{THATMONTH} = sprintf "%04d%02d", $THATYEAR, int($THATMONTH+1);
     
     $self->{parent}->_log( "THISYEAR=[$THISYEAR]" );
     $self->{parent}->_log( "THATYEAR=[$THATYEAR]" );
