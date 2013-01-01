@@ -194,8 +194,8 @@ sub _update {
 
     my $sql1 = shift;
     my $sql2 = 'SELECT osname,tester,COUNT(id) AS count FROM cpanstats '.
-                'WHERE postdate=? AND type=2 '.
-                'GROUP BY osname,tester ORDER BY tester,osname';
+               'WHERE postdate=? AND type=2 '.
+               'GROUP BY osname,tester ORDER BY tester,osname';
     my $sql3 = 'REPLACE INTO leaderboard (postdate,osname,tester,score) VALUES (?,?,?,?)';
     my $sql4 = 'DELETE FROM leaderboard WHERE postdate=?';
 
