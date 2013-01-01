@@ -59,10 +59,11 @@ http://rt.cpan.org/Public/Dist/Display.html?Name=CPAN-Testers-WWW-Statistics
 =head1 SEE ALSO
 
 L<CPAN::Testers::Data::Generator>,
-L<CPAN::Testers::WWW::Reports>,
+L<CPAN::Testers::WWW::Reports>
 
 F<http://www.cpantesters.org/>,
-F<http://stats.cpantesters.org/>
+F<http://stats.cpantesters.org/>,
+F<http://wiki.cpantesters.org/>
 
 =head1 AUTHOR
 
@@ -71,10 +72,9 @@ F<http://stats.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2008-2012 Barbie for Miss Barbell Productions.
+  Copyright (C) 2008-2013 Barbie for Miss Barbell Productions.
 
   This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.
 
 =cut
-

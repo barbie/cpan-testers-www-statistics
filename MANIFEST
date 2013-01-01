@@ -15,6 +15,7 @@ lib/CPAN/Testers/WWW/Statistics.pm
 lib/CPAN/Testers/WWW/Statistics/Graphs.pm
 lib/CPAN/Testers/WWW/Statistics/Leaderboard.pm
 lib/CPAN/Testers/WWW/Statistics/Pages.pm
+LICENSE
 Makefile.PL
 MANIFEST
 META.json
