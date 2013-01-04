@@ -1,5 +1,7 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+        - abandoned support on Win32 until strftime in Time::Piece works.
+
 1.02    2013-01-01
         - updated script:
           - bin/addresses.pl            (v0.17)

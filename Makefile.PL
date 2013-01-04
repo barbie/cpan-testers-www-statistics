@@ -6,6 +6,8 @@ use 5.006;
 
 use ExtUtils::MakeMaker;
 
+die "OS unsupported" if( $^O eq 'MSWin32' );
+
 WriteMakefile(
     AUTHOR              => 'Barbie <barbie@cpan.org>',
     NAME                => 'CPAN::Testers::WWW::Statistics',
