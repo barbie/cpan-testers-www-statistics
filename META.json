@@ -92,7 +92,8 @@
     },
 
     "resources": {
-        "license": "http://dev.perl.org/licenses/",
+        "license": "http://www.perlfoundation.org/artistic_license_2_0",
+        "homepage": "http://stats.cpantesters.org",
         "bugtracker": { "web": "http://rt.cpan.org/Public/Dist/Display.html?Name=CPAN-Testers-WWW-Statistics" },
         "repository": {
             "url": "git://github.com/barbie/cpan-testers-www-statistics.git",

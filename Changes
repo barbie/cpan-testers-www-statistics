@@ -1,6 +1,7 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
         - abandoned support on Win32 until strftime in Time::Piece works.
+        - updated license urls in META files.
 
 1.02    2013-01-01
         - updated script:
