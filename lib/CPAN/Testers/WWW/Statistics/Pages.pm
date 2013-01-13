@@ -952,7 +952,8 @@ sub _build_noreports {
     my $tvars = { rows => \@rows, rowcount => scalar(@rows), template => 'noreports', osnames => \@osnames, ostitle => 'ALL' };
     $self->_writepage('noreports/all',$tvars);
 
-    $query = 'select i.* from noreports r inner join ixlatest i on i.dist=r.dist and i.version=r.version where r.osname=? order by i.dist';
+    # html files
+    $query = q[select i.* from noreports r inner join ixlatest i on i.dist=r.dist and i.version=r.version where r.osname=? and i.oncpan='cpan' order by i.dist];
     for my $os (@osnames) {
         my @dists = $self->{parent}->{CPANSTATS}->get_query('hash',$query,$os->{osname});
         for(@dists) {
@@ -960,6 +961,18 @@ sub _build_noreports {
             $_->{datetime} = sprintf "%04d-%02d-%02d", $dt[5]+1900,$dt[4]+1,$dt[3];
         }
         $tvars = { rows => \@dists, rowcount => scalar(@dists), template => 'noreports', osnames => \@osnames, ostitle => $os->{ostitle} };
+        $self->_writepage('noreports/'.$os->{osname},$tvars);
+    }
+
+    # data files
+    $query = q[select u.* from noreports r inner join uploads u on u.dist=r.dist and u.version=r.version where r.osname=? and u.type='cpan' order by u.dist];
+    for my $os (@osnames) {
+        my @dists = $self->{parent}->{CPANSTATS}->get_query('hash',$query,$os->{osname});
+        for(@dists) {
+            my @dt = localtime($_->{released});
+            $_->{datetime} = sprintf "%04d-%02d-%02d", $dt[5]+1900,$dt[4]+1,$dt[3];
+        }
+        $tvars = { rows => \@dists, rowcount => scalar(@dists), template => 'noreports', extension => 'csv', osnames => \@osnames, ostitle => $os->{ostitle} };
         $self->_writepage('noreports/'.$os->{osname},$tvars);
     }
 }
@@ -1799,11 +1812,12 @@ sub _writepage {
 
     #$self->{parent}->_log("_writepage: page=$page");
 
-    my $template = $vars->{template} || $page;
-    my $tlayout  = $vars->{layout} || 'layout';
-    my $layout   = "$tlayout.html";
-    my $source   = "$template.html";
-    my $target   = "$directory/$page.html";
+    my $extension = $vars->{extension} || 'html';
+    my $template  = $vars->{template}  || $page;
+    my $tlayout   = $vars->{layout}    || 'layout';
+    my $layout    = "$tlayout.$extension";
+    my $source    = "$template.$extension";
+    my $target    = "$directory/$page.$extension";
     mkdir(dirname($target));
 
     #$self->{parent}->_log("_writepage: layout=$layout, source=$source, target=$target");

@@ -1,13 +1,8 @@
-#!perl
-
+#!/usr/bin/perl -w
 use strict;
-use warnings;
 
-use Cwd;
 use File::Path;
 use File::Slurp;
-use File::Spec;
-use IO::File;
 use Test::More tests => 22;
 
 use lib 't';

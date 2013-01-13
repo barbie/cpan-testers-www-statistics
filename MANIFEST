@@ -95,6 +95,7 @@ templates/index.html
 templates/interest.html
 templates/js/sorttable.js
 templates/layout-wide.html
+templates/layout.csv
 templates/layout.html
 templates/leadercpan.html
 templates/leaderos.html
@@ -105,6 +106,7 @@ templates/mperls.html
 templates/mplatforms.html
 templates/mreports.html
 templates/mtesters.html
+templates/noreports.csv
 templates/noreports.html
 templates/osmatrix.html
 templates/perform.html

@@ -225,8 +225,6 @@ check_dir_contents(
 );
 ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
-
-
 #---------------------------------------
 # Tests for creating graphs
 
