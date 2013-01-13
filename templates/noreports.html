@@ -71,6 +71,10 @@ mailing list.</p>
 
 <p>If any distribution should not be listed, please let <a href="mailto:barbie@cpan.org" title="Contact Barbie">me</a> know.</p>
 
+[% IF rowcount > 0 && ostitle != 'All' %]
+<p>CSV data file: <a href="/noreports/[% osname %].csv" title="CSV data for [% ostitle %]">[% osname %].csv</a></p>
+[% END %]
+
 <script type="text/javascript">
 
 function noreports() {

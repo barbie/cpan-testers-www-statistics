@@ -1,5 +1,7 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+        - add link to data file from html file for noreports.
+
 1.03    2013-01-13
         - abandoned support on Win32 until strftime in Time::Piece works.
         - updated license urls in META files.

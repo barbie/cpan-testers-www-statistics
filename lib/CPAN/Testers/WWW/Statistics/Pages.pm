@@ -960,7 +960,7 @@ sub _build_noreports {
             my @dt = localtime($_->{released});
             $_->{datetime} = sprintf "%04d-%02d-%02d", $dt[5]+1900,$dt[4]+1,$dt[3];
         }
-        $tvars = { rows => \@dists, rowcount => scalar(@dists), template => 'noreports', osnames => \@osnames, ostitle => $os->{ostitle} };
+        $tvars = { rows => \@dists, rowcount => scalar(@dists), template => 'noreports', osnames => \@osnames, ostitle => $os->{ostitle}, osname => $os->{osname} };
         $self->_writepage('noreports/'.$os->{osname},$tvars);
     }
 
