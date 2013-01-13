@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '1.02';
+$VERSION = '1.03';
 
 #----------------------------------------------------------------------------
 
@@ -953,7 +953,7 @@ sub _build_noreports {
     $self->_writepage('noreports/all',$tvars);
 
     # html files
-    $query = q[select i.* from noreports r inner join ixlatest i on i.dist=r.dist and i.version=r.version where r.osname=? and i.oncpan='cpan' order by i.dist];
+    $query = q[select i.* from noreports r inner join ixlatest i on i.dist=r.dist and i.version=r.version where r.osname=? and i.oncpan=1 order by i.dist];
     for my $os (@osnames) {
         my @dists = $self->{parent}->{CPANSTATS}->get_query('hash',$query,$os->{osname});
         for(@dists) {
@@ -1936,7 +1936,7 @@ F<http://wiki.cpantesters.org/>
 
   Copyright (C) 2005-2013 Barbie for Miss Barbell Productions.
 
-  This module is free software; you can redistribute it and/or
+  This distribution is free software; you can redistribute it and/or
   modify it under the Artistic Licence v2.
 
 =cut
