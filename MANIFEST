@@ -117,6 +117,7 @@ templates/noreports.html
 templates/osmatrix.html
 templates/perform.html
 templates/pmatrix.html
+templates/public/analytics.html
 templates/public/box-menus.html
 templates/public/box-sites.html
 templates/public/footer.html
