@@ -327,3 +327,7 @@ th.w200         { width: 25%; }
 
 .timestamp1 {}
 .timestamp2 { font-weight: bold; }
+
+#iheart a img,
+#iheart a:hover img,
+#iheart a:visited img { border:0 }
