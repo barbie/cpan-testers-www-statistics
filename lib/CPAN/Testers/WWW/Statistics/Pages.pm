@@ -594,6 +594,10 @@ sub _write_basics {
             warn "Missing file: $source\n";
         }
     }
+
+    # wget
+    my $cmd = sprintf "wget -O %s/js/sponsors.js http://iheart.cpantesters.org/home/sponsors?images=1", $directory;
+    system($cmd);
 }
 
 =item * _write_index

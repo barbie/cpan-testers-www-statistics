@@ -5,6 +5,7 @@ Revision history for CPAN-Testers-WWW-Statistics
         - RUNDATEs are based on DB timestamp not current timestamp (t/30setdates.t)
         - updated timestamps in templates to ease testing.
         - added minified CSS files.
+        - added support for JSON loading of sponsors.
 
 1.03    2013-01-13
         - abandoned support on Win32 until strftime in Time::Piece works.

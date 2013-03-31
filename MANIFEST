@@ -3,6 +3,7 @@ bin/cpanstats-writegraphs
 bin/cpanstats-leaderboard
 bin/cpanstats-writepages
 bin/getmailrc.pl
+bin/sponsors.sh
 Changes
 examples/addresses.sh
 examples/addresses-check.sh
@@ -97,6 +98,7 @@ templates/images/layout/bgmain.gif
 templates/images/layout/li.gif
 templates/index.html
 templates/interest.html
+templates/js/iheart.js
 templates/js/sorttable.js
 templates/layout-wide.html
 templates/layout.csv
