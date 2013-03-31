@@ -64,9 +64,13 @@ templates/cgi-bin/cpanmail.cgi
 templates/cgi-bin/cpanmail.ini
 templates/cpanmail-response.html
 templates/cpanmail.html
-templates/css/layout_setup.css
-templates/css/layout_text.css
-templates/css/layout_wide.css
+templates/css/layout-min.css
+templates/css/layout-setup.css
+templates/css/layout-setup-min.css
+templates/css/layout-text.css
+templates/css/layout-text-min.css
+templates/css/layout-wide.css
+templates/css/layout-wide-min.css
 templates/distlist.html
 templates/favicon.ico
 templates/graphs.html
