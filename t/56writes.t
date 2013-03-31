@@ -23,7 +23,7 @@ my $CHECK_DOMAIN    = 'www.google.com';
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 318;
+use Test::More tests => 320;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;
@@ -77,7 +77,6 @@ rmtree($images);
 $obj->templates($TARGET);
 
 #my ($stats,$fails,$pass,$counts,$dists,$index,$versions) = $page->_build_stats();
-
 
 ## BUILD BASICS METHODS
 
