@@ -596,7 +596,7 @@ sub _write_basics {
     }
 
     # wget
-    my $cmd = sprintf "wget -O %s/js/sponsors.js http://iheart.cpantesters.org/home/sponsors?images=1", $directory;
+    my $cmd = sprintf "wget -O %s/sponsors.json http://iheart.cpantesters.org/home/sponsors?images=1 2>/dev/null", $directory;
     system($cmd);
 }
 
