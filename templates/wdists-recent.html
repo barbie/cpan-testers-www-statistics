@@ -5,7 +5,7 @@
     crumb1_name = 'Recent Failure Counts' ;
 %]
 
-<h2>HIGHEST RECENT FAILURE COUNTS (as of [% RUNDATE2 %])</h2>
+<h2>HIGHEST RECENT FAILURE COUNTS (as of <span class="timestamp1">[% RUNDATE2 %]</span>)</h2>
 <p>Order by Failure Count or Failure Percentage by clicking the appropriate column headings.</p>
 
 <table summary="HIGHEST RECENT FAILURE COUNTS">
@@ -29,4 +29,4 @@
 Failures are counted as reports posted as FAIL or UNKNOWN. Currently all reports are counted
 individually, so any duplicate reports that are for the same version of Perl on the same platform
 for the same distribution are NOT ignored. This may change in the future.</p>
-<p>All counts are recorded up until [% RUNDATE3 %].</p>
+<p>All counts are recorded up until <span class="timestamp1">[% RUNDATE3 %]</span>.</p>

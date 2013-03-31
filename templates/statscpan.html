@@ -44,7 +44,7 @@
 <table summary="CPAN Milestones: Distributions">
 <tr><th class="top w100">Count</th><th class="top w200">Timestamp</th><th class="top w100">PAUSE</th><th class="top">Distribution-Version</th></tr>
 [% FOREACH item = distributions %]
-<tr><td class="numbers">[% item.counter %]</td><td>[% item.date %]</td><td>[% item.name %]</td><td>[% item.dist %]-[% item.vers %]</td></tr>
+<tr><td class="numbers">[% item.counter %]</td><td class="timestamp1">[% item.date %]</td><td>[% item.name %]</td><td>[% item.dist %]-[% item.vers %]</td></tr>
 [% END %]
 </table>
 </div>
@@ -54,7 +54,7 @@
 <table summary="CPAN Milestones: Uploads">
 <tr><th class="top w100">Count</th><th class="top w200">Timestamp</th><th class="top w100">PAUSE</th><th class="top">Distribution-Version</th></tr>
 [% FOREACH item = uploads %]
-<tr><td class="numbers">[% item.counter %]</td><td>[% item.date %]</td><td>[% item.name %]</td><td>[% item.dist %]-[% item.vers %]</td></tr>
+<tr><td class="numbers">[% item.counter %]</td><td class="timestamp1">[% item.date %]</td><td>[% item.name %]</td><td>[% item.dist %]-[% item.vers %]</td></tr>
 [% END %]
 </table>
 </div>
@@ -64,7 +64,7 @@
 <table summary="CPAN Milestones: Uploaders">
 <tr><th class="top w100">Count</th><th class="top w200">Timestamp</th><th class="top w100">PAUSE</th><th class="top">Distribution-Version</th></tr>
 [% FOREACH item = uploaders %]
-<tr><td class="numbers">[% item.counter %]</td><td>[% item.date %]</td><td>[% item.name %]</td><td>[% item.dist %]-[% item.vers %]</td></tr>
+<tr><td class="numbers">[% item.counter %]</td><td class="timestamp1">[% item.date %]</td><td>[% item.name %]</td><td>[% item.dist %]-[% item.vers %]</td></tr>
 [% END %]
 </table>
 </div>

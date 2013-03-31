@@ -1,4 +1,4 @@
-/*************************************************************/
+h/*************************************************************/
 /*   Design:   Multiflex-3 Update-7 / Layout-2               */
 /*   File:     Text formats                                  */
 /*-----------------------------------------------------------*/
@@ -324,3 +324,6 @@ th.w200         { width: 25%; }
 
 .accessibility  { display: none }
 .update20110712 { display: none }
+
+.timestamp1 {}
+.timestamp2 { font-weight: bold; }

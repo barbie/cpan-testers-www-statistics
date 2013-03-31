@@ -28,9 +28,9 @@
 %]
 
 [% IF MONTH %]
-<h2>OS/Perl Matrix for Distributions &amp; Reports for [% LASTDATE %]</h2>
+<h2>OS/Perl Matrix for Distributions &amp; Reports for <span class="timestamp1">[% LASTDATE %]</span></h2>
 [% ELSE %]
-<h2>OS/Perl Matrix for Distributions &amp; Reports prior to [% RUNDATE %]</h2>
+<h2>OS/Perl Matrix for Distributions &amp; Reports prior to <span class="timestamp1">[% RUNDATE2 %]</span></h2>
 [% END %]
 <p>The matrix below represents the distributions that have received at least
 one PASS report submitted to the cpan-testers mailing list, for a particular
@@ -38,9 +38,9 @@ version of the perl interpreter and a particular Operating System. Note that
 patched versions of perl are mapped to their major/minor release of perl. All reports
 versions of perl are mapped to their major/minor release of perl. 
 [% IF MONTH %]
-All reports recorded are for [% LASTDATE %] only.
+All reports recorded are for <span class="timestamp1">[% LASTDATE %]</span> only.
 [% ELSE %]
-All reports recorded are from August 1999 until [% RUNDATE %].
+All reports recorded are from <span class="timestamp1">August 1999</span> until <span class="timestamp1">[% RUNDATE2 %]</span>.
 [% END %]
 </p>
 

@@ -26,7 +26,7 @@ and I will remove you from the list below, and re-enable the CPAN Testers summar
 <tr><th class="top">PAUSE</th><th class="top">Timestamp</th><th class="top">Reason</th></tr>
 [% IF missing %]
 [% FOREACH item = missing %]
-<tr><th class="side">[% item.pauseid %]</th><td>[% item.timestamp %]</td><td>[% item.reason %]</td></tr>
+<tr><th class="side">[% item.pauseid %]</th><td class="timestamp1">[% item.timestamp %]</td><td>[% item.reason %]</td></tr>
 [% END %]
 [% ELSE %]
 <tr><td colspan="3">All PAUSE ids accounted for.</td></tr>
