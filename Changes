@@ -1,6 +1,10 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+1.04    2013-03-31
         - add link to data file from html file for noreports.
+        - RUNDATEs are based on DB timestamp not current timestamp (t/30setdates.t)
+        - updated timestamps in templates to ease testing.
+        - added minified CSS files.
 
 1.03    2013-01-13
         - abandoned support on Win32 until strftime in Time::Piece works.
