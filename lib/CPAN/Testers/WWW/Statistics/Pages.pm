@@ -563,6 +563,7 @@ sub _write_basics {
     # copy files
     $self->{parent}->_log("copying static files");
     my $tocopy = $self->{parent}->tocopy;
+    $self->{parent}->_log("files to copy = " . scalar(@$tocopy));
     for my $filename (@$tocopy) {
         my $source = $templates . "/$filename";
         if(-f $source) {
@@ -571,7 +572,7 @@ sub _write_basics {
 
             mkpath( dirname($target) );
             if(-d dirname($target)) {
-                $self->{parent}->_log("copying source '$source' to target '$target'");
+                $self->{parent}->_log("copying '$source' to '$target'");
                 copy( $source, $target );
             } else {
                 $self->{parent}->_log("copy error: Missing directory: $target");
@@ -600,6 +601,7 @@ sub _write_basics {
 
     # wget
     my $cmd = sprintf "wget -O %s/sponsors.json http://iheart.cpantesters.org/home/sponsors?images=1 2>/dev/null", $directory;
+    $self->{parent}->_log("sponsors: '$cmd'");
     system($cmd);
 }
 
