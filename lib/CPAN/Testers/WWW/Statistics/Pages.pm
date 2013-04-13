@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '1.04';
+$VERSION = '1.05';
 
 #----------------------------------------------------------------------------
 
@@ -571,11 +571,14 @@ sub _write_basics {
 
             mkpath( dirname($target) );
             if(-d dirname($target)) {
+                $self->{parent}->_log("copying source '$source' to target '$target'");
                 copy( $source, $target );
             } else {
+                $self->{parent}->_log("copy error: Missing directory: $target");
                 warn "Missing directory: $target\n";
             }
         } else {
+            $self->{parent}->_log("copy error: Missing file: $source");
             warn "Missing file: $source\n";
         }
     }
