@@ -353,6 +353,9 @@ sub check_dir_contents {
 
                     $_[0] =~ s!<td class="timestamp\d">.*?</td>!<td class="timestamp">==TIMESTAMP==</td>!gsi;
                     $_[0] =~ s!<span class="timestamp\d">.*?</span>!<span class="timestamp">==TIMESTAMP==</span>!gsi;
+                    $_[0] =~ s!\b20\d{4}\b!==TIMESTAMP==!gsi;
+                    $_[0] =~ s!\b20\d{6}\b!==TIMESTAMP==!gsi;
+                    $_[0] =~ s!\b20\d{10}\b!==TIMESTAMP==!gsi;
 
                     $_[0] =~ s/\d{4}\s*\-\s*\d{4}/==DATERANGE==/gmi;
                 }

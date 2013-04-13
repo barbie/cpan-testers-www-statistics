@@ -31,8 +31,8 @@ $pages->setdates(1357041600);
 
 like($pages->{dates}{RUNTIME},      qr{^Tue,  1 Jan 2013\s+\d{2}:\d{2}:\d{2}\s+\w+$},   'RUNTIME matches pattern');
 like($pages->{dates}{RUNDATE},      qr{^1st January 2013$},                             'RUNDATE matches pattern');
-like($pages->{dates}{RUNDATE2},     qr{^2nd February 2013$},                            'RUNDATE2 matches pattern');
-like($pages->{dates}{RUNDATE3},     qr{^2nd February 2013,\s+\d{2}:\d{2}$},             'RUNDATE3 matches pattern');
+like($pages->{dates}{RUNDATE2},     qr{^2nd \w+ 20\d{2}$},                            'RUNDATE2 matches pattern');
+like($pages->{dates}{RUNDATE3},     qr{^2nd \w+ 20\d{2},\s+\d{2}:\d{2}$},             'RUNDATE3 matches pattern');
 like($pages->{dates}{THISMONTH},    qr{^201301$},                                       'THISMONTH matches pattern');
 like($pages->{dates}{THISDATE},     qr{^January 2013$},                                 'THISDATE matches pattern');
 like($pages->{dates}{LASTMONTH},    qr{^201212$},                                       'LASTMONTH matches pattern');
@@ -44,8 +44,8 @@ $pages->setdates(1360843200);
 
 like($pages->{dates}{RUNTIME},      qr{^Thu, 14 Feb 2013\s+\d{2}:\d{2}:\d{2}\s+\w+$},   'RUNTIME matches pattern');
 like($pages->{dates}{RUNDATE},      qr{^14th February 2013$},                           'RUNDATE matches pattern');
-like($pages->{dates}{RUNDATE2},     qr{^2nd February 2013$},                            'RUNDATE2 matches pattern');
-like($pages->{dates}{RUNDATE3},     qr{^2nd February 2013,\s+\d{2}:\d{2}$},             'RUNDATE3 matches pattern');
+like($pages->{dates}{RUNDATE2},     qr{^2nd \w+ 20\d{2}$},                            'RUNDATE2 matches pattern');
+like($pages->{dates}{RUNDATE3},     qr{^2nd \w+ 20\d{2},\s+\d{2}:\d{2}$},             'RUNDATE3 matches pattern');
 like($pages->{dates}{THISMONTH},    qr{^201302$},                                       'THISMONTH matches pattern');
 like($pages->{dates}{THISDATE},     qr{^February 2013$},                                'THISDATE matches pattern');
 like($pages->{dates}{LASTMONTH},    qr{^201301$},                                       'LASTMONTH matches pattern');

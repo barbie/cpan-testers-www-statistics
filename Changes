@@ -1,6 +1,7 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
         - updated CSS.
+        - fixed date tests.
 
 1.04    2013-03-31
         - add link to data file from html file for noreports.
