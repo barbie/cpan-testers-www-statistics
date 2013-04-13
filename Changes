@@ -3,6 +3,9 @@ Revision history for CPAN-Testers-WWW-Statistics
 1.05    2013-04-14
         - updated CSS.
         - fixed date tests.
+        - provided additional logging.
+        - extended the 'copy' files list.
+        - parse title as HTML.
 
 1.04    2013-03-31
         - add link to data file from html file for noreports.
