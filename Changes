@@ -1,5 +1,9 @@
 Revision history for CPAN-Testers-WWW-Statistics
 
+1.06    2013-08-18
+        - template patchs (thanks to Chorny).
+        - set day and month names explicitly in Time::Piece.
+
 1.05    2013-04-14
         - updated CSS.
         - fixed date tests.

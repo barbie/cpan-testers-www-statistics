@@ -75,6 +75,9 @@ my %month = (
     8 => 'September', 9 => 'October', 10 => 'November', 11 => 'December'
 );
 
+my @months = map { $month{$_} } keys %month;
+my @days = qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday);
+
 my $ADAY = 86400;
 
 my %matrix_limits = (
@@ -160,6 +163,9 @@ sub setdates {
     my $time = shift || time;
 
     $self->{parent}->_log("init");
+
+    Time::Piece::day_list(@days);
+    Time::Piece::mon_list(@months);
 
     # timestamp for now
     my $t = localtime($time);
