@@ -7,32 +7,35 @@
 
 <h2>Contents</h2>
 <ul class="contents">
+<li><a href="#size"      title="Disk Space of Report pages">Disk Space of Report pages</a></li>
 <li><a href="#top20dist" title="Top 20 Distributions with Most Reports">Top 20 Distributions with Most Reports</a></li>
 <li><a href="#top20dver" title="Top 20 Distribution/Versions with Most Reports">Top 20 Distribution/Versions with Most Reports</a></li>
 <li><a href="#reports"   title="Notable Reports submitted by CPAN Testers">Notable Reports submitted by CPAN Testers</a></li>
 </ul>
 
+<h2 id="size">Disk Space of Report pages</h2>
+<table summary="Disk Space of Report pages">
+<tr><th class="top">Size</th><th class="top">Notes</th></tr>
+<tr><td class="numbers">[% sizes.reports %]</td><td>Disk space used by report pages (JS, JSON and HTML files)</td></tr>
+</table>
+
 <h2 id="top20dist">Top 20 Distributions with Most Reports</h2>
-<!--<div class="boxer">-->
 <table summary="Top 20 Distributions with Most Reports">
-<tr><th class="top">#</th><th class="top">COUNT</th><th class="top">DISTRIBUTION</th></tr>
+<tr><th class="top">#</th><th class="top">Count</th><th class="top">Distribution</th></tr>
 [% cnt = 1 %]
 [% FOREACH row = BYDIST %]
 <tr><td>[% cnt; cnt = cnt + 1 %]</td>[% FOREACH col = row %]<td>[% col %]</td>[% END %]</tr>
 [% END %]
 </table>
-<!--</div>-->
 
 <h2 id="top20dver">Top 20 Distribution/Versions with Most Reports</h2>
-<!--<div class="boxer">-->
 <table summary="Top 20 Distribution/Versions with Most Reports">
-<tr><th class="top">#</th><th class="top">COUNT</th><th class="top">DISTRIBUTION</th><th class="top">VERSION</th></tr>
+<tr><th class="top">#</th><th class="top">Count</th><th class="top">Distribution</th><th class="top">Version</th></tr>
 [% cnt = 1 %]
 [% FOREACH row = BYVERS %]
 <tr><td>[% cnt; cnt = cnt + 1 %]</td>[% FOREACH col = row %]<td>[% col %]</td>[% END %]</tr>
 [% END %]
 </table>
-<!--</div>-->
 
 <h2 id="reports">Notable Reports submitted by CPAN Testers</h2>
 <div class="boxer flat">

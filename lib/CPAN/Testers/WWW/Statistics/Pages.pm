@@ -283,6 +283,7 @@ sub build_stats {
         $self->{versions} = \@versions;
 
         ## BUILD INDEPENDENT STATS
+        $self->_build_sizes();
         $self->_report_cpan();
 
         ## BUILD MONTHLY STATS
@@ -663,6 +664,8 @@ sub _report_interesting {
 
     $self->{parent}->_log("building interesting page");
 
+    $tvars{sizes}{reports} = $self->{sizes}{dir_reports};
+
     my (@bydist,@byvers);
     my $inx = 20;
     for my $dist (sort {$self->{dists}{$b}{ALL} <=> $self->{dists}{$a}{ALL}} keys %{$self->{dists}}) {
@@ -798,12 +801,15 @@ sub _report_cpan {
     $self->_writepage('leadercpan',\%tvars);
 
 
-    $self->{parent}->_log("building cpan interesting stats page");
+    $self->{parent}->_log("building cpan interesting stats page (part 1)");
+
+    $tvars{sizes}{cpan}     = $self->{sizes}{dir_cpan};
+    $tvars{sizes}{backpan}  = $self->{sizes}{dir_backpan};
 
     $tvars{authors}{total} = $self->_count_mailrc();
     my @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(distinct author) FROM uploads");
-    $tvars{authors}{active}   = $rows[0]->[0];
-    $tvars{authors}{inactive} = $tvars{authors}{total} - $rows[0]->[0];
+    $tvars{authors}{active}    = $rows[0]->[0];
+    $tvars{authors}{inactive}  = $tvars{authors}{total} - $rows[0]->[0];
 
     @rows = $self->{parent}->{CPANSTATS}->get_query('array',"SELECT COUNT(distinct dist) FROM uploads WHERE type != 'backpan'");
     $tvars{distros}{uploaded1} = $rows[0]->[0];
@@ -1557,6 +1563,8 @@ sub _build_osname_leaderboards {
 
     $count--;
 
+    $self->{parent}->tester_counts();
+
     $self->{parent}->_log("Unknown Addresses: ".($count-$self->{parent}->known_t));
     $self->{parent}->_log("Known Addresses:   ".($self->{parent}->known_s));
     $self->{parent}->_log("Listed Addresses:  ".($self->{parent}->known_s + $count - $self->{parent}->known_t));
@@ -1812,6 +1820,18 @@ sub _build_performance_stats {
     $fh->close;
 }
 
+sub _build_sizes {
+    my $self  = shift;
+    my $du = 'du -h --max-depth=0';
+
+    for my $dir (qw( dir_cpan dir_backpan dir_reports )) {
+        my $path = $self->{parent}->$dir();
+        my $res =`$du $path`;
+        $res =~ s/\s.*$//s  if($res);
+        $self->{sizes}{$dir} = $res;
+        $self->{parent}->_log(".. size for $dir ($path) = $res");
+    }
+}
 
 =item * _writepage
 
@@ -1841,9 +1861,9 @@ sub _writepage {
     $vars->{copyright}  = $self->{parent}->copyright;
     $vars->{$_}         = $self->{dates}{$_}    for(keys %{ $self->{dates} });
 
-#    if($page =~ /^(p|os)matrix/) {
-#        print STDERR "$page:" . Dumper($vars);
-#    }
+    #if($page =~ /(statscpan|interest)/) {
+    #    $self->{parent}->_log("$page:" . Dumper($vars));
+    #}
 
     my %config = (                          # provide config info
         RELATIVE        => 1,

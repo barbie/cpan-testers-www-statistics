@@ -143,16 +143,12 @@ sub new {
     $self->copyright(                                 $cfg->val('MASTER','copyright' ) );
     $self->builder(   _defined_or( $hash{builder},    $cfg->val('MASTER','builder'   ) ));
 
-    $self->_log("mainstore =".($self->mainstore  || ''));
-    $self->_log("monthstore=".($self->monthstore || ''));
-    $self->_log("templates =".($self->templates  || ''));
-    $self->_log("address   =".($self->address    || ''));
-    $self->_log("missing   =".($self->missing    || ''));
-    $self->_log("mailrc    =".($self->mailrc     || ''));
-    $self->_log("logfile   =".($self->logfile    || ''));
-    $self->_log("logclean  =".($self->logclean   || ''));
-    $self->_log("directory =".($self->directory  || ''));
-    $self->_log("builder   =".($self->builder    || ''));
+    for my $dir (qw(dir_cpan dir_backpan dir_reports)) {
+        $self->$dir(  _defined_or( $hash{$dir},       $cfg->val('MASTER',$dir        ) ));
+    }
+
+    $self->_log(sprintf "%-12s=%s", $_, ($self->$_() || ''))
+        for(qw(mainstore monthstore templates address missing mailrc logfile logclean directory builder dir_cpan dir_backpan dir_reports));
 
     die "Must specify the output directory\n"           unless($self->directory);
     die "Must specify the template directory\n"         unless($self->templates);
@@ -209,7 +205,7 @@ Method to manage the creation of all the statistics graphs.
 __PACKAGE__->mk_accessors(
     qw( directory mainstore monthstore templates address builder missing 
         mailrc logfile logclean copyright noreports tocopy tolink osnames
-        known_t known_s ));
+        known_t known_s dir_cpan dir_backpan dir_reports));
 
 sub leaderboard {
     my ($self,%options) = @_;
@@ -357,7 +353,7 @@ sub tester {
         $addr[2] = $rows[0]->{testerid};
     }
 
-    $addr[0] = $addr[0] =~ /\&(\#x?\d+|\w+)\;/)
+    $addr[0] = $addr[0] =~ /\&(\#x?\d+|\w+)\;/
                 ? $addr[0]
                 : encode_entities( $addr[0] );
     $addr[0] =~ s/\./ /g    if($addr[0] =~ /\@/);
@@ -370,6 +366,7 @@ sub tester {
 }
 
 sub tester_counts {
+    my $self = shift;
     my @rows = $self->{CPANSTATS}->get_query('array',q{
         SELECT count(addressid),count(distinct testerid) FROM testers.address WHERE testerid > 0
     });
