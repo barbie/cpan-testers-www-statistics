@@ -336,6 +336,51 @@ sub osname {
 sub tester {
     my ($self,$name) = @_;
 
+    return @{$self->{addresses}{$name}} if($self->{addresses}{$name});
+    
+    my @rows = $self->{CPANSTATS}->get_query('hash',q{
+        SELECT a.email,p.name,p.pause,a.addressid,a.testerid 
+        FROM testers.address a 
+        LEFT JOIN testers.profile p ON p.testerid=a.testerid 
+        WHERE a.address=? OR a.email=?
+    },$name,$name);
+    
+    my @addr = ( $name, 0, 0 );
+    if(@rows) {
+        if($rows[0]->{name}) {
+            $addr[0] = $rows[0]->{name} . ($rows[0]->{pause} ? " ($rows[0]->{pause})" : '');
+        } else {
+            $addr[0] = $rows[0]->{email};
+        }
+
+        $addr[1] = $rows[0]->{addressid};
+        $addr[2] = $rows[0]->{testerid};
+    }
+
+    $addr[0] = $addr[0] =~ /\&(\#x?\d+|\w+)\;/)
+                ? $addr[0]
+                : encode_entities( $addr[0] );
+    $addr[0] =~ s/\./ /g    if($addr[0] =~ /\@/);
+    $addr[0] =~ s/\@/ \+ /g;
+    $addr[0] =~ s/</&lt;/g;
+    $addr[0] =~ s/>/&gt;/g;
+
+    $self->{addresses}{$name} = \@addr;
+    return @addr;
+}
+
+sub tester_counts {
+    my @rows = $self->{CPANSTATS}->get_query('array',q{
+        SELECT count(addressid),count(distinct testerid) FROM testers.address WHERE testerid > 0
+    });
+
+    $self->known_s( $rows[0]->[0] );
+    $self->known_t( $rows[0]->[1] );
+}
+
+sub testerX {
+    my ($self,$name) = @_;
+
     $self->{addresses} ||= do {
         my (%map,%known);
         my $address = $self->address;

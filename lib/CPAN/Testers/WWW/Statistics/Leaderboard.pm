@@ -167,14 +167,25 @@ sub results {
     my $self = shift;
     my %dates = map {$_ => 1} @{ shift() };
 
-    my $sql1 = 'SELECT * FROM leaderboard ORDER BY postdate,osname';
+    my $sql1 = q{
+        SELECT l.*, p.name, p.pause
+        FROM leaderboard l
+        LEFT JOIN testers.profile p ON p.testerid=l.testerid
+        ORDER BY postdate,osname
+    };
+
     my %hash;
     my @rows = $self->{parent}->{CPANSTATS}->get_query('hash',$sql1);
     for my $row (@rows) {
+        my $tester = 
+            $row->{name} 
+                ? $row->{name} . ($row->{pause} ? " ($row->{pause})" : '')
+                : $row->{tester};
+
         if($dates{ $row->{postdate} }) {
-            $hash{ $row->{postdate} }{$row->{osname}}{$row->{tester}} = $row->{score};
+            $hash{ $row->{postdate} }{$row->{osname}}{$tester} = $row->{score};
         } elsif($dates{ '999999' }) {
-            $hash{ '999999' }{$row->{osname}}{$row->{tester}} += $row->{score};
+            $hash{ '999999' }{$row->{osname}}{$tester} += $row->{score};
         }
     }
 
@@ -196,7 +207,7 @@ sub _update {
     my $sql2 = 'SELECT osname,tester,COUNT(id) AS count FROM cpanstats '.
                'WHERE postdate=? AND type=2 '.
                'GROUP BY osname,tester ORDER BY tester,osname';
-    my $sql3 = 'REPLACE INTO leaderboard (postdate,osname,tester,score) VALUES (?,?,?,?)';
+    my $sql3 = 'REPLACE INTO leaderboard (postdate,osname,tester,score,addressid,testerid) VALUES (?,?,?,?,?,?)';
     my $sql4 = 'DELETE FROM leaderboard WHERE postdate=?';
 
     my @rows = $self->{parent}->{CPANSTATS}->get_query('hash',$sql1);
@@ -208,23 +219,25 @@ sub _update {
         my (%hash,%names);
         my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql2,$row->{postdate});
         while(my $row2 = $next->()) {
-            my $name = $self->{parent}->tester($row2->{tester});
+            my ($name,$addressid,$testerid) = $self->{parent}->tester($row2->{tester});
+            my $osname = lc $row2->{osname};
 
-            #$self->{parent}->_log( sprintf "%s,%s,%d", lc $row2->{osname}, $name, $row2->{count} );
-            $hash{lc $row2->{osname}}{$name} += $row2->{count};
-            #$self->{parent}->_log( sprintf "%s,%s,%d", lc $row2->{osname}, $name, $hash{lc $row2->{osname}}{$name} );
+            #$self->{parent}->_log( sprintf "%s,%s,%d", $osname, $name, $row2->{count} );
+            $hash{$osname}{$name}{score}    += $row2->{count};
+            $hash{$osname}{$name}{addressid} = $addressid;
+            $hash{$osname}{$name}{testerid}  = $testerid;
+            #$self->{parent}->_log( sprintf "%s,%s,%d", $osname, $name, $hash{$osname}{$name}{score} );
         }
 
         for my $osname (keys %hash) {
             for my $name (keys %{ $hash{$osname} }) {
-                $self->{parent}->{CPANSTATS}->do_query($sql3, $row->{postdate}, $osname, $name, $hash{$osname}{$name});
-                #$names{$name} += $hash{$osname}{$name};
+                $self->{parent}->{CPANSTATS}->do_query($sql3, 
+                    $row->{postdate}, $osname, $name, 
+                    $hash{$osname}{$name}{score},
+                    $hash{$osname}{$name}{addressid},
+                    $hash{$osname}{$name}{testerid});
             }
         }
-
-        #for my $name (sort {$a cmp $b} keys %names) {
-        #    $self->{parent}->_log( "$name,$names{$name}" );
-        #}
     }
 }
 

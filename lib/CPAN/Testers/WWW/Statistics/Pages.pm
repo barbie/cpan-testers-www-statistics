@@ -1493,7 +1493,6 @@ sub _build_osname_leaderboards {
             $hash{$os}{$tester}{all}  = ($data->{$post3}{$os}{$tester} || 0) + ($data->{$post2}{$os}{$tester} || 0) + 
                                         ($data->{$post1}{$os}{$tester} || 0) + ($data->{$post0}{$os}{$tester} || 0);
         }
-
     }
 
     $self->{parent}->_log("1.reorg");
