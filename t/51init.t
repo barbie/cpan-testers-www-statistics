@@ -4,7 +4,7 @@ use strict;
 use warnings;
 $|=1;
 
-use Test::More tests => 18;
+use Test::More tests => 17;
 use File::Spec;
 use lib 't';
 use CTWS_Testing;
@@ -19,9 +19,8 @@ ok(  my $graph = CTWS_Testing::getGraphs(), "got object" );
 isa_ok( $graph, 'CPAN::Testers::WWW::Statistics::Graphs', "Graphs object type" );
 
 my $db = 't/_DBDIR/test.db';
-isa_ok( $obj->{CPANSTATS},         'CPAN::Testers::Common::DBUtils', 'CPANSTATS' );
-is(     $obj->{CPANSTATS}->{database}, $db,                          'CPANSTATS.database' );
-is(     $obj->{CPANSTATS}->{driver},   'SQLite',                     'CPANSTATS.database' );
+isa_ok( $obj->{CPANSTATS},                      'CPAN::Testers::Common::DBUtils', 'CPANSTATS' );
+is(     $obj->{CPANSTATS}->{driver},   'mysql', 'CPANSTATS.database' );
 
 ok(    $obj->directory, 'directory' );
 is(    $obj->directory, File::Spec->catfile('t', '_TMPDIR'), 'directory' );
@@ -42,7 +41,7 @@ is($page->{dates}{LASTMONTH}, $date2, '..last month');
 is($page->{dates}{THATMONTH}, $date3, '..previous month');
 
 my @full_range = ( '00000000-99999999' );
-my @test_range = ( '199901-200412', '200301-200712', '200601-201012', "200901-$page->{dates}{LASTMONTH}" );
+my @test_range = ( '199901-200412', '200301-200712', '200601-201012', "200901-$page->{dates}{LASTMONTH}", "201201-$page->{dates}{LASTMONTH}" );
 
 is($obj->ranges(), undef, '.. no range');
 is_deeply($obj->ranges('NONE'), \@full_range, '.. single full range');

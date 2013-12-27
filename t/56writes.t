@@ -23,7 +23,7 @@ my $CHECK_DOMAIN    = 'www.google.com';
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 320;
+use Test::More tests => 341;
 use Test::Differences;
 use File::Slurp qw( slurp );
 use Archive::Zip;

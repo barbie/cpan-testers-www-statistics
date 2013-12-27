@@ -3,44 +3,44 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
 use CPAN::Testers::WWW::Statistics;
 use CPAN::Testers::WWW::Statistics::Pages;
 use CPAN::Testers::WWW::Statistics::Graphs;
 
+use lib 't';
+use CTWS_Testing;
+
+use Test::More tests => 12;
+
+my $dbconfig    = 't/_DBDIR/databases.ini';
+
 my %config = (
-    't/data/21config01.ini' => "Must specify the output directory\n",        # no output directory
-    't/data/21config02.ini' => "Must specify the template directory\n",      # no template directory
-    't/data/21config03.ini' => "No configuration for CPANSTATS database\n",  # no CPANSTATS database
+    't/data/21config00.ini' => { db => 0, result => "Cannot load configuration file [t/data/21config00.ini]\n" },
+    't/data/21config01.ini' => { db => 1, result => "Must specify the output directory\n" },        # no output directory
+    't/data/21config02.ini' => { db => 1, result => "Must specify the template directory\n" },      # no template directory
+    't/data/21config03.ini' => { db => 0, result => "No configuration for CPANSTATS database\n" },  # no CPANSTATS database
 );
 
-for my $config (sort keys %config) {
+for my $file (sort keys %config) {
+    my $config = $config{$file}->{db} ? CTWS_Testing::create_config( $file ) : $file;
     eval { CPAN::Testers::WWW::Statistics->new(config => $config) };
-    is($@, $config{$config}, "config: $config");
+    is($@, $config{$file}->{result}, "config: $config");
 }
 
-
 %config = (
-    't/data/21config07.ini' => "Template directory not found\n",
-    't/data/21config10.ini' => "Must specify the path of the address file\n",
-    't/data/21config11.ini' => "Address file not found\n",
+    't/data/21config07.ini' => { db => 1, result =>  "Template directory not found\n" },
+    't/data/21config10.ini' => { db => 1, result =>  "Must specify the path of the address file\n" },
+    't/data/21config11.ini' => { db => 1, result =>  "Address file not found\n" },
 );
 
-for my $config (sort keys %config) {
+for my $file (sort keys %config) {
+    my $config = $config{$file}->{db} ? CTWS_Testing::create_config( $file ) : $file;
     ok( my $obj   = CPAN::Testers::WWW::Statistics->new(config => $config), "got parent object" );
     eval { $obj->make_pages };
-    is($@, $config{$config}, "config: $config");
+    is($@, $config{$file}->{result}, "config: $config");
 }
 
 eval { CPAN::Testers::WWW::Statistics->new() };
 is($@,"Must specify the configuration file\n");
 eval { CPAN::Testers::WWW::Statistics->new(config => 'doesnotexist') };
 is($@,"Configuration file [doesnotexist] not found\n");
-eval { CPAN::Testers::WWW::Statistics->new(config => 't/data/21config00.ini') };
-is($@,"Cannot load configuration file [t/data/21config00.ini]\n");
-
-eval { CPAN::Testers::WWW::Statistics::Pages->new() };
-is($@,"Must specify the parent statistics object\n");
-eval { CPAN::Testers::WWW::Statistics::Graphs->new() };
-is($@,"Must specify the parent statistics object\n");
-

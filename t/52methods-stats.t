@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 7;
 use CPAN::Testers::WWW::Statistics;
 
 use lib 't';
@@ -11,14 +11,22 @@ use CTWS_Testing;
 
 ok( my $obj = CTWS_Testing::getObj(), "got parent object" );
 
-$obj->address('t/data/addresses.txt');
-
-
 my %names = (
-    'barbie@missbarbell.co.uk' => 'Barbie (BARBIE)',
-    'barbie@cpan.org' => 'barbie + cpan org'
+    'stro@cpan.org'     => [ 'Serguei Trouchelle (STRO)', 1742, 538 ],
+    'barbie@cpan.org'   => [ 'barbie + cpan org', 0, 0 ]
 );
 
 for my $name (keys %names) {
-    is($obj->tester($name), $names{$name}, "tester name matches: $name");
+    my @values = $obj->tester($name);
+    is_deeply(\@values, $names{$name}, "tester name matches: $name");
 }
+
+$obj->tester_loader();
+
+my $address = $obj->address;
+is(scalar(keys %$address),10,'found correct number of address entries');
+is($obj->known_s(),10,'found correct number of address entries (count)');
+
+my $profile = $obj->profile;
+is(scalar(keys %$profile),9,'found correct number of profile entries');
+is($obj->known_t(),9,'found correct number of profile entries (count)');
