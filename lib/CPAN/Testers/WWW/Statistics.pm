@@ -95,7 +95,7 @@ sub new {
     $self->{cfg} = $cfg;
 
     # configure databases
-    for my $db (qw(CPANSTATS)) {
+    for my $db (qw(CPANSTATS TESTERS)) {
         die "No configuration for $db database\n"   unless($cfg->SectionExists($db));
         my %opts = map {my $v = $cfg->val($db,$_); defined($v) ? ($_ => $v) : () }
                         qw(driver database dbfile dbhost dbport dbuser dbpass);
@@ -205,7 +205,7 @@ Method to manage the creation of all the statistics graphs.
 __PACKAGE__->mk_accessors(
     qw( directory mainstore monthstore templates address builder missing 
         mailrc logfile logclean copyright noreports tocopy tolink osnames
-        known_t known_s dir_cpan dir_backpan dir_reports));
+        address profile known_t known_s dir_cpan dir_backpan dir_reports));
 
 sub leaderboard {
     my ($self,%options) = @_;
@@ -296,6 +296,15 @@ Returns the print form of a recorded OS name.
 Returns either the known name of the tester for the given email address, or
 returns a doctored version of the address for displaying in HTML.
 
+=item * tester_lookup
+
+Returns the name or email address, if found, of the stored profile or address
+for the given addressid and testerid.
+
+=item * tester_loader
+
+Look up the number of know addresses and testers in the database.
+
 =back
 
 =cut
@@ -334,10 +343,10 @@ sub tester {
 
     return @{$self->{addresses}{$name}} if($self->{addresses}{$name});
     
-    my @rows = $self->{CPANSTATS}->get_query('hash',q{
+    my @rows = $self->{TESTERS}->get_query('hash',q{
         SELECT a.email,p.name,p.pause,a.addressid,a.testerid 
-        FROM testers.address a 
-        LEFT JOIN testers.profile p ON p.testerid=a.testerid 
+        FROM address a 
+        LEFT JOIN profile p ON p.testerid=a.testerid 
         WHERE a.address=? OR a.email=?
     },$name,$name);
     
@@ -365,45 +374,43 @@ sub tester {
     return @addr;
 }
 
-sub tester_counts {
-    my $self = shift;
-    my @rows = $self->{CPANSTATS}->get_query('array',q{
-        SELECT count(addressid),count(distinct testerid) FROM testers.address WHERE testerid > 0
-    });
+sub tester_lookup {
+    my ($self,$addressid,$testerid) = @_;
+    
+    $self->tester_loader()  unless($self->known_t);
+    my $address = $self->address;
+    my $profile = $self->profile;
 
-    $self->known_s( $rows[0]->[0] );
-    $self->known_t( $rows[0]->[1] );
+    if($testerid && $profile->{$testerid}) {
+        my $name = $profile->{$testerid}{name};
+        $name .= " ($profile->{$testerid}{pause})"  if($profile->{$testerid}{pause});
+        return $name;
+    }
+
+    if($addressid && $address->{$addressid}) {
+        return $address->{$addressid}{email};
+    }
+
+    return;
 }
 
-sub testerX {
-    my ($self,$name) = @_;
+sub tester_loader {
+    my $self = shift;
+    my (%address,%profile);
 
-    $self->{addresses} ||= do {
-        my (%map,%known);
-        my $address = $self->address;
+    my @rows = $self->{TESTERS}->get_query('hash',q{SELECT * FROM address});
+    for my $row (@rows) { $address{$row->{addressid}} = $row; }
+    $self->address( \%address );
 
-        my $fh = IO::File->new($address)    or die "Cannot open address file [$address]: $!";
-        while(<$fh>) {
-            chomp;
-            my ($source,$target) = split(',',$_,2);
-            $target =~ s/\s+$//;
-            next    unless($source && $target);
-            $map{$source} = $target;
-            $known{$target}++;
-        }
-        $fh->close;
-        $self->known_t( scalar(keys %known) );
-        $self->known_s( scalar(keys %map)   );
-        \%map;
-    };
+    @rows = $self->{TESTERS}->get_query('hash',q{SELECT * FROM profile});
+    for my $row (@rows) { $profile{$row->{testerid}} = $row; }
+    $self->profile( \%profile );
 
-    my $addr = ($self->{addresses}{$name} && $self->{addresses}{$name} =~ /\&(\#x?\d+|\w+)\;/)
-                ? $self->{addresses}{$name}
-                : encode_entities( ($self->{addresses}{$name} || $name) );
-    $addr =~ s/\./ /g if($addr =~ /\@/);
-    $addr =~ s/\@/ \+ /g;
-    $addr =~ s/</&lt;/g;
-    return $addr;
+    @rows = $self->{TESTERS}->get_query('array',q{
+        SELECT count(addressid),count(distinct testerid) FROM address WHERE testerid > 0
+    });
+    $self->known_s( $rows[0]->[0] );
+    $self->known_t( $rows[0]->[1] );
 }
 
 # -------------------------------------

@@ -167,20 +167,19 @@ sub results {
     my $self = shift;
     my %dates = map {$_ => 1} @{ shift() };
 
-    my $sql1 = q{
-        SELECT l.*, p.name, p.pause
-        FROM leaderboard l
-        LEFT JOIN testers.profile p ON p.testerid=l.testerid
-        ORDER BY postdate,osname
-    };
+    my $sql1 = q{SELECT * FROM leaderboard ORDER BY postdate,osname};
+#    my $sql1 = q{
+#        SELECT l.*, p.name, p.pause
+#        FROM leaderboard l
+#        LEFT JOIN testers.profile p ON p.testerid=l.testerid
+#        ORDER BY postdate,osname
+#    };
 
     my %hash;
     my @rows = $self->{parent}->{CPANSTATS}->get_query('hash',$sql1);
     for my $row (@rows) {
-        my $tester = 
-            $row->{name} 
-                ? $row->{name} . ($row->{pause} ? " ($row->{pause})" : '')
-                : $row->{tester};
+        my $tester = $self->{parent}->tester_lookup($row->{addressid},$row->{testerid});
+        $tester ||= $row->{tester};
 
         if($dates{ $row->{postdate} }) {
             $hash{ $row->{postdate} }{$row->{osname}}{$tester} = $row->{score};
