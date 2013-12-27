@@ -13,8 +13,17 @@ use File::Path;
 
 ok( my $obj = CTWS_Testing::getObj(), "got object" );
 
-rmtree( 't/_DBDIR' );       # removed DBDIR
-rmtree($obj->directory);    # removed directory
+eval "use Test::Database";
+my $notd = $@ ? 1 : 0;
+
+unless($notd) {
+    my $td;
+    if($td = Test::Database->handle( 'mysql' )) {
+        $td->{driver}->drop_database($td->name);
+    }
+}
+
+rmtree($obj->directory);    # remove stored config directory
 
 if($^O =~ /Win32/i) {   # Windows cannot delete until after process has stopped
     ok(1);
@@ -23,16 +32,11 @@ if($^O =~ /Win32/i) {   # Windows cannot delete until after process has stopped
 }
 
 # these shouldn't exist ...  whack just to be sure.
-rmtree( "t/$_" )    for(qw(_TMPDIR _DBDIR _EXPECTED));
-
-# triple check
-if($^O =~ /Win32/i) {   # Windows cannot delete until after process has stopped
-    ok(1);
-    ok(1);
-    ok(1);
-} else {
-    ok( ! -d 't/_TMPDIR',   '_TMPDIR removed'   );
-    ok( ! -d 't/_DBDIR',    '_DBDIR removed'    );
-    ok( ! -d 't/_EXPECTED', '_EXPECTED removed' );
+for my $d ('t/_DBDIR','t/_TMPDIR','t/_EXPECTED') {
+    rmtree( $d ) if(-d $d);
+    if($^O =~ /Win32/i) {
+        ok(1);
+    } else {
+        ok( ! -d $d, "removed '$d' verified" );
+    }
 }
-
