@@ -1334,7 +1334,7 @@ sub _build_monthly_stats {
 
     my $query = q!SELECT postdate,%s,count(id) AS count FROM cpanstats ! .
                 q!WHERE type = 2 %s ! .
-                q!GROUP BY postdate,%s ORDER BY postdate,count DESC!;
+                q!GROUP BY postdate,%s ORDER BY postdate,count DESC,%s!;
 
     for my $type (qw(platform osname perl)) {
         $self->{parent}->_log("building monthly $type table");
@@ -1359,7 +1359,7 @@ sub _build_monthly_stats {
             $postdate = "AND postdate >= '$last'" if($last);
         }
 
-        my $sql = sprintf $query, $type, $postdate, $type;
+        my $sql = sprintf $query, $type, $postdate, $type,$type;
         my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
         while(my $row = $next->()) {
             $monthly{$row->{postdate}}{$type}{$row->{$type}} = 1;
@@ -1408,7 +1408,7 @@ sub _build_monthly_stats {
             $postdate = "AND postdate >= '$last'" if($last);
         }
 
-        my $sql = sprintf $query, $type, $postdate, $type;
+        my $sql = sprintf $query, $type, $postdate, $type, $type;
         my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
         while(my $row = $next->()) {
             my $name = $self->{parent}->tester($row->{tester});
