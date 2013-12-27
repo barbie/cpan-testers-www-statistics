@@ -3,27 +3,39 @@ package CTWS_Testing;
 use strict;
 use warnings;
 
+#----------------------------------------------------------------------------
+# Library Modules
+
 use lib qw(./lib);
 
 use CPAN::Testers::WWW::Statistics;
 use CPAN::Testers::WWW::Statistics::Pages;
 use CPAN::Testers::WWW::Statistics::Graphs;
 
+use File::Basename;
+use File::Find;
+use File::Path;
+use File::Spec;
+use File::Temp;
+use IO::File;
 use Test::More;
 
-use File::Path;
-use File::Temp;
-use File::Find;
-use File::Spec;
+#----------------------------------------------------------------------------
+# Variables
 
 my $parent;
+my $config      = 't/_DBDIR/test-config.ini';
+my $dbconfig    = 't/_DBDIR/databases.ini';
 
 $ENV{TZ} = 'GMT';
+
+#----------------------------------------------------------------------------
+# Core Object Methods
 
 sub getObj {
     my %opts = @_;
     $opts{directory} ||= File::Spec->catfile('t','_TMPDIR');
-    $opts{config}    ||= \*DATA;
+    $opts{config}    ||= $config;
 
     _cleanDir( $opts{directory} ) or return;
 
@@ -40,6 +52,26 @@ sub getPages {
 sub getGraphs {
     my $obj = CPAN::Testers::WWW::Statistics::Graphs->new(parent => $parent);
     return $obj;
+}
+
+#----------------------------------------------------------------------------
+# File & Directory Methods
+
+sub create_config {
+    my $file1 = shift;
+    my $file2 = join('/', dirname($dbconfig), basename($file1));
+
+    my $fh1 = IO::File->new($file1,'r')     or die "cannot open file [$file1]: $!\n";
+    my $fh2 = IO::File->new($file2,'w+')    or die "cannot write to file [$file2]: $!\n";
+    while(<$fh1>) { print $fh2 $_; }
+    $fh1->close;
+
+    $fh1 = IO::File->new($dbconfig,'r')     or die "cannot open file [$dbconfig]: $!\n";
+    while(<$fh1>) { print $fh2 $_; }
+    $fh1->close;
+    $fh2->close;
+
+    return $file2;
 }
 
 sub _cleanDir {
@@ -104,48 +136,3 @@ sub saveFiles {
 }
 
 1;
-
-__DATA__
-
-[MASTER]
-mainstore=t/_TMPDIR/cpanstats.json
-monthstore=t/_TMPDIR/cpanstats-%s.json
-
-address=t/data/addresses.txt
-templates=templates
-builder=t/_TMPDIR/log-parser.txt
-missing=t/data/missing-in-action.txt
-mailrc=t/data/01mailrc.txt
-
-#logfile=t/_TMPDIR/cpanstats-test.log
-#logclean=0
-
-[CPANSTATS]
-driver=SQLite
-database=t/_DBDIR/test.db
-
-[TOCOPY]
-LIST=<<HERE
-cgi-bin/cpanmail.cgi
-favicon.ico
-HERE
-
-[TOLINK]
-cgi-bin/response.html=response.html
-
-[TEST_RANGES]
-LIST=<<HERE
-199901-200412
-200301-200712
-200601-201012
-200901-201312
-HERE
-
-[CPAN_RANGES]
-LIST=<<HERE
-199501-199812
-199901-200412
-200301-200712
-200601-201012
-200901-201312
-HERE
