@@ -412,61 +412,61 @@ sub build_data {
     # id, guid, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate, type
 
     $self->{parent}->_log("building dist hash from $lastid");
-    my $iterator = $self->{parent}->{CPANSTATS}->iterator('array',"SELECT * FROM cpanstats WHERE type = 2 AND id > $lastid ORDER BY id LIMIT 1000000");
+    my $iterator = $self->{parent}->{CPANSTATS}->iterator('hash',"SELECT * FROM cpanstats WHERE type = 2 AND id > $lastid ORDER BY id LIMIT 1000000");
     while(my $row = $iterator->()) {
-        $row->[8] =~ s/\s.*//;  # only need to know the main release
-        $lastid = $row->[0];
+        $row->{perl} =~ s/\s.*//;  # only need to know the main release
+        $lastid = $row->{id};
 
         {
-            my $osname = $self->{parent}->osname($row->[9]);
-            my $name   = $self->{parent}->tester($row->[4]);
+            my $osname = $self->{parent}->osname($row->{osname});
+            my $name   = $self->{parent}->tester($row->{tester});
 
-            $self->{stats}{$row->[3]}{reports}++;
-            $self->{stats}{$row->[3]}{state   }{$row->[2]}++;
-            #$self->{stats}{$row->[3]}{dist    }{$row->[5]}++;
-            #$self->{stats}{$row->[3]}{version }{$row->[6]}++;
+            $self->{stats}{$row->{postdate}}{reports}++;
+            $self->{stats}{$row->{postdate}}{state   }{$row->{state}}++;
+            #$self->{stats}{$row->{postdate}}{dist    }{$row->{dist}}++;
+            #$self->{stats}{$row->{postdate}}{version }{$row->{version}}++;
 
             # check distribution tallies
-            if(defined $self->{dists}{$row->[5]}) {
-                $self->{dists}{$row->[5]}{ALL}++;
+            if(defined $self->{dists}{$row->{dist}}) {
+                $self->{dists}{$row->{dist}}{ALL}++;
 
-                if($self->{dists}{$row->[5]}->{VER} eq $row->[6]) {
-                    $self->{dists}{$row->[5]}{IXL}++;
+                if($self->{dists}{$row->{dist}}->{VER} eq $row->{version}) {
+                    $self->{dists}{$row->{dist}}{IXL}++;
 
                     # check failure rates
-                    $self->{fails}{$row->[5]}{$row->[6]}{fail}++    if($row->[2] eq 'fail');
-                    $self->{fails}{$row->[5]}{$row->[6]}{pass}++    if($row->[2] eq 'pass');
-                    $self->{fails}{$row->[5]}{$row->[6]}{total}++;
+                    $self->{fails}{$row->{dist}}{$row->{version}}{fail}++    if($row->{state} eq 'fail');
+                    $self->{fails}{$row->{dist}}{$row->{version}}{pass}++    if($row->{state} eq 'pass');
+                    $self->{fails}{$row->{dist}}{$row->{version}}{total}++;
                 }
             }
 
             # build matrix stats
-            my $perl = $row->[8];
+            my $perl = $row->{perl};
             $perl =~ s/\s.*//;  # only need to know the main release
             $self->{perls}{$perl} = 1;
 
-            $self->{pass}    {$row->[7]}{$perl}{all}{$row->[5]} = 1;
-            $self->{platform}{$row->[7]}{$perl}{all}++;
-            $self->{osys}    {$osname}  {$perl}{all}{$row->[5]} = 1;
+            $self->{pass}    {$row->{platform}}{$perl}{all}{$row->{dist}} = 1;
+            $self->{platform}{$row->{platform}}{$perl}{all}++;
+            $self->{osys}    {$osname}  {$perl}{all}{$row->{dist}} = 1;
             $self->{osname}  {$osname}  {$perl}{all}++;
 
-            if($row->[3] == $self->{dates}{THATMONTH}) {
-                $self->{pass}    {$row->[7]}{$perl}{month}{$row->[5]} = 1;
-                $self->{platform}{$row->[7]}{$perl}{month}++;
-                $self->{osys}    {$osname}  {$perl}{month}{$row->[5]} = 1;
+            if($row->{postdate} == $self->{dates}{THATMONTH}) {
+                $self->{pass}    {$row->{platform}}{$perl}{month}{$row->{dist}} = 1;
+                $self->{platform}{$row->{platform}}{$perl}{month}++;
+                $self->{osys}    {$osname}  {$perl}{month}{$row->{dist}} = 1;
                 $self->{osname}  {$osname}  {$perl}{month}++;
             }
 
             # record tester activity
-            $testers->{$name}{first} ||= $row->[3];
-            $testers->{$name}{last}    = $row->[3];
-            $self->{counts}{$row->[3]}{testers}{$name} = 1;
+            $testers->{$name}{first} ||= $row->{postdate};
+            $testers->{$name}{last}    = $row->{postdate};
+            $self->{counts}{$row->{postdate}}{testers}{$name} = 1;
 
-            my $day = substr($row->[11],0,8);
+            my $day = substr($row->{fulldate},0,8);
             $self->{build}{$day}{reports}++ if(defined $self->{build}{$day});
         }
 
-        my @row = (0, @$row);
+        my @row = (0, map {$row->{$_}} qw(id guid state postdate tester dist version platform perl osname osvers fulldate type));
 
         $self->{count}{posters} = $row[1];
         $self->{count}{entries}++;
@@ -1563,7 +1563,7 @@ sub _build_osname_leaderboards {
 
     $count--;
 
-    $self->{parent}->tester_counts();
+    $self->{parent}->tester_loader();
 
     $self->{parent}->_log("Unknown Addresses: ".($count-$self->{parent}->known_t));
     $self->{parent}->_log("Known Addresses:   ".($self->{parent}->known_s));
