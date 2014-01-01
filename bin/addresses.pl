@@ -274,7 +274,7 @@ sub print_addresses {
 sub map_metabase {
     my ($key,$local,$domain,$email) = @_;
 
-    my @rows = $dbi->query_query('array',$phrasebook{MBEMAIL},$email);
+    my @rows = $dbi->get_query('array',$phrasebook{MBEMAIL},$email);
     if(@rows) {
         $unparsed_map{$key} = $rows[0]->[0] . ' #[METABASE]';
         return 1;
