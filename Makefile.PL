@@ -47,7 +47,6 @@ WriteMakefile(
         'CPAN::Testers::Common::DBUtils'    => 0.03,
         'DBI'                               => 0,
         'DBD::mysql'                        => 0,
-        'DBD::SQLite'                       => 0,
 
         # for testing
         'Archive::Zip'                      => 0,       # for testing

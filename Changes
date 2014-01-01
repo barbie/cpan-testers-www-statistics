@@ -1,6 +1,10 @@
 Revision history for CPAN-Testers-WWW-Statistics
 ================================================
 
+1.08    2014-01-01
+        - fixed HTML rendering of names and email addresses.
+        - dropped DBD::SQLite from prerequisites.
+
 1.07    2013-12-27
         - added support for tester profiles.
         - added directory sizes (as suggested by David Golden).
