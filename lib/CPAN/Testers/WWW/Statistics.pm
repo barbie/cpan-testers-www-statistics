@@ -362,13 +362,7 @@ sub tester {
         $addr[2] = $rows[0]->{testerid};
     }
 
-    $addr[0] = $addr[0] =~ /\&(\#x?\d+|\w+)\;/
-                ? $addr[0]
-                : encode_entities( $addr[0] );
-    $addr[0] =~ s/\./ /g    if($addr[0] =~ /\@/);
-    $addr[0] =~ s/\@/ \+ /g;
-    $addr[0] =~ s/</&lt;/g;
-    $addr[0] =~ s/>/&gt;/g;
+    $addr[0] = _html_name($addr[0]);
 
     $self->{addresses}{$name} = \@addr;
     return @addr;
@@ -381,16 +375,8 @@ sub tester_lookup {
     my $address = $self->address;
     my $profile = $self->profile;
 
-    if($testerid && $profile->{$testerid}) {
-        my $name = $profile->{$testerid}{name};
-        $name .= " ($profile->{$testerid}{pause})"  if($profile->{$testerid}{pause});
-        return $name;
-    }
-
-    if($addressid && $address->{$addressid}) {
-        return $address->{$addressid}{email};
-    }
-
+    return $profile->{$testerid}{html}  if($testerid && $profile->{$testerid});
+    return $address->{$addressid}{html} if($addressid && $address->{$addressid});
     return;
 }
 
@@ -399,11 +385,18 @@ sub tester_loader {
     my (%address,%profile);
 
     my @rows = $self->{TESTERS}->get_query('hash',q{SELECT * FROM address});
-    for my $row (@rows) { $address{$row->{addressid}} = $row; }
+    for my $row (@rows) { 
+        $row->{html} = _html_name($row->{email}); 
+        $address{$row->{addressid}} = $row; 
+    }
     $self->address( \%address );
 
     @rows = $self->{TESTERS}->get_query('hash',q{SELECT * FROM profile});
-    for my $row (@rows) { $profile{$row->{testerid}} = $row; }
+    for my $row (@rows) { 
+        my $name = $row->{name} . ($row->{pause} ? " ($row->{pause})" : '');
+        $row->{html} = _html_name($name); 
+        $profile{$row->{testerid}} = $row; 
+    }
     $self->profile( \%profile );
 
     @rows = $self->{TESTERS}->get_query('array',q{
@@ -415,6 +408,20 @@ sub tester_loader {
 
 # -------------------------------------
 # Private Methods
+
+sub _html_name {
+    my $name = shift || return '';
+
+    $name = $name =~ /\&(\#x?\d+|\w+)\;/
+                ? $name
+                : encode_entities( $name );
+    $name =~ s/\./ /g    if($name =~ /\@/);
+    $name =~ s/\@/ \+ /g;
+    $name =~ s/</&lt;/g;
+    $name =~ s/>/&gt;/g;
+
+    return $name;
+}
 
 sub _check_files {
     my $self = shift;
