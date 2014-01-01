@@ -173,7 +173,7 @@ sub create {
 
             if($@ || !$res->is_success()) {
                 my $file = "$results/$g->[0]-$r.html";
-                warn("FAIL: $0 - Cannot access page - see '$file' [$url] [$@]\n");
+                warn("FAIL: $0 - Cannot access page - see '$file' [$url] [" . length($url) . "] [$@]\n");
                 _save_content($res,$file);
             } elsif($res->header('Content-Type') =~ /html/) {
                 my $file = "$results/$g->[0]-$r.html";
