@@ -1902,7 +1902,7 @@ sub _count_mailrc {
 
     my $fh  = IO::File->new($mailrc,'r')     or die "Cannot read file [$mailrc]: $!\n";
     while(<$fh>) {
-        last    if(/^alias\s*DBIML/);
+        next    unless(/^alias\s*\w/);
         $count++;
     }
     $fh->close;

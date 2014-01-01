@@ -1,6 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 ================================================
 
+        - format of 01mailrc.txt has changed.
+
 1.08    2014-01-01
         - fixed HTML rendering of names and email addresses.
         - dropped DBD::SQLite from prerequisites.
