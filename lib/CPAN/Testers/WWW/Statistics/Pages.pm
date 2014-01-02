@@ -419,7 +419,7 @@ sub build_data {
 
         {
             my $osname = $self->{parent}->osname($row->{osname});
-            my $name   = $self->{parent}->tester($row->{tester});
+            my ($name) = $self->{parent}->tester($row->{tester});
 
             $self->{stats}{$row->{postdate}}{reports}++;
             $self->{stats}{$row->{postdate}}{state   }{$row->{state}}++;
@@ -689,7 +689,7 @@ sub _report_interesting {
 
         $row[0] = $key;
         $row[3] = uc $row[3];
-        $row[5] = $self->{parent}->tester($row[5])  if($row[5] && $row[5] =~ /\@/);
+        ($row[5]) = $self->{parent}->tester($row[5])  if($row[5] && $row[5] =~ /\@/);
         push @{ $tvars{ uc($type) } }, \@row;
     }
 
@@ -1411,7 +1411,7 @@ sub _build_monthly_stats {
         my $sql = sprintf $query, $type, $postdate, $type, $type;
         my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
         while(my $row = $next->()) {
-            my $name = $self->{parent}->tester($row->{tester});
+            my ($name) = $self->{parent}->tester($row->{tester});
             $testers{$name}                         += $row->{count};
             $stats{$row->{postdate}}{list}{$name}   += $row->{count};
             $monthly{$row->{postdate}}{$type}{$name} = 1;
