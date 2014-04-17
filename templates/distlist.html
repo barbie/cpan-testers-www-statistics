@@ -52,7 +52,7 @@ submitted to the cpan-testers mailing list, for this instance of platform and
 perl.</p>
 
 <ul>
-[% FOREACH dist = dists %]
+[% FOREACH dist = dists.sort %]
 <li><a href="http://search.cpan.org/dist/[% dist %]" title="[% dist %] on search.cpan.org">[% dist %]</a></li>
 [% END %]
 </ul>
