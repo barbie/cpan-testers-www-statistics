@@ -483,7 +483,7 @@ $self->{parent}->_log("checkpoint: count=$self->{count}{$type}, lastid=$lastid")
             # scratch) should save the current state periodically.
             $self->storage_write();
             $self->storage_write('testers',$testers);
-            $self->storage_write('lastid',{lastid => $lastid});
+            $self->storage_write('lastid',$lastid);
         }
 
         if($self->{count}{$type} == 1 || ($self->{count}->{$type} % 500000) == 0) {
@@ -497,7 +497,7 @@ $self->{parent}->_log("checkpoint: count=$self->{count}{$type}, lastid=$lastid")
 
     $self->storage_write();
     $self->storage_write('testers',$testers);
-    $self->storage_write('lastid',{lastid => $lastid});
+    $self->storage_write('lastid',$lastid);
 
     for my $tester (keys %$testers) {
         $self->{counts}{$testers->{$tester}{first}}{first}++;
@@ -519,7 +519,7 @@ sub storage_read {
         return  unless(-f $storage);
         my $data = read_file($storage);
         my $store = decode_json($data);
-        return $store;
+        return $store->{$type};
     }
 
     for $type (qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast)) {
@@ -527,7 +527,7 @@ sub storage_read {
         next    unless(-f $storage);
         my $data = read_file($storage);
         my $store = decode_json($data);
-        $self->{$type} = $store;
+        $self->{$type} = $store->{$type};
     }
 }
 
@@ -536,7 +536,7 @@ sub storage_write {
 
     if($type) {
         return  unless($store);
-        my $data = encode_json($store);
+        my $data = encode_json({$type => $store});
 
         my $storage = sprintf $self->{parent}->mainstore(), $type;
         my $dir = dirname($storage);
@@ -546,8 +546,8 @@ sub storage_write {
     }
 
     for $type (qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast)) {
-        next    unless($self->{$_});
-        my $data = encode_json($self->{$_});
+        next    unless($self->{$type});
+        my $data = encode_json({$type => $self->{$type}});
 
         my $storage = sprintf $self->{parent}->mainstore(), $type;
         my $dir = dirname($storage);
@@ -720,7 +720,7 @@ sub _report_interesting {
         my @row = @{ $self->{xrefs}{$type}{$key} };
 
         $row[0] = $key;
-        $row[3] = uc $row[3];
+        $row[3] = uc $row[3]    if($row[3]);
         ($row[5]) = $self->{parent}->tester($row[5])  if($row[5] && $row[5] =~ /\@/);
         push @{ $tvars{ uc($type) } }, \@row;
     }

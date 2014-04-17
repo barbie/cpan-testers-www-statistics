@@ -100,21 +100,24 @@ check_dir_contents(
 ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
 
-## READ JSON DATA
+## READ JSON TEST DATA
 
-{
-    my $store1 = 't/data/cpanstats-test.json';
-    $page->storage_read();
-    my $testers = $page->storage_read('testers');
-    my $lastid  = $page->storage_read('lastid');
+    my $store0 = $page->{parent}->mainstore();
+    my $store1 = 't/data/cpanstats-%s.json';
+    $page->{parent}->mainstore($store1);
 
-    is($lastid,182,'got lastid');
-    is($testers->{"Paul Schinder (SCHINDER)"}{'first'},199908,'got testers first');
-    is($testers->{"Paul Schinder (SCHINDER)"}{'last'}, 199909,'got testers last');
+    my $data = $page->storage_read('test');
+
+    is($data->{lastid},182,'got lastid');
+    is($data->{testers}{"Paul Schinder (SCHINDER)"}{'first'},199908,'got testers first');
+    is($data->{testers}{"Paul Schinder (SCHINDER)"}{'last'}, 199909,'got testers last');
 
     my @versions = sort {versioncmp($b,$a)} keys %{$page->{perls}};
     $page->{versions} = \@versions;
-}
+
+    $page->{$_} = $data->{$_}   for(qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast));
+
+    $page->{parent}->mainstore($store0);
 
 
 ## BUILD MATRIX METHODS
