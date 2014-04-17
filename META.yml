@@ -1,5 +1,5 @@
 --- #YAML:1.0
-name:                CPAN::Testers::WWW::Statistics
+name:                CPAN-Testers-WWW-Statistics
 version:             1.09
 abstract:            Scripts to create the CPAN Testers Statistics website
 author:

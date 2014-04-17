@@ -10,7 +10,7 @@ die "OS unsupported" if( $^O eq 'MSWin32' );
 
 WriteMakefile(
     AUTHOR              => 'Barbie <barbie@cpan.org>',
-    NAME                => 'CPAN::Testers::WWW::Statistics',
+    NAME                => 'CPAN-Testers-WWW-Statistics',
     VERSION_FROM        => 'lib/CPAN/Testers/WWW/Statistics.pm',
     ABSTRACT            => 'Scripts to create the CPAN Testers Statistics website',
     NO_META             => 1,
