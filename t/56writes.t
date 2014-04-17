@@ -23,23 +23,24 @@ my $CHECK_DOMAIN    = 'www.google.com';
 my $UPDATE_ARCHIVE = ($ARGV[0] && $ARGV[0] eq '--update-archive') ? 1 : 0;
 
 
-use Test::More tests => 341;
-use Test::Differences;
-use File::Slurp qw( slurp );
 use Archive::Zip;
 use Archive::Extract;
-use File::Spec;
-use File::Path;
-use File::Copy;
 use File::Basename;
+use File::Copy;
+use File::Path;
+use File::Slurp qw( slurp );
+use File::Spec;
 use Sort::Versions;
+use Test::Differences;
+use Test::More tests => 341;
 
 use lib 't';
 use CTWS_Testing;
 
 ok( my $obj = CTWS_Testing::getObj(), "got object" );
 ok( CTWS_Testing::cleanDir($obj), 'directory removed' );
-unlink($obj->mainstore) if(-f $obj->mainstore);
+my $dirname = dirname($obj->mainstore);
+unlink($dirname) if($dirname && -d $dirname && $dirname !~ /^\.$/);
 
 my $rc;
 my @files;
@@ -103,7 +104,9 @@ ok( CTWS_Testing::cleanDir($obj), 'directory cleaned' );
 
 {
     my $store1 = 't/data/cpanstats-test.json';
-    my ($testers,$lastid) = $page->storage_read($store1);
+    $page->storage_read();
+    my $testers = $page->storage_read('testers');
+    my $lastid  = $page->storage_read('lastid');
 
     is($lastid,182,'got lastid');
     is($testers->{"Paul Schinder (SCHINDER)"}{'first'},199908,'got testers first');
@@ -353,11 +356,11 @@ sub check_dir_contents {
 
                     $_[0] =~ s!<td class="timestamp\d">.*?</td>!<td class="timestamp">==TIMESTAMP==</td>!gsi;
                     $_[0] =~ s!<span class="timestamp\d">.*?</span>!<span class="timestamp">==TIMESTAMP==</span>!gsi;
-                    $_[0] =~ s!\b20\d{4}\b!==TIMESTAMP==!gsi;
-                    $_[0] =~ s!\b20\d{6}\b!==TIMESTAMP==!gsi;
                     $_[0] =~ s!\b20\d{10}\b!==TIMESTAMP==!gsi;
+                    $_[0] =~ s!\b20\d{6}\b!==TIMESTAMP==!gsi;
+                    $_[0] =~ s!\b20\d{4}\b!==TIMESTAMP==!gsi;
 
-                    $_[0] =~ s/\d{4}\s*\-\s*\d{4}/==DATERANGE==/gmi;
+                    $_[0] =~ s/\d{4}\s*(\-|to)\s*\d{4}/==DATERANGE==/gmi;
                     $_[0] =~ s/(\n\r|\r\n)/\n/gs;
                 }
                 $_[0];
