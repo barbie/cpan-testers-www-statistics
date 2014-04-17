@@ -57,7 +57,7 @@ keys.
   config    => path to configuration file [required]
 
   directory => path to output directory
-  mainstore => path to main data storage file
+  mainstore => path/format to data storage files
   templates => path to templates directory
   address   => path to address file
   mailrc    => path to 01mailrc.txt file
@@ -131,8 +131,7 @@ sub new {
     $self->known_t( 0 );
     $self->known_s( 0 );
 
-    $self->mainstore( _defined_or( $hash{mainstore},  $cfg->val('MASTER','mainstore' ) ));
-    $self->monthstore(_defined_or( $hash{monthstore}, $cfg->val('MASTER','monthstore'), 'cpanstats-%s.json' ));
+    $self->mainstore( _defined_or( $hash{mainstore},  $cfg->val('MASTER','mainstore' ), 'cpanstats-%s.json' ));
     $self->templates( _defined_or( $hash{templates},  $cfg->val('MASTER','templates' ) ));
     $self->address(   _defined_or( $hash{address},    $cfg->val('MASTER','address'   ) ));
     $self->missing(   _defined_or( $hash{missing},    $cfg->val('MASTER','missing'   ) ));
@@ -148,7 +147,7 @@ sub new {
     }
 
     $self->_log(sprintf "%-12s=%s", $_, ($self->$_() || ''))
-        for(qw(mainstore monthstore templates address missing mailrc logfile logclean directory builder dir_cpan dir_backpan dir_reports));
+        for(qw(mainstore templates address missing mailrc logfile logclean directory builder dir_cpan dir_backpan dir_reports));
 
     die "Must specify the output directory\n"           unless($self->directory);
     die "Must specify the template directory\n"         unless($self->templates);
@@ -203,8 +202,8 @@ Method to manage the creation of all the statistics graphs.
 =cut
 
 __PACKAGE__->mk_accessors(
-    qw( directory mainstore monthstore templates address builder missing 
-        mailrc logfile logclean copyright noreports tocopy tolink osnames
+    qw( directory mainstore templates address builder missing mailrc 
+        logfile logclean copyright noreports tocopy tolink osnames
         address profile known_t known_s dir_cpan dir_backpan dir_reports));
 
 sub leaderboard {
@@ -328,7 +327,7 @@ sub ranges {
             push @RANGES, "$fdate-$tdate";
         }
     }
-        
+
     return \@RANGES;
 }
 

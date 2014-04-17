@@ -1,6 +1,10 @@
 Revision history for CPAN-Testers-WWW-Statistics
 ================================================
 
+        - tester() now returns an list.
+        - monthstore and mainstore merged.
+        - storage elements now saved in individual files.
+
 1.09    2014-01-01
         - format of 01mailrc.txt has changed.
 
