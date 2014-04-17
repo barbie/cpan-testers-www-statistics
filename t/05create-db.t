@@ -90,8 +90,7 @@ sub create_config {
     my $fh = IO::File->new($config,'w+') or return;
     print $fh <<PRINT;
 [MASTER]
-mainstore=t/_TMPDIR/cpanstats.json
-monthstore=t/_TMPDIR/cpanstats-%s.json
+mainstore=t/_TMPDIR/storage/cpanstats-%s.json
 
 address=t/data/addresses.txt
 templates=templates
@@ -108,7 +107,7 @@ dir_reports=lib
 
 directory=t/_TMPDIR/cpanstats
 
-copyright=&#169; 1999-2013 CPAN Testers.
+copyright=&#169; 1999-2014 CPAN Testers.
 
 ; database configuration
 

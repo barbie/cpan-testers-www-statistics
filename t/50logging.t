@@ -29,9 +29,9 @@ unlink($LOG) if(-f $LOG);
     my @log = read_file($LOG);
     chomp @log;
 
-    is(scalar(@log),15, 'log written');
-    like($log[13], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Hello!,   'line 1 of log');
-    like($log[14], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Goodbye!, 'line 2 of log');
+    is(scalar(@log),14, 'log written');
+    like($log[12], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Hello!,   'line 1 of log');
+    like($log[13], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Goodbye!, 'line 2 of log');
 }
 
 {
@@ -47,10 +47,10 @@ unlink($LOG) if(-f $LOG);
     my @log = read_file($LOG);
     chomp @log;
 
-    is(scalar(@log),29, 'log extended');
-    like($log[13], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Hello!,      'line 1 of log');
-    like($log[14], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Goodbye!,    'line 2 of log');
-    like($log[28], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Back Again!, 'line 3 of log');
+    is(scalar(@log),27, 'log extended');
+    like($log[12], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Hello!,      'line 1 of log');
+    like($log[13], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Goodbye!,    'line 2 of log');
+    like($log[26], qr!\d{4}/\d\d/\d\d \d\d:\d\d:\d\d Back Again!, 'line 3 of log');
 }
 
 {
