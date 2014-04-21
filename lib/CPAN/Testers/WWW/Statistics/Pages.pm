@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '1.09';
+$VERSION = '1.10';
 
 #----------------------------------------------------------------------------
 
@@ -1388,7 +1388,7 @@ sub _build_monthly_stats {
             $postdate = "AND postdate >= '$last'" if($last);
         }
 
-        my $sql = sprintf $query, $type, $postdate, $type,$type;
+        my $sql = sprintf $query, $type, $postdate, $type, $type;
         my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
         while(my $row = $next->()) {
             $monthly{$row->{postdate}}{$type}{$row->{$type}} = 1;
@@ -1993,7 +1993,7 @@ F<http://wiki.cpantesters.org/>
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2005-2013 Barbie for Miss Barbell Productions.
+  Copyright (C) 2005-2014 Barbie for Miss Barbell Productions.
 
   This distribution is free software; you can redistribute it and/or
   modify it under the Artistic Licence v2.
