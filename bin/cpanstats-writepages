@@ -50,14 +50,15 @@ my $stats = CPAN::Testers::WWW::Statistics->new(
         logclean  => $options{logclean}
 );
 
-if($options{all})           { $stats->make_pages();     }
+if($options{all})           { $stats->make_pages();         }
 else                        {
-    if($options{basics})    { $stats->make_basics();    }
-    if($options{update})    { $stats->update();         }
-    if($options{matrix})    { $stats->make_matrix();    }
-    if($options{stats})     { $stats->make_stats();     }
-    if($options{leader})    { $stats->make_leaders();   }
-    if($options{noreports}) { $stats->make_noreports(); }
+    if($options{basics})    { $stats->make_basics();        }
+    if($options{update})    { $stats->update();             }
+    if($options{matrix})    { $stats->make_matrix();        }
+    if($options{stats})     { $stats->make_stats();         }
+    if($options{leader})    { $stats->make_leaders();       }
+    if($options{noreports}) { $stats->make_noreports();     }
+    if($options{perform})   { $stats->make_performance();   }
 }
 
 # -------------------------------------
@@ -96,6 +97,7 @@ sub init_options {
         'stats|s',
 	    'leader|l',
 	    'noreports|n',
+	    'perform|p',
         
         'help|h',
         'version|v'
