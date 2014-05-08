@@ -150,6 +150,10 @@ Create all other statistical pages; monthly tables, interesting stats, etc.
 
 Create all OS Leaderboards.
 
+=item * build_performance
+
+Create/update the builder performance data file.
+
 =item * build_noreports
 
 Create all OS no report pages.
@@ -309,7 +313,7 @@ sub build_performance {
     my $self = shift;
 
     $self->{parent}->_log("performance start");
-    $self->storage_read('build');
+    $self->{build} = $self->storage_read('build');
 
     ## BUILD PERFORMANCE FILES
     $self->_build_performance_stats();

@@ -195,6 +195,10 @@ Method to manage the creation of the OS leaderboard web pages.
 
 Method to manage the creation of the no reports pages.
 
+=item * make_performance
+
+Method to manage the creation/update of the builder performance data file.
+
 =item * make_graphs
 
 Method to manage the creation of all the statistics graphs.
