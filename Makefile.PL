@@ -20,6 +20,7 @@ WriteMakefile(
         'Class::Accessor::Fast'             => 0,
         'Config::IniFiles'                  => 0,
         'Data::Dumper'                      => 0,       # for debugging purposes
+        'DateTime'                          => 0,
         'GD::Graph::lines'                  => 0,
         'File::Basename'                    => 0,
         'File::Copy'                        => 0,

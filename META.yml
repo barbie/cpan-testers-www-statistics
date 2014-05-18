@@ -16,6 +16,7 @@ requires:
   Config::IniFiles:                 0
   CPAN::Testers::Common::DBUtils:   0.03
   Data::Dumper:                     0
+  DateTime:                         0
   DBI:                              0
   DBD::mysql:                       0
   GD::Graph::lines:                 0
