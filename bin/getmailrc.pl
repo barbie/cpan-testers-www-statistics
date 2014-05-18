@@ -74,7 +74,7 @@ F<http://wiki.cpantesters.org/>
 
   Copyright (C) 2008-2013 Barbie for Miss Barbell Productions.
 
-  This module is free software; you can redistribute it and/or
-  modify it under the same terms as Perl itself.
+  This distribution is free software; you can redistribute it and/or
+  modify it under the Artistic Licence v2.
 
 =cut
