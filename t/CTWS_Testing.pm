@@ -27,6 +27,8 @@ my $parent;
 my $config      = 't/_DBDIR/test-config.ini';
 my $dbconfig    = 't/_DBDIR/databases.ini';
 
+my $config_dir  = 't/_DBDIR';
+
 $ENV{TZ} = 'GMT';
 
 #----------------------------------------------------------------------------
@@ -72,6 +74,11 @@ sub create_config {
     $fh2->close;
 
     return $file2;
+}
+
+sub has_environment {
+    return 0    unless(-f $config);
+    return 1;
 }
 
 sub _cleanDir {

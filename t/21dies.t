@@ -10,7 +10,10 @@ use CPAN::Testers::WWW::Statistics::Graphs;
 use lib 't';
 use CTWS_Testing;
 
-use Test::More tests => 12;
+use Test::More;
+
+if(CTWS_Testing::has_environment()) { plan tests    => 12; }
+else                                { plan skip_all => "Environment not configured"; }
 
 my $dbconfig    = 't/_DBDIR/databases.ini';
 

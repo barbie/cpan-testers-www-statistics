@@ -3,11 +3,14 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More;
 use CPAN::Testers::WWW::Statistics;
 
 use lib 't';
 use CTWS_Testing;
+
+if(CTWS_Testing::has_environment()) { plan tests    => 3; }
+else                                { plan skip_all => "Environment not configured"; }
 
 my $expected1 = { };
 my $expected2 = { 

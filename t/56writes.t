@@ -32,10 +32,13 @@ use File::Slurp qw( slurp );
 use File::Spec;
 use Sort::Versions;
 use Test::Differences;
-use Test::More tests => 341;
+use Test::More;
 
 use lib 't';
 use CTWS_Testing;
+
+if(CTWS_Testing::has_environment()) { plan tests    => 341; }
+else                                { plan skip_all => "Environment not configured"; }
 
 ok( my $obj = CTWS_Testing::getObj(), "got object" );
 ok( CTWS_Testing::cleanDir($obj), 'directory removed' );

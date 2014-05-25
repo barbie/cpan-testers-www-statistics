@@ -3,10 +3,13 @@ use strict;
 
 use File::Path;
 use File::Slurp;
-use Test::More tests => 22;
+use Test::More;
 
 use lib 't';
 use CTWS_Testing;
+
+if(CTWS_Testing::has_environment()) { plan tests    => 22; }
+else                                { plan skip_all => "Environment not configured"; }
 
 my $LOG = 't/_DBDIR/50logging.log';
 my $CFG = 't/data/50logging.ini';

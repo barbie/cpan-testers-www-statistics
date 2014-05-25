@@ -5,6 +5,7 @@ Revision history for CPAN-Testers-WWW-Statistics
         - added cpan/backpan 100 files to CPAN Stats page creation.
         - DateTime is now a pre-requisite.
         - added full version checks in META tests.
+        - skip environment has not been configured.
 
 1.11    2014-05-11
         - build performance data in isolation.

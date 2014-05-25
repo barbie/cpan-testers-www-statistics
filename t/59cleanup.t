@@ -4,12 +4,16 @@ use strict;
 use warnings;
 $|=1;
 
-use Test::More tests => 5;
+use Test::More;
 use File::Path;
-use lib 't';
-use CTWS_Testing;
 use File::Spec;
 use File::Path;
+
+use lib 't';
+use CTWS_Testing;
+
+if(CTWS_Testing::has_environment()) { plan tests    => 5; }
+else                                { plan skip_all => "Environment not configured"; }
 
 ok( my $obj = CTWS_Testing::getObj(), "got object" );
 
@@ -19,6 +23,7 @@ my $notd = $@ ? 1 : 0;
 unless($notd) {
     my $td;
     if($td = Test::Database->handle( 'mysql' )) {
+        diag("deleting database: " . $td->name);
         $td->{driver}->drop_database($td->name);
     }
 }

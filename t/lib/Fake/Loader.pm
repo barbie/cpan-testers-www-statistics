@@ -149,5 +149,4 @@ sub count_testers_table {
     return $count;
 }
 
-
 1;

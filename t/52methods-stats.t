@@ -3,11 +3,14 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More;
 use CPAN::Testers::WWW::Statistics;
 
 use lib 't';
 use CTWS_Testing;
+
+if(CTWS_Testing::has_environment()) { plan tests    => 7; }
+else                                { plan skip_all => "Environment not configured"; }
 
 ok( my $obj = CTWS_Testing::getObj(), "got parent object" );
 

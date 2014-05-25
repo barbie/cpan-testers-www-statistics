@@ -4,10 +4,13 @@ use strict;
 use warnings;
 $|=1;
 
-use Test::More tests => 17;
+use Test::More;
 use File::Spec;
 use lib 't';
 use CTWS_Testing;
+
+if(CTWS_Testing::has_environment()) { plan tests    => 17; }
+else                                { plan skip_all => "Environment not configured"; }
 
 ok(  my $obj = CTWS_Testing::getObj(), "got object" );
 isa_ok( $obj, 'CPAN::Testers::WWW::Statistics', "Parent object type" );
