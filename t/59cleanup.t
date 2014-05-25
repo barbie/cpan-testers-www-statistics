@@ -23,7 +23,7 @@ my $notd = $@ ? 1 : 0;
 unless($notd) {
     my $td;
     if($td = Test::Database->handle( 'mysql' )) {
-        diag("deleting database: " . $td->name);
+        #diag("deleting database: " . $td->name);
         $td->{driver}->drop_database($td->name);
     }
 }
