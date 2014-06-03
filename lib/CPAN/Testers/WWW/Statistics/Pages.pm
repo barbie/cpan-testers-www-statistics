@@ -278,7 +278,6 @@ sub build_stats {
     $self->{parent}->_log("dist hash from storage built");
 
     if($testers) {
-
         for my $tester (keys %$testers) {
             $self->{counts}{$testers->{$tester}{first}}{first}++;
             $self->{counts}{$testers->{$tester}{last}}{last}++;
@@ -810,8 +809,10 @@ sub _report_cpan {
     $stat12->close;
 #    $stat13->close;
 
+    $tvars{maxyear} = DateTime->now->year;
     $self->_writepage('trends',\%tvars);
 
+    $self->_report_new_distros();
 
     $self->{parent}->_log("building cpan leader page");
 
@@ -968,6 +969,59 @@ sub _report_cpan {
         printf $fh "%s,%d,%s\n", $row->{author}, $row->{count}, $self->{alias}{$row->{author}}||'???';
     }
     $fh->close;
+}
+
+sub _report_new_distros {
+    my $self = shift;
+
+    $self->{parent}->_log("building new distro pages");
+
+    my (%seen,%newversions);
+    my $start_year = 1995;
+    my $start_month = 8;
+    my $this_year = DateTime->now->year;
+    my $sql = 'select author,dist,version,from_unixtime(released) as reldate from uploads where released >= ? AND released < ? order by released';
+
+    for my $year (1995 .. $this_year) {
+        my $tvars = { template => 'newdistros', year => $year };
+
+        for my $month (1 .. 12) {
+            next if($year == $start_year && $month < $start_month);
+
+            my $thismon = DateTime->new( year => $year, month => $month, day => 1, hour => 0, minute => 0, second => 0);
+            my $nextmon = DateTime->new( year => $thismon->clone->add( months => 1 )->year, month => $thismon->clone->add( months => 1 )->month, day => 1, hour => 0, minute => 0, second => 0);
+
+            last if($thismon > DateTime->now);
+
+            $tvars->{newdistros}{$month}{month}   = $thismon->month_name;
+            $tvars->{newdistros}{$month}{counter} = 0;
+
+            my @rows = $self->{parent}->{CPANSTATS}->get_query('hash',$sql,$thismon->epoch(),$nextmon->epoch());
+            for my $row (@rows) {
+
+                next if($seen{$row->{dist}});
+
+                $seen{$row->{dist}} = 1;
+                push @{$tvars->{newdistros}{$month}{dists}},
+                    {
+                        author  => $row->{author},
+                        dist    => $row->{dist},
+                        version => $row->{version},
+                        reldate => $row->{reldate}
+                    };
+
+                $tvars->{newdistros}{$month}{counter}++;
+                $newversions{$row->{version}}++;
+            }
+        }
+
+        $self->_writepage("newdistros/$year",$tvars);
+    }
+
+    $self->{parent}->_log("building new distro versions page");
+
+    my $tvars = { template => 'newversions', versions => \%newversions };
+    $self->_writepage("newdistros/newversions",$tvars);
 }
 
 sub _update_noreports {
@@ -1920,9 +1974,10 @@ sub _writepage {
     my $layout    = "$tlayout.$extension";
     my $source    = "$template.$extension";
     my $target    = "$directory/$page.$extension";
-    mkdir(dirname($target));
 
     #$self->{parent}->_log("_writepage: layout=$layout, source=$source, target=$target");
+
+    mkdir(dirname($target));
 
     $vars->{SOURCE}     = $source;
     $vars->{VERSION}    = $VERSION;

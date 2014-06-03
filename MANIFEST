@@ -135,3 +135,5 @@ t/data/profile.sql
 t/data/release_summary.sql
 t/data/uploads.sql
 t/lib/Fake/Loader.pm
+templates/newdistros.html
+templates/newversions.html

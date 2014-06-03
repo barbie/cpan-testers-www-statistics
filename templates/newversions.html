@@ -1,0 +1,15 @@
+[% 
+    box_sites = 1 ;
+
+    title = 'Versions';
+    crumb2_name = 'New Distributions' ;
+    crumb2_href = '/newdistros.html' ;
+    crumb1_name = 'Versions' ;
+%]
+
+<table>
+<tr><th class="top">Version</th><th class="top">Count</th></tr>
+[% FOREACH version = versions.keys.nsort %]
+<tr><td>[% version %]</td><td>[% versions.$version %]</td></tr>
+[% END %]
+</table>
