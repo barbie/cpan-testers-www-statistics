@@ -112,6 +112,7 @@ sub saveFiles {
     my $dir = shift;
 
     mkpath("$dir/stats");
+    mkpath("$dir/rates");
 
     my $fh = IO::File->new("$dir/stats/build1.txt",'w+');
     print $fh "#DATE,REQUESTS,PAGES,REPORTS\n20090715,32167,4304,21943\n20090716,43144,6573,16277\n20090717,37462,5942,21923\n";
@@ -139,6 +140,22 @@ sub saveFiles {
 
     $fh = IO::File->new("$dir/stats/stats12.txt",'w+');
     print $fh "#DATE,AUTHORS,DISTROS\n200810,0,0\n200811,1,1\n200812,0,0\n";
+    $fh->close;
+
+    $fh = IO::File->new("$dir/rates/submit1.txt",'w+');
+    print $fh "#INDEX,EXCLUSIVE,INCLUSIVE\n1,10,11\n2,11,12\n3,12,15\n4,11,12\n5,12,12\n6,14,14\n7,16,16\n8,17,17\n9,13,13\n10,14,14\n11,11,11\n12,15,15\n";
+    $fh->close;
+
+    $fh = IO::File->new("$dir/rates/submit2.txt",'w+');
+    print $fh "#INDEX,EXCLUSIVE,INCLUSIVE\n1,10,11\n2,10,12\n3,10,13\n4,11,11\n5,11,11\n6,11,11\n7,11,11\n";
+    $fh->close;
+
+    $fh = IO::File->new("$dir/rates/submit3.txt",'w+');
+    print $fh "#INDEX,EXCLUSIVE,INCLUSIVE\n1,10,11\n2,10,12\n3,10,13\n4,11,11\n5,11,11\n6,11,11\n7,11,11\n8,10,11\n9,10,12\n10,10,13\n11,10,11\n12,10,12\n13,10,13\n14,11,11\n15,11,11\n16,11,11\n17,11,11\n18,10,11\n19,10,12\n20,10,13\n21,10,11\n22,10,12\n23,10,13\n24,11,11\n25,11,11\n26,11,11\n27,11,11\n28,10,11\n29,10,12\n30,10,13\n31,10,11\n";
+    $fh->close;
+
+    $fh = IO::File->new("$dir/rates/submit4.txt",'w+');
+    print $fh "#INDEX,EXCLUSIVE,INCLUSIVE\n1,10,11\n2,10,12\n3,10,13\n4,11,11\n5,11,11\n6,11,11\n7,11,11\n8,10,11\n9,10,12\n10,10,13\n11,10,11\n12,10,12\n13,10,13\n14,11,11\n15,11,11\n16,11,11\n17,11,11\n18,10,11\n19,10,12\n20,10,13\n21,10,11\n22,10,12\n23,10,13\n";
     $fh->close;
 }
 
