@@ -9,7 +9,7 @@
 
 <table>
 <tr><th class="top">Version</th><th class="top">Count</th></tr>
-[% FOREACH version = versions.keys.nsort %]
+[% FOREACH version = versions.keys.sort %]
 <tr><td>[% version %]</td><td>[% versions.$version %]</td></tr>
 [% END %]
 </table>
