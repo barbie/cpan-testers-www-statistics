@@ -34,6 +34,7 @@ Note that this package should not be called directly, but via its parent as:
 # -------------------------------------
 # Library Modules
 
+use File::Basename;
 use File::Path;
 use HTML::Entities;
 use IO::File;
@@ -52,14 +53,18 @@ my %month = (
 my ($backg,$foreg) = ('black','white');
 
 my @graphs = (
-['stats1' ,'CPAN Testers Statistics - Reports',     [qw(UPLOADS REPORTS PASS FAIL)],    'TEST_RANGES', 'month'],
-['stats2' ,'CPAN Testers Statistics - Attributes',  [qw(TESTERS PLATFORMS PERLS)],      'TEST_RANGES', 'month'],
-['stats3' ,'CPAN Testers Statistics - Non-Passes',  [qw(FAIL NA UNKNOWN)],              'TEST_RANGES', 'month'],
-['stats4' ,'CPAN Testers Statistics - Testers',     [qw(ALL FIRST LAST)],               'TEST_RANGES', 'month'],
-['stats6' ,'CPAN Statistics - Uploads',             [qw(AUTHORS DISTROS)],              'CPAN_RANGES', 'month'],
-['stats12','CPAN Statistics - New Uploads',         [qw(AUTHORS DISTROS)],              'CPAN_RANGES', 'month'],
-['build1' ,'CPAN Testers Performance Graph',        [qw(REQUESTS PAGES REPORTS)],       'NONE',        'daily'],
-['pcent1' ,'CPAN Testers Statistics - Percentages', [qw(FAIL OTHER PASS)],              'TEST_RANGES', 'month'],
+['stats/stats1'     ,'CPAN Testers Statistics - Reports'    ,[qw(UPLOADS REPORTS PASS FAIL)],'TEST_RANGES'  ,'month'],
+['stats/stats2'     ,'CPAN Testers Statistics - Attributes' ,[qw(TESTERS PLATFORMS PERLS)]  ,'TEST_RANGES'  ,'month'],
+['stats/stats3'     ,'CPAN Testers Statistics - Non-Passes' ,[qw(FAIL NA UNKNOWN)]          ,'TEST_RANGES'  ,'month'],
+['stats/stats4'     ,'CPAN Testers Statistics - Testers'    ,[qw(ALL FIRST LAST)]           ,'TEST_RANGES'  ,'month'],
+['stats/stats6'     ,'CPAN Statistics - Uploads'            ,[qw(AUTHORS DISTROS)]          ,'CPAN_RANGES'  ,'month'],
+['stats/stats12'    ,'CPAN Statistics - New Uploads'        ,[qw(AUTHORS DISTROS)]          ,'CPAN_RANGES'  ,'month'],
+['stats/build1'     ,'CPAN Testers Performance Graph'       ,[qw(REQUESTS PAGES REPORTS)]   ,'NONE'         ,'daily'],
+['stats/pcent1'     ,'CPAN Testers Statistics - Percentages',[qw(FAIL OTHER PASS)]          ,'TEST_RANGES'  ,'month'],
+['rates/submit1'    ,'CPAN Submissions - By Month'          ,[qw(EXCLUSIVE INCLUSIVE)]      ,'NONE'         ,'index'],
+['rates/submit2'    ,'CPAN Submissions - By Day of the Week',[qw(EXCLUSIVE INCLUSIVE)]      ,'NONE'         ,'index'],
+['rates/submit3'    ,'CPAN Submissions - By Day'            ,[qw(EXCLUSIVE INCLUSIVE)]      ,'NONE'         ,'index'],
+['rates/submit4'    ,'CPAN Submissions - By Hour'           ,[qw(EXCLUSIVE INCLUSIVE)]      ,'NONE'         ,'index'],
 );
 
 my $lwp = LWP::UserAgent->new();
@@ -145,12 +150,15 @@ sub create {
     my $status = 1; # assume failure
 
     my $directory = $self->{parent}->directory;
-    my $results   = "$directory/stats";
-    mkpath($results);
 
     $self->{parent}->_log("create start");
 
     for my $g (@graphs) {
+        my $results   = "$directory/$g->[0]";
+        my ($path,$file) = (dirname($results),basename($results));
+        mkpath($path);
+        $g->[0] = $file;
+
         my $ranges = $self->{parent}->ranges($g->[3]);
         $self->{parent}->_log("writing graph - got range [$g->[3]] = " . (scalar(@$ranges)) . ", latest=$ranges->[-1]");
 
@@ -172,19 +180,19 @@ sub create {
             };
 
             if($@ || !$res->is_success()) {
-                my $file = "$results/$g->[0]-$r.html";
+                $file = "$results-$r.html";
                 warn("FAIL: $0 - Cannot access page - see '$file' [$url] [" . length($url) . "] [$@]\n");
                 _save_content($res,$file);
             } elsif($res->header('Content-Type') =~ /html/) {
-                my $file = "$results/$g->[0]-$r.html";
+                $file = "$results-$r.html";
                 warn("FAIL: $0 - request failed - see '$file'\n");
                 _save_content($res,$file);
             } else {
-                my $file = "$results/$g->[0]-$r.png";
+                $file = "$results-$r.png";
                 _save_content($res,$file);
 
                 if($r eq $latest) {
-                    $file = "$results/$g->[0].png";
+                    $file = "$results.png";
                     _save_content($res,$file);
                 }
                 $status = 0;
@@ -222,7 +230,10 @@ sub _make_graph {
     return  unless(@data);
 
     for my $date (@{$data[0]}) {
-        if($type eq 'month') {
+        if($type eq 'index') {
+            push @dates1, "'";
+            push @dates2, $date;
+        } elsif($type eq 'month') {
             my $year  = substr($date,0,4);
             my $month = substr($date,4,2);
             push @dates1, ($month % 2 == 1 ? $MONTHS[$month][0] : '');

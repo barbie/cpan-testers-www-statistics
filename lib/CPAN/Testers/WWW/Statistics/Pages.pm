@@ -813,6 +813,7 @@ sub _report_cpan {
     $self->_writepage('trends',\%tvars);
 
     $self->_report_new_distros();
+    $self->_report_submissions();
 
     $self->{parent}->_log("building cpan leader page");
 
@@ -1022,6 +1023,83 @@ sub _report_new_distros {
 
     my $tvars = { template => 'newversions', versions => \%newversions };
     $self->_writepage("newdistros/newversions",$tvars);
+}
+
+sub _report_submissions {
+    my $self = shift;
+
+    $self->{parent}->_log("building submission data files");
+
+    my $sql = 'select from_unixtime(released) as reldate from uploads';
+
+    my $now = DateTime->now;
+    my (%hours,%days,%months,%dotw,%tvars);
+
+    my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
+    for my $row ($next->()) {
+        next unless($row->{reldate} && $row->{reldate} =~ /^(\d+)\-(\d+)\-(\d+).(\d+):(\d+):(\d+)/);
+        my ($year,$month,$day,$hour,$minute,$second) = ($1,$2,$3,$4,$5,$6);
+
+        my $date = DateTime->new( year => $year, month => $month, day => $day, hour => $hour, minute => $minute, second => $second );
+        my $dotw = $date->day_of_week;
+
+        $months{that}{$month}++;
+        $dotw{that}{$dotw}++;
+        $days{that}{$day}++;
+        $hours{that}{$hour}++;
+
+        if($year != $now->year) {
+            $months{this}{$month}++;
+            $dotw{this}{$dotw}++;
+        } elsif($date->week_number != $now->week_number) {
+            $dotw{this}{$dotw}++;
+        }
+
+        if(( $year != $now->year) ||
+           ( $year == $now->year && $month != $now->month) ) {
+            $days{this}{$day}++;
+        }
+
+        if(( $year != $now->year) ||
+           ( $year == $now->year && $month != $now->month) ||
+           ( $year == $now->year && $month == $now->month && $day != $now->day) ) {
+            $hours{this}{$hour}++;
+        }
+    }
+
+    my $directory = $self->{parent}->directory;
+    my $results   = "$directory/rates";
+    mkpath($results);
+
+    my $fh = IO::File->new(">$results/submit1.txt");
+    print $fh "#INDEX,EXCLUSIVE,INCLUSIVE\n";
+    for my $month (sort {$a <=> $b} keys %{$months{this}}) {
+        printf $fh "%d,%d,%d\n", $month, $months{this}{$month}, $months{that}{$month};
+    }
+    $fh->close;
+
+    $fh = IO::File->new(">$results/submit2.txt");
+    print $fh "#INDEX,EXCLUSIVE,INCLUSIVE\n";
+    for my $dotw (sort {$a <=> $b} keys %{$dotw{this}}) {
+        printf $fh "%d,%d,%d\n", $dotw, $dotw{this}{$dotw}, $dotw{that}{$dotw};
+    }
+    $fh->close;
+
+    $fh = IO::File->new(">$results/submit3.txt");
+    print $fh "#INDEX,EXCLUSIVE,INCLUSIVE\n";
+    for my $day (sort {$a <=> $b} keys %{$days{this}}) {
+        printf $fh "%d,%d,%d\n", $day, $days{this}{$day}, $days{that}{$day};
+    }
+    $fh->close;
+
+    $fh = IO::File->new(">$results/submit4.txt");
+    print $fh "#INDEX,EXCLUSIVE,INCLUSIVE\n";
+    for my $hour (sort {$a <=> $b} keys %{$hours{this}}) {
+        printf $fh "%d,%d,%d\n", $hour, $hours{this}{$hour}, $hours{that}{$hour};
+    }
+    $fh->close;
+
+    $self->_writepage('rates',\%tvars);
 }
 
 sub _update_noreports {
