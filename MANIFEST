@@ -115,7 +115,6 @@ templates/mplatforms.html
 templates/mreports.html
 templates/mtesters.html
 templates/newdistros.html
-templates/newversions.html
 templates/noreports.csv
 templates/noreports.html
 templates/osmatrix.html
@@ -133,6 +132,7 @@ templates/statscpan.html
 templates/terms.html
 templates/testers.html
 templates/trends.html
+templates/versions.html
 templates/wdists.html
 templates/wdists-recent.html
 templates/wpcent.html
