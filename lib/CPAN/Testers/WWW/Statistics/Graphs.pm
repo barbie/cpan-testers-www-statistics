@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '1.12';
+$VERSION = '1.13';
 
 #----------------------------------------------------------------------------
 
@@ -53,18 +53,18 @@ my %month = (
 my ($backg,$foreg) = ('black','white');
 
 my @graphs = (
-['stats/stats1'     ,'CPAN Testers Statistics - Reports'    ,[qw(UPLOADS REPORTS PASS FAIL)],'TEST_RANGES'  ,'month'],
-['stats/stats2'     ,'CPAN Testers Statistics - Attributes' ,[qw(TESTERS PLATFORMS PERLS)]  ,'TEST_RANGES'  ,'month'],
-['stats/stats3'     ,'CPAN Testers Statistics - Non-Passes' ,[qw(FAIL NA UNKNOWN)]          ,'TEST_RANGES'  ,'month'],
-['stats/stats4'     ,'CPAN Testers Statistics - Testers'    ,[qw(ALL FIRST LAST)]           ,'TEST_RANGES'  ,'month'],
-['stats/stats6'     ,'CPAN Statistics - Uploads'            ,[qw(AUTHORS DISTROS)]          ,'CPAN_RANGES'  ,'month'],
-['stats/stats12'    ,'CPAN Statistics - New Uploads'        ,[qw(AUTHORS DISTROS)]          ,'CPAN_RANGES'  ,'month'],
-['stats/build1'     ,'CPAN Testers Performance Graph'       ,[qw(REQUESTS PAGES REPORTS)]   ,'NONE'         ,'daily'],
-['stats/pcent1'     ,'CPAN Testers Statistics - Percentages',[qw(FAIL OTHER PASS)]          ,'TEST_RANGES'  ,'month'],
-['rates/submit1'    ,'CPAN Submissions - By Month'          ,[qw(EXCLUSIVE INCLUSIVE)]      ,'NONE'         ,'index'],
-['rates/submit2'    ,'CPAN Submissions - By Day of the Week',[qw(EXCLUSIVE INCLUSIVE)]      ,'NONE'         ,'index'],
-['rates/submit3'    ,'CPAN Submissions - By Day'            ,[qw(EXCLUSIVE INCLUSIVE)]      ,'NONE'         ,'index'],
-['rates/submit4'    ,'CPAN Submissions - By Hour'           ,[qw(EXCLUSIVE INCLUSIVE)]      ,'NONE'         ,'index'],
+['stats/stats1'     ,'CPAN Testers Statistics - Reports'        ,[qw(UPLOADS REPORTS PASS FAIL)],'TEST_RANGES'  ,'month'],
+['stats/stats2'     ,'CPAN Testers Statistics - Attributes'     ,[qw(TESTERS PLATFORMS PERLS)]  ,'TEST_RANGES'  ,'month'],
+['stats/stats3'     ,'CPAN Testers Statistics - Non-Passes'     ,[qw(FAIL NA UNKNOWN)]          ,'TEST_RANGES'  ,'month'],
+['stats/stats4'     ,'CPAN Testers Statistics - Testers'        ,[qw(ALL FIRST LAST)]           ,'TEST_RANGES'  ,'month'],
+['stats/stats6'     ,'CPAN Statistics - Uploads'                ,[qw(AUTHORS DISTROS)]          ,'CPAN_RANGES'  ,'month'],
+['stats/stats12'    ,'CPAN Statistics - New Uploads'            ,[qw(AUTHORS DISTROS)]          ,'CPAN_RANGES'  ,'month'],
+['stats/build1'     ,'CPAN Testers Performance Graph'           ,[qw(REQUESTS PAGES REPORTS)]   ,'NONE'         ,'daily'],
+['stats/pcent1'     ,'CPAN Testers Statistics - Percentages'    ,[qw(FAIL OTHER PASS)]          ,'TEST_RANGES'  ,'month'],
+['rates/submit1'    ,'CPAN Submissions - By Month'              ,[qw(EXCLUSIVE INCLUSIVE)]      ,'NONE'         ,'index'],
+['rates/submit2'    ,'CPAN Submissions - By Day of the Week'    ,[qw(EXCLUSIVE INCLUSIVE)]      ,'NONE'         ,'index'],
+['rates/submit3'    ,'CPAN Submissions - By Day of the Month'   ,[qw(EXCLUSIVE INCLUSIVE)]      ,'NONE'         ,'index'],
+['rates/submit4'    ,'CPAN Submissions - By Hour'               ,[qw(EXCLUSIVE INCLUSIVE)]      ,'NONE'         ,'index'],
 );
 
 my $lwp = LWP::UserAgent->new();
@@ -158,6 +158,7 @@ sub create {
         my ($path,$file) = (dirname($results),basename($results));
         mkpath($path);
         $g->[0] = $file;
+        $g->[5] = $path;
 
         my $ranges = $self->{parent}->ranges($g->[3]);
         $self->{parent}->_log("writing graph - got range [$g->[3]] = " . (scalar(@$ranges)) . ", latest=$ranges->[-1]");
@@ -219,11 +220,11 @@ sub _save_content {
 #=cut
 
 sub _make_graph {
-    my ($self,$r,$file,$title,$legend,$rcode,$type) = @_;
+    my ($self,$r,$file,$title,$legend,$rcode,$type,$path) = @_;
     my (@dates1,@dates2);
     my $yr = 0;
 
-    my @data = $self->_get_data("$file.txt",$r);
+    my @data = $self->_get_data("$path/$file.txt",$r);
     #use Data::Dumper;
     #print STDERR "#type=$type, file=$file.txt, data=".Dumper(\@data);
 
@@ -297,13 +298,10 @@ sub _make_graph {
 #=cut
 
 sub _get_data {
-    my ($self,$filename,$range) = @_;
+    my ($self,$file,$range) = @_;
     my ($fdate,$tdate) = split('-',$range);
 
-    my $directory = $self->{parent}->directory;
-    my $file   = "$directory/stats/$filename";
-
-    $self->{parent}->_log("get data - range=$range, fdate=$fdate, tdate=$tdate");
+    $self->{parent}->_log("get data - range=$range, fdate=$fdate, tdate=$tdate, file=$file");
 
     my @data;
     my $fh = IO::File->new($file)

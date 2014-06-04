@@ -4,6 +4,7 @@ Revision history for CPAN-Testers-WWW-Statistics
         - added new distributions pages.
         - added new distribution versions page.
         - added submission rate graphs.
+        - reworked graph filename & path creation.
 
 1.12    2014-06-02
         - added cpan/backpan 100 files to CPAN Stats page creation.
