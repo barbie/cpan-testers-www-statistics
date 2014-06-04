@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '1.12';
+$VERSION = '1.13';
 
 #----------------------------------------------------------------------------
 
@@ -977,7 +977,7 @@ sub _report_new_distros {
 
     $self->{parent}->_log("building new distro pages");
 
-    my (%seen,%newversions);
+    my (%seen,%allversions,%newversions);
     my $start_year = 1995;
     my $start_month = 8;
     my $this_year = DateTime->now->year;
@@ -999,6 +999,7 @@ sub _report_new_distros {
 
             my @rows = $self->{parent}->{CPANSTATS}->get_query('hash',$sql,$thismon->epoch(),$nextmon->epoch());
             for my $row (@rows) {
+                $allversions{$row->{version}}++;
 
                 next if($seen{$row->{dist}});
 
@@ -1021,7 +1022,17 @@ sub _report_new_distros {
 
     $self->{parent}->_log("building new distro versions page");
 
-    my $tvars = { template => 'newversions', versions => \%newversions };
+    my (@allversions,@newversions);
+    for my $v (sort {$allversions{$b} <=> $allversions{$a}} keys %allversions) {
+        push @allversions, { version => $v, count => $allversions{$v} };
+    }
+    my $tvars = { template => 'versions', type => 'All', versions => \@allversions };
+    $self->_writepage("newdistros/allversions",$tvars);
+
+    for my $v (sort {$newversions{$b} <=> $newversions{$a}} keys %newversions) {
+        push @newversions, { version => $v, count => $newversions{$v} };
+    }
+    $tvars = { template => 'versions', type => 'New', versions => \@newversions };
     $self->_writepage("newdistros/newversions",$tvars);
 }
 
@@ -1036,7 +1047,7 @@ sub _report_submissions {
     my (%hours,%days,%months,%dotw,%tvars);
 
     my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$sql);
-    for my $row ($next->()) {
+    while( my $row = $next->() ) {
         next unless($row->{reldate} && $row->{reldate} =~ /^(\d+)\-(\d+)\-(\d+).(\d+):(\d+):(\d+)/);
         my ($year,$month,$day,$hour,$minute,$second) = ($1,$2,$3,$4,$5,$6);
 
@@ -1071,6 +1082,7 @@ sub _report_submissions {
     my $results   = "$directory/rates";
     mkpath($results);
 
+    $self->{parent}->_log("writing $results/submit1.txt");
     my $fh = IO::File->new(">$results/submit1.txt");
     print $fh "#INDEX,EXCLUSIVE,INCLUSIVE\n";
     for my $month (sort {$a <=> $b} keys %{$months{this}}) {
@@ -1078,6 +1090,7 @@ sub _report_submissions {
     }
     $fh->close;
 
+    $self->{parent}->_log("writing $results/submit2.txt");
     $fh = IO::File->new(">$results/submit2.txt");
     print $fh "#INDEX,EXCLUSIVE,INCLUSIVE\n";
     for my $dotw (sort {$a <=> $b} keys %{$dotw{this}}) {
@@ -1085,6 +1098,7 @@ sub _report_submissions {
     }
     $fh->close;
 
+    $self->{parent}->_log("writing $results/submit3.txt");
     $fh = IO::File->new(">$results/submit3.txt");
     print $fh "#INDEX,EXCLUSIVE,INCLUSIVE\n";
     for my $day (sort {$a <=> $b} keys %{$days{this}}) {
@@ -1092,6 +1106,7 @@ sub _report_submissions {
     }
     $fh->close;
 
+    $self->{parent}->_log("writing $results/submit4.txt");
     $fh = IO::File->new(">$results/submit4.txt");
     print $fh "#INDEX,EXCLUSIVE,INCLUSIVE\n";
     for my $hour (sort {$a <=> $b} keys %{$hours{this}}) {
