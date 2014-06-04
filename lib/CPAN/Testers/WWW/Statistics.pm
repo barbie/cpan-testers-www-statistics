@@ -187,6 +187,10 @@ Method to manage the creation of the matrix style statistics web pages.
 
 Method to manage the creation of the tabular style statistics web pages.
 
+=item * make_cpan
+
+Method to manage the creation of the CPAN specific statistics files and web pages.
+
 =item * make_leaders
 
 Method to manage the creation of the OS leaderboard web pages.

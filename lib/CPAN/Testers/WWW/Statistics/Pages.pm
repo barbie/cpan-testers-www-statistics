@@ -151,6 +151,10 @@ Create all other statistical pages; monthly tables, interesting stats, etc.
 
 Create all OS Leaderboards.
 
+=item * build_cpan
+
+Create/update the CPAN specific statistics data files and pages.
+
 =item * build_performance
 
 Create/update the builder performance data file.
