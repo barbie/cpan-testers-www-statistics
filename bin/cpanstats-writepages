@@ -2,7 +2,7 @@
 use strict;
 $|++;
 
-my $VERSION = '0.52';
+my $VERSION = '1.13';
 
 #----------------------------------------------------------------------------
 
@@ -59,6 +59,7 @@ else                        {
     if($options{leader})    { $stats->make_leaders();       }
     if($options{noreports}) { $stats->make_noreports();     }
     if($options{perform})   { $stats->make_performance();   }
+    if($options{cpan})      { $stats->make_cpan();          }
 }
 
 # -------------------------------------
@@ -98,6 +99,7 @@ sub init_options {
 	    'leader|l',
 	    'noreports|n',
 	    'perform|p',
+	    'cpan',
         
         'help|h',
         'version|v'
@@ -107,7 +109,8 @@ sub init_options {
     help(0) if($options{version});
 
     $options{all} = 1
-        unless($options{basics} || $options{update} || $options{matrix} || $options{stats} || $options{leader} || $options{noreports});
+        unless($options{basics} || $options{leader} || $options{noreports} || $options{stats}
+            || $options{update} || $options{matrix} || $options{perform}   || $options{cpan});
 }
 
 sub help {
@@ -121,6 +124,7 @@ sub help {
         print "         [--address|a=<file>]  \\\n";
         print "         [--logfile=<file> [--logclean=<1|0>]] \\\n";
         print "         [--all] [--basics] [--update] [--matrix] [--stats] \\\n";
+        print "         [--noreport] [--perform] [--cpan] \\\n";
         print "         [--help|h] [--version|v] \n\n";
 
 #              12345678901234567890123456789012345678901234567890123456789012345678901234567890
@@ -141,6 +145,9 @@ sub help {
         print "  [--matrix]                 # create matrix style pages\n";
         print "  [--stats]                  # create stats style pages\n";
         print "  [--leader]                 # create leaderboard pages\n";
+        print "  [--noreports]              # create no report pages\n";
+        print "  [--perform]                # create performance pages/files\n";
+        print "  [--cpan]                   # create cpan pages/files\n";
 
         print "\nOther Options:\n";
         print "  [--version]                # program version\n";

@@ -309,6 +309,18 @@ sub build_stats {
     $self->{parent}->_log("stats finish");
 }
 
+sub build_cpan {
+    my $self = shift;
+
+    $self->{parent}->_log("cpan stats start");
+
+    ## BUILD INDEPENDENT STATS
+    $self->_build_sizes();
+    $self->_report_cpan();
+
+    $self->{parent}->_log("cpan stats finish");
+}
+
 sub build_performance {
     my $self = shift;
 
