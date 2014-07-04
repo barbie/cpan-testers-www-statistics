@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '1.13';
+$VERSION = '1.14';
 
 #----------------------------------------------------------------------------
 
@@ -147,7 +147,7 @@ Method to facilitate the creation of graphs.
 
 sub create {
     my $self = shift;
-    my $status = 1; # assume failure
+    my $status = 0; # assume success
 
     my $directory = $self->{parent}->directory;
 
@@ -182,12 +182,14 @@ sub create {
 
             if($@ || !$res->is_success()) {
                 $file = "$results-$r.html";
-                warn("FAIL: $0 - Cannot access page - see '$file' [$url] [" . length($url) . "] [$@]\n");
+                $self->{parent}->_log("FAIL: $0 - Cannot access page - see '$file' [$url] [" . length($url) . "] [$@]\n");
                 _save_content($res,$file);
+                $status = 1;
             } elsif($res->header('Content-Type') =~ /html/) {
                 $file = "$results-$r.html";
-                warn("FAIL: $0 - request failed - see '$file'\n");
+                $self->{parent}->_log("FAIL: $0 - request failed - see '$file'\n");
                 _save_content($res,$file);
+                $status = 1;
             } else {
                 $file = "$results-$r.png";
                 _save_content($res,$file);
@@ -196,12 +198,11 @@ sub create {
                     $file = "$results.png";
                     _save_content($res,$file);
                 }
-                $status = 0;
             }
         }
     }
 
-    $self->{parent}->_log("finish");
+    $self->{parent}->_log("finish = $status");
     return $status;
 }
 
@@ -228,7 +229,9 @@ sub _make_graph {
     #use Data::Dumper;
     #print STDERR "#type=$type, file=$file.txt, data=".Dumper(\@data);
 
+$self->{parent}->_log("checkpoint 1");
     return  unless(@data);
+$self->{parent}->_log("checkpoint 2");
 
     for my $date (@{$data[0]}) {
         if($type eq 'index') {
@@ -288,6 +291,7 @@ sub _make_graph {
     my @api = ($chart_api, $titles, $labels, $colour, $chart_filler, $data) ;
 
     my $url = join('&',@api);
+$self->{parent}->_log("checkpoint 3 - $url");
     return $url;
 }
 
