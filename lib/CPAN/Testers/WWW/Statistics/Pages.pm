@@ -419,6 +419,18 @@ sub build_data {
         $self->{xlast} = { posters => [], entries => [], reports => [] },
     }
 
+    # clear old month entries
+    for my $key (qw(pass platform osys osname)) {
+        for my $name (keys %{$self->{$key}}) {
+           for my $perl (keys %{$self->{$key}{$name}}) {
+               for my $month (keys %{$self->{$key}{$name}{$perl}{month}}) {
+                   next if($month > $self->{dates}{THATMONTH});
+                   delete $self->{$key}{$name}{$perl}{month}{$month};
+               }
+           }
+        }
+    }
+
 #$self->{parent}->_log("build:1.".Dumper($self->{build}));
 
     # reports builder performance stats
@@ -487,11 +499,11 @@ sub build_data {
             $self->{osys}    {$osname}  {$perl}{all}{$row->{dist}} = 1;
             $self->{osname}  {$osname}  {$perl}{all}++;
 
-            if($row->{postdate} == $self->{dates}{THATMONTH}) {
-                $self->{pass}    {$row->{platform}}{$perl}{month}{$row->{dist}} = 1;
-                $self->{platform}{$row->{platform}}{$perl}{month}++;
-                $self->{osys}    {$osname}  {$perl}{month}{$row->{dist}} = 1;
-                $self->{osname}  {$osname}  {$perl}{month}++;
+            if($row->{postdate} > $self->{dates}{THATMONTH}) {
+                $self->{pass}    {$row->{platform}}{$perl}{month}{$row->{postdate}}{$row->{dist}} = 1;
+                $self->{platform}{$row->{platform}}{$perl}{month}{$row->{postdate}}++;
+                $self->{osys}    {$osname}  {$perl}{month}{$row->{postdate}}{$row->{dist}} = 1;
+                $self->{osname}  {$osname}  {$perl}{month}{$row->{postdate}}++;
             }
 
             # record tester activity
@@ -1325,13 +1337,12 @@ sub _osname_matrix {
     for my $osname (sort keys %{$self->{osys}}) {
         if($type eq 'month') {
             my $check = 0;
-            for my $perl (@$vers) { $check++ if(defined $self->{osys}{$osname}{$perl}{$type}) }
+            for my $perl (@$vers) { $check++ if(defined $self->{osys}{$osname}{$perl}{month}{$self->{dates}{LASTMONTH}}) }
             next    if($check == 0);
         }
         for my $perl (@$vers) {
-            my $count = defined $self->{osys}{$osname}{$perl}{$type}
-                            ? scalar(keys %{$self->{osys}{$osname}{$perl}{$type}})
-                            : 0;
+            my $count = ($type eq 'month' ? $self->{osys}{$osname}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{osys}{$osname}{$perl}{$type});
+            $count ||= 0;
             $totals{os}{$osname} += $count;
             $totals{perl}{$perl} += $count;
         }
@@ -1353,14 +1364,13 @@ sub _osname_matrix {
     for my $osname (sort {$totals{os}{$b} <=> $totals{os}{$a}} keys %{$totals{os}}) {
         if($type eq 'month') {
             my $check = 0;
-            for my $perl (@$vers) { $check++ if(defined $self->{osys}{$osname}{$perl}{$type}) }
+            for my $perl (@$vers) { $check++ if(defined $self->{osys}{$osname}{$perl}{month}{$self->{dates}{LASTMONTH}}) }
             next    if($check == 0);
         }
         $content .= "\n" . '<tr><th>' . $osname . '</th><th class="totals">' . $totals{os}{$osname} . '</th>';
         for my $perl (@$vers) {
-            my $count = defined $self->{osys}{$osname}{$perl}{$type}
-                            ? scalar(keys %{$self->{osys}{$osname}{$perl}{$type}})
-                            : 0;
+            my $count = ($type eq 'month' ? $self->{osys}{$osname}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{osys}{$osname}{$perl}{$type});
+            $count ||= 0;
             if($count) {
                 if($self->{list}{osname}{$osname}{$perl}{$type}) {
                     $index = $self->{list}{osname}{$osname}{$perl}{$type};
@@ -1380,13 +1390,17 @@ sub _osname_matrix {
                 }
             }
 
-            my $number = $self->{osname}{$osname}{$perl}{$type} || 0;
+            my $number = ($type eq 'month' ? $self->{osname}{$osname}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{osname}{$osname}{$perl}{$type})
+            $number ||= 0;
             my $class = 'none';
             $class = 'some' if($number > 0);
             $class = 'more' if($number > $matrix_limits{$type}->[0]);
             $class = 'lots' if($number > $matrix_limits{$type}->[1]);
+
+            # count = number of distributions with a pass
+            # number = number of reports submitted for that platform/perl
             $content .= qq{<td class="$class">}
-                        . ($count ? qq|<a href="$index.html" title="Distribution List for $osname/$perl">$count</a><br />$self->{osname}{$osname}{$perl}{$type}| : '-')
+                        . ($count ? qq|<a href="$index.html" title="Distribution List for $osname/$perl">$count</a><br />$number| : '-')
                         . '</td>';
         }
         $content .= '<th class="totals">' . $totals{os}{$osname} . '</th><th>' . $osname . '</th>';
@@ -1469,13 +1483,12 @@ sub _platform_matrix {
     for my $platform (sort keys %{$self->{pass}}) {
         if($type eq 'month') {
             my $check = 0;
-            for my $perl (@$vers) { $check++ if(defined $self->{pass}{$platform}{$perl}{$type}) }
+            for my $perl (@$vers) { $check++ if(defined $self->{pass}{$platform}{$perl}{month}{$self->{dates}{LASTMONTH}}) }
             next    if($check == 0);
         }
         for my $perl (@$vers) {
-            my $count = defined $self->{pass}{$platform}{$perl}{$type}
-                            ? scalar(keys %{$self->{pass}{$platform}{$perl}{$type}})
-                            : 0;
+            my $count = ($type eq 'month' ? $self->{pass}{$platform}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{pass}{$platform}{$perl}{$type});
+            $count ||= 0;
             $totals{platform}{$platform} += $count;
             $totals{perl}{$perl} += $count;
         }
@@ -1497,14 +1510,13 @@ sub _platform_matrix {
     for my $platform (sort {$totals{platform}{$b} <=> $totals{platform}{$a}} keys %{$totals{platform}}) {
         if($type eq 'month') {
             my $check = 0;
-            for my $perl (@$vers) { $check++ if(defined $self->{pass}{$platform}{$perl}{$type}) }
+            for my $perl (@$vers) { $check++ if(defined $self->{pass}{$platform}{$perl}{month}{$self->{dates}{LASTMONTH}}) }
             next    if($check == 0);
         }
         $content .= "\n" . '<tr><th>' . $platform . '</th><th class="totals">' . $totals{platform}{$platform} . '</th>';
         for my $perl (@$vers) {
-            my $count = defined $self->{pass}{$platform}{$perl}{$type}
-                            ? scalar(keys %{$self->{pass}{$platform}{$perl}{$type}})
-                            : 0;
+            my $count = ($type eq 'month' ? $self->{pass}{$platform}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{pass}{$platform}{$perl}{$type});
+            $count ||= 0;
             if($count) {
                 if($self->{list}{platform}{$platform}{$perl}{$type}) {
                     $index = $self->{list}{platform}{$platform}{$perl}{$type};
@@ -1524,13 +1536,17 @@ sub _platform_matrix {
                 }
             }
 
-            my $number = $self->{platform}{$platform}{$perl}{$type} || 0;
+            my $number = ($type eq 'month' ? $self->{platform}{$platform}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{platform}{$platform}{$perl}{$type})
+            $number ||= 0;
             my $class = 'none';
             $class = 'some' if($number > 0);
             $class = 'more' if($number > $matrix_limits{$type}->[0]);
             $class = 'lots' if($number > $matrix_limits{$type}->[1]);
+
+            # count = number of distributions with a pass
+            # number = number of reports submitted for that platform/perl
             $content .= qq{<td class="$class">}
-                        . ($count ? qq|<a href="$index.html" title="Distribution List for $platform/$perl">$count</a><br />$self->{platform}{$platform}{$perl}{$type}| : '-')
+                        . ($count ? qq|<a href="$index.html" title="Distribution List for $platform/$perl">$count</a><br />$number| : '-')
                         . '</td>';
         }
         $content .= '<th class="totals">' . $totals{platform}{$platform} . '</th><th>' . $platform . '</th>';
