@@ -207,6 +207,10 @@ Method to manage the creation/update of the builder performance data file.
 
 Method to manage the creation of all the statistics graphs.
 
+=item * storage
+
+Method to return specific JSON data currently stored.
+
 =cut
 
 __PACKAGE__->mk_accessors(
@@ -303,6 +307,15 @@ sub make_graphs {
     my $self = shift;
     my $stats = CPAN::Testers::WWW::Statistics::Graphs->new(parent => $self);
     $stats->create();
+}
+
+sub storage {
+    my $self = shift;
+    my $type = shift;
+    $self->_check_files();
+
+    my $stats = CPAN::Testers::WWW::Statistics::Pages->new(parent => $self);
+    $stats->storage_read($type);
 }
 
 =item * ranges
