@@ -65,6 +65,9 @@ t/data/uploads.sql
 templates/archive.html
 templates/cgi-bin/cpanmail.cgi
 templates/cgi-bin/cpanmail.ini
+templates/cgi-bin/uploads.cgi
+templates/cgi-bin/uploads.html
+templates/cgi-bin/uploads.sh
 templates/cpanmail.html
 templates/cpanmail-response.html
 templates/css/layout-min.css
