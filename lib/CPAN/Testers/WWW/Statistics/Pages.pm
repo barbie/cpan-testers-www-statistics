@@ -1341,7 +1341,11 @@ sub _osname_matrix {
             next    if($check == 0);
         }
         for my $perl (@$vers) {
-            my $count = ($type eq 'month' ? $self->{osys}{$osname}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{osys}{$osname}{$perl}{$type});
+            my $count = defined $self->{osys}{$osname}{$perl}{$type}
+                            ? ($type eq 'month' 
+                                ? scalar(keys %{$self->{osys}{$osname}{$perl}{month}{$self->{dates}{LASTMONTH}}}) 
+                                : scalar(keys %{$self->{osys}{$osname}{$perl}{$type}}))
+                            : 0;
             $count ||= 0;
             $totals{os}{$osname} += $count;
             $totals{perl}{$perl} += $count;
@@ -1369,7 +1373,11 @@ sub _osname_matrix {
         }
         $content .= "\n" . '<tr><th>' . $osname . '</th><th class="totals">' . $totals{os}{$osname} . '</th>';
         for my $perl (@$vers) {
-            my $count = ($type eq 'month' ? $self->{osys}{$osname}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{osys}{$osname}{$perl}{$type});
+            my $count = defined $self->{osys}{$osname}{$perl}{$type}
+                            ? ($type eq 'month' 
+                                ? scalar(keys %{$self->{osys}{$osname}{$perl}{month}{$self->{dates}{LASTMONTH}}}) 
+                                : scalar(keys %{$self->{osys}{$osname}{$perl}{$type}}))
+                            : 0;
             $count ||= 0;
             if($count) {
                 if($self->{list}{osname}{$osname}{$perl}{$type}) {
@@ -1390,7 +1398,7 @@ sub _osname_matrix {
                 }
             }
 
-            my $number = ($type eq 'month' ? $self->{osname}{$osname}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{osname}{$osname}{$perl}{$type})
+            my $number = ($type eq 'month' ? $self->{osname}{$osname}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{osname}{$osname}{$perl}{$type});
             $number ||= 0;
             my $class = 'none';
             $class = 'some' if($number > 0);
@@ -1487,7 +1495,11 @@ sub _platform_matrix {
             next    if($check == 0);
         }
         for my $perl (@$vers) {
-            my $count = ($type eq 'month' ? $self->{pass}{$platform}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{pass}{$platform}{$perl}{$type});
+            my $count = defined $self->{pass}{$platform}{$perl}{$type}
+                            ? ($type eq 'month' 
+                                ? scalar(keys %{$self->{pass}{$platform}{$perl}{month}{$self->{dates}{LASTMONTH}}}) 
+                                : scalar(keys %{$self->{pass}{$platform}{$perl}{$type}}))
+                            : 0;
             $count ||= 0;
             $totals{platform}{$platform} += $count;
             $totals{perl}{$perl} += $count;
@@ -1515,7 +1527,11 @@ sub _platform_matrix {
         }
         $content .= "\n" . '<tr><th>' . $platform . '</th><th class="totals">' . $totals{platform}{$platform} . '</th>';
         for my $perl (@$vers) {
-            my $count = ($type eq 'month' ? $self->{pass}{$platform}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{pass}{$platform}{$perl}{$type});
+            my $count = defined $self->{pass}{$platform}{$perl}{$type}
+                            ? ($type eq 'month' 
+                                ? scalar(keys %{$self->{pass}{$platform}{$perl}{month}{$self->{dates}{LASTMONTH}}}) 
+                                : scalar(keys %{$self->{pass}{$platform}{$perl}{$type}}))
+                            : 0;
             $count ||= 0;
             if($count) {
                 if($self->{list}{platform}{$platform}{$perl}{$type}) {
@@ -1536,7 +1552,7 @@ sub _platform_matrix {
                 }
             }
 
-            my $number = ($type eq 'month' ? $self->{platform}{$platform}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{platform}{$platform}{$perl}{$type})
+            my $number = ($type eq 'month' ? $self->{platform}{$platform}{$perl}{month}{$self->{dates}{LASTMONTH}} : $self->{platform}{$platform}{$perl}{$type});
             $number ||= 0;
             my $class = 'none';
             $class = 'some' if($number > 0);
