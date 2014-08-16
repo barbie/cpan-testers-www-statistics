@@ -1,6 +1,7 @@
 Revision history for CPAN-Testers-WWW-Statistics
 ================================================
 
+1.16    2014-08-16
         - added ability to retrieve stored JSON data.
         - added cpanstats-storage script.
         - reworked matrix monthly data calculations.
