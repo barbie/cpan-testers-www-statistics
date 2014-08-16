@@ -123,6 +123,9 @@ $dbcfg2
 LIST=<<HERE
 cgi-bin/cpanmail.cgi
 cgi-bin/cpanmail.ini
+cgi-bin/uploads.cgi
+cgi-bin/uploads.html
+cgi-bin/uploads.sh
 favicon.ico
 css/layout-min.css
 css/layout-setup.css
