@@ -37,7 +37,7 @@ use Test::More;
 use lib 't';
 use CTWS_Testing;
 
-if(CTWS_Testing::has_environment()) { plan tests    => 392; }
+if(CTWS_Testing::has_environment()) { plan tests    => 384; }
 else                                { plan skip_all => "Environment not configured"; }
 
 ok( my $obj = CTWS_Testing::getObj(), "got object" );
