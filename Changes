@@ -1,8 +1,10 @@
 Revision history for CPAN-Testers-WWW-Statistics
 ================================================
 
+1.15    2014-08-16
         - added uploads.cgi script to create an uploads page.
         - added new uploads link to sidebar menu.
+        - fresh release for #cpanday.
 
 1.14    2014-07-04
         - add logic for tester preferred contact address.
