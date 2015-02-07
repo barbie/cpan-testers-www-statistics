@@ -1,6 +1,7 @@
 Revision history for CPAN-Testers-WWW-Statistics
 ================================================
 
+1.18    2015-02-07
         - fixed sorting of various lists.
 
 1.17    2014-08-16
