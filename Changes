@@ -1,6 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 ================================================
 
+        - fixed sorting of various lists.
+
 1.17    2014-08-16
         - fixed license fields in META.json to be lists.
 

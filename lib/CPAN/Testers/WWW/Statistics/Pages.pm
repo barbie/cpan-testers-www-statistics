@@ -745,12 +745,12 @@ sub _report_interesting {
 
     my (@bydist,@byvers);
     my $inx = 20;
-    for my $dist (sort {$self->{dists}{$b}{ALL} <=> $self->{dists}{$a}{ALL}} keys %{$self->{dists}}) {
+    for my $dist (sort {$self->{dists}{$b}{ALL} <=> $self->{dists}{$a}{ALL} || $a cmp $b} keys %{$self->{dists}}) {
         push @bydist, [$self->{dists}{$dist}{ALL},$dist];
         last    if(--$inx <= 0);
     }
     $inx = 20;
-    for my $dist (sort {$self->{dists}{$b}{IXL} <=> $self->{dists}{$a}{IXL}} keys %{$self->{dists}}) {
+    for my $dist (sort {$self->{dists}{$b}{IXL} <=> $self->{dists}{$a}{IXL} || $a cmp $b} keys %{$self->{dists}}) {
         push @byvers, [$self->{dists}{$dist}{IXL},$dist,$self->{dists}{$dist}{VER}];
         last    if(--$inx <= 0);
     }
@@ -857,19 +857,19 @@ sub _report_cpan {
     }
 
     $inx = 1;
-    for my $author (sort {$authors{$b}{dists} <=> $authors{$a}{dists}} keys %authors) {
+    for my $author (sort {$authors{$b}{dists} <=> $authors{$a}{dists} || $a cmp $b} keys %authors) {
         push @alluploads, {inx => $inx++, count => $authors{$author}{dists}, name => $author};
         last    if($inx > 20);
     }
 
     $inx = 1;
-    for my $author (sort {$authors{$b}{count} <=> $authors{$a}{count}} keys %authors) {
+    for my $author (sort {$authors{$b}{count} <=> $authors{$a}{count} || $a cmp $b} keys %authors) {
         push @allrelease, {inx => $inx++, count => $authors{$author}{count}, name => $author};
         last    if($inx > 20);
     }
 
     $inx = 1;
-    for my $distro (sort {$distros{$b}{count} <=> $distros{$a}{count}} keys %distros) {
+    for my $distro (sort {$distros{$b}{count} <=> $distros{$a}{count} || $a cmp $b} keys %distros) {
         push @alldistros, {inx => $inx++, count => $distros{$distro}{count}, name => $distro};
         last    if($inx > 20);
     }
@@ -1051,13 +1051,13 @@ sub _report_new_distros {
     $self->{parent}->_log("building new distro versions page");
 
     my (@allversions,@newversions);
-    for my $v (sort {$allversions{$b} <=> $allversions{$a}} keys %allversions) {
+    for my $v (sort {$allversions{$b} <=> $allversions{$a} || $a cmp $b} keys %allversions) {
         push @allversions, { version => $v, count => $allversions{$v} };
     }
     my $tvars = { template => 'versions', type => 'All', versions => \@allversions };
     $self->_writepage("newdistros/allversions",$tvars);
 
-    for my $v (sort {$newversions{$b} <=> $newversions{$a}} keys %newversions) {
+    for my $v (sort {$newversions{$b} <=> $newversions{$a} || $a cmp $b} keys %newversions) {
         push @newversions, { version => $v, count => $newversions{$v} };
     }
     $tvars = { template => 'versions', type => 'New', versions => \@newversions };
@@ -1365,7 +1365,7 @@ sub _osname_matrix {
         . join( '</th><th class="totals">', map {$totals{perl}{$_}||0} @$vers ) 
         . '</th><th class="totals">Totals</th><th></th></tr>';
 
-    for my $osname (sort {$totals{os}{$b} <=> $totals{os}{$a}} keys %{$totals{os}}) {
+    for my $osname (sort {$totals{os}{$b} <=> $totals{os}{$a} || $a cmp $b} keys %{$totals{os}}) {
         if($type eq 'month') {
             my $check = 0;
             for my $perl (@$vers) { $check++ if(defined $self->{osys}{$osname}{$perl}{month}{$self->{dates}{LASTMONTH}}) }
@@ -1519,7 +1519,7 @@ sub _platform_matrix {
         . join( '</th><th class="totals">', map {$totals{perl}{$_}||0} @$vers ) 
         . '</th><th class="totals">Totals</th><th></th></tr>';
 
-    for my $platform (sort {$totals{platform}{$b} <=> $totals{platform}{$a}} keys %{$totals{platform}}) {
+    for my $platform (sort {$totals{platform}{$b} <=> $totals{platform}{$a} || $a cmp $b} keys %{$totals{platform}}) {
         if($type eq 'month') {
             my $check = 0;
             for my $perl (@$vers) { $check++ if(defined $self->{pass}{$platform}{$perl}{month}{$self->{dates}{LASTMONTH}}) }
@@ -1685,7 +1685,7 @@ sub _build_monthly_stats {
             push @{$tvars{STATS}}, [$date,$stats{$date}{count},
                 join(', ',
                     map {"[$stats{$date}{list}{$_}] $_"}
-                        sort {$stats{$date}{list}{$b} <=> $stats{$date}{list}{$a}}
+                        sort {$stats{$date}{list}{$b} <=> $stats{$date}{list}{$a} || $a cmp $b}
                             keys %{$stats{$date}{list}})];
         }
         $self->_writepage($templates{$type},\%tvars);
