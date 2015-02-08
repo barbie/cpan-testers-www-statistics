@@ -1,4 +1,4 @@
- body {font-size:80%; background-color:rgb(255,255,255); font-family:verdana,arial,sans-serif;} /*Font-size: 1.0em = 10px when browser default size is 16px*/
+body {font-size:80%; background-color:rgb(255,255,255); font-family:verdana,arial,sans-serif;} /*Font-size: 1.0em = 10px when browser default size is 16px*/
 
 /* MAIN CONTENT */
 .main-content h1.pagetitle {margin:0 0 0.4em 0; padding:0 0 2px 0; border-bottom:solid 7px rgb(225,225,225); font-family:"trebuchet ms",arial,sans-serif; color:rgb(100,100,100); font-weight:bold; font-size:220%;}
@@ -175,6 +175,14 @@ a.tooltip:hover span {
 .nav0 li.green {border-right:5px solid #00ee00;border-left:2px solid #000;}
 .nav0 li.green a {color:#fff;}
 .nav0 li.green a:hover {color:#00ee00;}
+
+.nav0 li.teal {border-right:5px solid #008080;border-left:2px solid #000;}
+.nav0 li.teal a {color:#fff;}
+.nav0 li.teal a:hover {color:#008080;}
+
+.nav0 li.red {border-right:5px solid #FD0E35;border-left:2px solid #000;}
+.nav0 li.red a {color:#fff;}
+.nav0 li.red a:hover {color:#FD0E35;}
 
 .flat td {white-space:nowrap;}
 

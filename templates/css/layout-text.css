@@ -1,4 +1,4 @@
-h/*************************************************************/
+/*************************************************************/
 /*   Design:   Multiflex-3 Update-7 / Layout-2               */
 /*   File:     Text formats                                  */
 /*-----------------------------------------------------------*/
@@ -266,6 +266,10 @@ a.tooltip:hover span {
 .nav0 li.teal {border-right:5px solid #008080;border-left:2px solid #000;}
 .nav0 li.teal a {color:#fff;}
 .nav0 li.teal a:hover {color:#008080;}
+
+.nav0 li.red {border-right:5px solid #FD0E35;border-left:2px solid #000;}
+.nav0 li.red a {color:#fff;}
+.nav0 li.red a:hover {color:#FD0E35;}
 
 .flat td {white-space:nowrap;}
 
