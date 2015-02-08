@@ -1,6 +1,7 @@
 Revision history for CPAN-Testers-WWW-Statistics
 ================================================
 
+1.19    2015-02-08
         - removed Perl promotions links.
         - added Admin site links.
 
