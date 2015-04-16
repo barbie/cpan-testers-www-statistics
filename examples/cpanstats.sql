@@ -110,3 +110,17 @@ CREATE TABLE noreports (
      KEY NRIX (dist,version,osname),
      KEY OSIX (osname)
 );
+
+
+DROP TABLE IF EXISTS passreports;
+CREATE TABLE passreports (
+     platform   varchar(255),
+     osname     varchar(255),
+     perl       varchar(255),
+     postdate   varchar(8),
+     dist       varchar(255),
+     KEY PLATFORMIX (platform),
+     KEY OSNAMEIX (osname),
+     KEY PERLIX (perl),
+     KEY DATEIX (postdate)
+);

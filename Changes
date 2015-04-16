@@ -1,6 +1,9 @@
 Revision history for CPAN-Testers-WWW-Statistics
 ================================================
 
+        - pass matrix is now a database table. Changed due to problems storing
+          as a JSON file.
+
 1.19    2015-02-08
         - removed Perl promotions links.
         - added Admin site links.

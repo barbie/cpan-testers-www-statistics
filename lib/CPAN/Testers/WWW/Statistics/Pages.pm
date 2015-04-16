@@ -457,6 +457,17 @@ sub build_data {
     }
 #$self->{parent}->_log("build:2.".Dumper($self->{build}));
 
+
+    # load pass matrices
+    $self->{parent}->_log("building pass reports matrices from database");
+    my $count = 0;
+    my $iterator = $dbx->iterator('hash','SELECT * FROM passreports');
+    while(my $row = $iterator->()) {
+        $self->{pass}    {$row->{platform}}{$row->{perl}}{all}{$row->{dist}} = 1;
+        $self->{pass}    {$row->{platform}}{$row->{perl}}{month}{$row->{postdate}}{$row->{dist}} = 1;
+    }
+
+
     # 0,  1,    2,     3,        4,      5     6,       7,        8,    9,      10      11        12
     # id, guid, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate, type
 
@@ -494,13 +505,13 @@ sub build_data {
             $perl =~ s/\s.*//;  # only need to know the main release
             $self->{perls}{$perl} = 1;
 
-            $self->{pass}    {$row->{platform}}{$perl}{all}{$row->{dist}} = 1;
+#            $self->{pass}    {$row->{platform}}{$perl}{all}{$row->{dist}} = 1;
             $self->{platform}{$row->{platform}}{$perl}{all}++;
             $self->{osys}    {$osname}  {$perl}{all}{$row->{dist}} = 1;
             $self->{osname}  {$osname}  {$perl}{all}++;
 
             if($row->{postdate} > $self->{dates}{THATMONTH}) {
-                $self->{pass}    {$row->{platform}}{$perl}{month}{$row->{postdate}}{$row->{dist}} = 1;
+#                $self->{pass}    {$row->{platform}}{$perl}{month}{$row->{postdate}}{$row->{dist}} = 1;
                 $self->{platform}{$row->{platform}}{$perl}{month}{$row->{postdate}}++;
                 $self->{osys}    {$osname}  {$perl}{month}{$row->{postdate}}{$row->{dist}} = 1;
                 $self->{osname}  {$osname}  {$perl}{month}{$row->{postdate}}++;
@@ -568,7 +579,8 @@ sub storage_read {
         return $store->{$type};
     }
 
-    for $type (qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast)) {
+#    for $type (qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast)) {
+    for $type (qw(stats dists fails perls platform osys osname build counts count xrefs xlast)) {
         my $storage = sprintf $self->{parent}->mainstore(), $type;
         next    unless(-f $storage);
         my $data = read_file($storage);
@@ -591,7 +603,8 @@ sub storage_write {
         return;
     }
 
-    for $type (qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast)) {
+#    for $type (qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast)) {
+    for $type (qw(stats dists fails perls platform osys osname build counts count xrefs xlast)) {
         next    unless($self->{$type});
         my $data = encode_json({$type => $self->{$type}});
 
