@@ -461,7 +461,7 @@ sub build_data {
     # load pass matrices
     $self->{parent}->_log("building pass reports matrices from database");
     my $count = 0;
-    my $iterator = $dbx->iterator('hash','SELECT * FROM passreports');
+    my $iterator = $self->{parent}->{CPANSTATS}->iterator('hash','SELECT * FROM passreports');
     while(my $row = $iterator->()) {
         $self->{pass}    {$row->{platform}}{$row->{perl}}{all}{$row->{dist}} = 1;
         $self->{pass}    {$row->{platform}}{$row->{perl}}{month}{$row->{postdate}}{$row->{dist}} = 1;
@@ -472,7 +472,7 @@ sub build_data {
     # id, guid, state, postdate, tester, dist, version, platform, perl, osname, osvers, fulldate, type
 
     $self->{parent}->_log("building dist hash from $lastid");
-    my $iterator = $self->{parent}->{CPANSTATS}->iterator('hash',"SELECT * FROM cpanstats WHERE type = 2 AND id > $lastid ORDER BY id LIMIT 1000000");
+    $iterator = $self->{parent}->{CPANSTATS}->iterator('hash',"SELECT * FROM cpanstats WHERE type = 2 AND id > $lastid ORDER BY id LIMIT 1000000");
     while(my $row = $iterator->()) {
         $row->{perl} =~ s/\s.*//;  # only need to know the main release
         $lastid = $row->{id};
