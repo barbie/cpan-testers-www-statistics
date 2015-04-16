@@ -59,6 +59,7 @@ t/data/cpanstats-test.json
 t/data/ixlatest.sql
 t/data/leaderboard.sql
 t/data/missing-in-action.txt
+t/data/passreports.sql
 t/data/profile.sql
 t/data/release_summary.sql
 t/data/uploads.sql

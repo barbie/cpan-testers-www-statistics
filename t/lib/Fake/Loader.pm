@@ -45,7 +45,7 @@ sub create_cpanstats {
     my $THISMONTH = sprintf "%04d%02d", $date[4] > 0 ? ($date[5]+1900, $date[4])   : ($date[5]+1899, 12);
     my $LASTMONTH = sprintf "%04d%02d", $date[4] > 1 ? ($date[5]+1900, $date[4]-1) : ($date[5]+1899, 11 + $date[4]);
 
-    for my $db (qw(cpanstats ixlatest leaderboard release_summary uploads)) {
+    for my $db (qw(cpanstats ixlatest leaderboard release_summary uploads passreports)) {
         my $fh = IO::File->new("t/data/$db.sql") or next;
         while(<$fh>) {
             s/(\s|;)*$//;

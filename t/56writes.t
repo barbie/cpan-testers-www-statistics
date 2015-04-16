@@ -37,7 +37,7 @@ use Test::More;
 use lib 't';
 use CTWS_Testing;
 
-if(CTWS_Testing::has_environment()) { plan tests    => 386; }
+if(CTWS_Testing::has_environment()) { plan tests    => 384; }
 else                                { plan skip_all => "Environment not configured"; }
 
 ok( my $obj = CTWS_Testing::getObj(), "got object" );
@@ -351,6 +351,8 @@ sub check_dir_contents {
 
     # diff text files only
     if($f =~ /\.(html?|txt|js|css|json|ya?ml|ini|cgi)$/i) {
+        next if($f eq 'newdistros/2015.html');  # will never match 1 month after release.
+
         $count++;
         my $ok = eq_or_diff_files(
             $fGot,
