@@ -420,7 +420,7 @@ sub build_data {
     }
 
     # clear old month entries
-    for my $key (qw(pass platform osys osname)) {
+    for my $key (qw(platform osys osname)) {
         for my $name (keys %{$self->{$key}}) {
            for my $perl (keys %{$self->{$key}{$name}}) {
                for my $month (keys %{$self->{$key}{$name}{$perl}{month}}) {
@@ -458,13 +458,14 @@ sub build_data {
 #$self->{parent}->_log("build:2.".Dumper($self->{build}));
 
 
-    # load pass matrices
+    # load pass matrices, for all or just the last full month
     $self->{parent}->_log("building pass reports matrices from database");
     my $count = 0;
     my $iterator = $self->{parent}->{CPANSTATS}->iterator('hash','SELECT * FROM passreports');
     while(my $row = $iterator->()) {
-        $self->{pass}    {$row->{platform}}{$row->{perl}}{all}{$row->{dist}} = 1;
-        $self->{pass}    {$row->{platform}}{$row->{perl}}{month}{$row->{postdate}}{$row->{dist}} = 1;
+        $self->{pass}{$row->{platform}}{$row->{perl}}{all}{$row->{dist}} = 1;
+        next if($row->{postdate} <= $self->{dates}{THATMONTH});
+        $self->{pass}{$row->{platform}}{$row->{perl}}{month}{$row->{postdate}}{$row->{dist}} = 1;
     }
 
 
