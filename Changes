@@ -3,6 +3,7 @@ Revision history for CPAN-Testers-WWW-Statistics
 
 1.21    2015-04-17
         - refinements to pass matrix changes.
+        - added check for some bad data storage.
 
 1.20    2015-04-16
         - pass matrix is now a database table. Changed due to problems storing

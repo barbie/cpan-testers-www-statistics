@@ -424,7 +424,7 @@ sub build_data {
         for my $name (keys %{$self->{$key}}) {
            for my $perl (keys %{$self->{$key}{$name}}) {
                for my $month (keys %{$self->{$key}{$name}{$perl}{month}}) {
-                   next if($month > $self->{dates}{THATMONTH});
+                   next if($month =~ /^\d+$/ && $month > $self->{dates}{THATMONTH});
                    delete $self->{$key}{$name}{$perl}{month}{$month};
                }
            }
