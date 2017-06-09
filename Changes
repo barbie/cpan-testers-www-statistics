@@ -1,6 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 ================================================
 
+        - updated date ranges for graphs.
+
 1.21    2015-04-17
         - refinements to pass matrix changes.
         - added check for some bad data storage.
