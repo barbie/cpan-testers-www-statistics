@@ -141,6 +141,7 @@ sub new {
     $self->directory( _defined_or( $hash{directory},  $cfg->val('MASTER','directory' ) ));
     $self->copyright(                                 $cfg->val('MASTER','copyright' ) );
     $self->builder(   _defined_or( $hash{builder},    $cfg->val('MASTER','builder'   ) ));
+    $self->build_history(   _defined_or( $hash{build_history},    $cfg->val('MASTER','build_history'   ) ));
 
     for my $dir (qw(dir_cpan dir_backpan dir_reports)) {
         $self->$dir(  _defined_or( $hash{$dir},       $cfg->val('MASTER',$dir        ) ));
@@ -216,7 +217,8 @@ Method to return specific JSON data currently stored.
 __PACKAGE__->mk_accessors(
     qw( directory mainstore templates address builder missing mailrc 
         logfile logclean copyright noreports tocopy tolink osnames
-        address profile known_t known_s dir_cpan dir_backpan dir_reports));
+        address profile known_t known_s dir_cpan dir_backpan dir_reports
+        build_history));
 
 sub leaderboard {
     my ($self,%options) = @_;

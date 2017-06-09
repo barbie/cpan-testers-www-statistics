@@ -2082,7 +2082,13 @@ sub _build_performance_stats {
     my $fh = IO::File->new(">$results/build1.txt");
     print $fh "#DATE,REQUESTS,PAGES,REPORTS\n";
 
+    my $count = scalar(keys %{$self->{build}});
+    my $limit = $self->{parent}->build_history || 90;
+    my $diff  = $count - $limit;
+
     for my $date (sort {$a <=> $b} keys %{$self->{build}}) {
+        next    if(--$diff > 0);
+
 #$self->{parent}->_log("build_stats: date=$date, old=$self->{build}{$date}->{old}");
 	next	if($self->{build}{$date}->{old} == 2);	# ignore todays tally
         #next    if($date > $self->{dates}{THISMONTH}-1);
