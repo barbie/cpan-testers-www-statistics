@@ -66,6 +66,7 @@ use Sort::Versions;
 use Template;
 #use Time::HiRes qw ( time );
 use Time::Piece;
+use Try::Tiny;
 
 # -------------------------------------
 # Variables
@@ -582,11 +583,17 @@ sub storage_read {
 
 #    for $type (qw(stats dists fails perls pass platform osys osname build counts count xrefs xlast)) {
     for $type (qw(stats dists fails perls platform osys osname build counts count xrefs xlast)) {
+$self->{parent}->_log("storage_read:1.type=$type");
         my $storage = sprintf $self->{parent}->mainstore(), $type;
         next    unless(-f $storage);
-        my $data = read_file($storage);
-        my $store = decode_json($data);
-        $self->{$type} = $store->{$type};
+$self->{parent}->_log("storage_read:2.storage=$storage");
+        try {
+            my $data = read_file($storage);
+            my $store = decode_json($data);
+            $self->{$type} = $store->{$type};
+        } catch {
+$self->{parent}->_log("storage_read:3.failed to read data storage=$storage");
+        };
     }
 }
 
