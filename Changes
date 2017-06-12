@@ -1,6 +1,7 @@
 Revision history for CPAN-Testers-WWW-Statistics
 ================================================
 
+1.22    2017-06-12
         - updated date ranges for graphs.
         - build_history setting established to configure the number of days
           displayed in performance graphs.
