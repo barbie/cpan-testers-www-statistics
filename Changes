@@ -1,6 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 ================================================
 
+        - refactored noreports to use new stats_store table.
+
 1.22    2017-06-12
         - updated date ranges for graphs.
         - build_history setting established to configure the number of days
