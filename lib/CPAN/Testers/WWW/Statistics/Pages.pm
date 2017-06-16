@@ -1169,11 +1169,11 @@ sub _build_noreports {
     my $self  = shift;
     my $grace = time - 2419200;
     
-    my %phrasebook = {
+    my %phrasebook = (
         'LATEST'     => 'SELECT x.* FROM ixlatest AS x WHERE oncpan=1',
         'NOREPORTS1' => 'SELECT x.* FROM ixlatest AS x LEFT JOIN stats_store AS s ON x.dist=s.dist WHERE oncpan=1 AND s.dist IS NULL',
         'NOREPORTS2' => 'SELECT dist,osname FROM stats_store'
-    };
+    );
 
     # load the distributions we can ignore from these lists
     my $noreports = $self->{parent}->noreports();
