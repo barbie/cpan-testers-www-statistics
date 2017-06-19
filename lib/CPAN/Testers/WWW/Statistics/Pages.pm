@@ -1202,7 +1202,7 @@ sub _build_noreports {
     while(my $row = $next->()) {
         next    unless($dists{$row->{dist}});
 
-        push @rows, $row;
+        push @rows, $dists{$row->{dist}};
     }
 
     # write HTML & CSV files for dists with no reports at all
