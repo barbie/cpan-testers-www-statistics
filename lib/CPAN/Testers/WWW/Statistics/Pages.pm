@@ -1171,7 +1171,7 @@ sub _build_noreports {
     
     my %phrasebook = (
         'LATEST'     => 'SELECT x.* FROM ixlatest AS x WHERE oncpan=1',
-        'NOREPORTS1' => 'SELECT x.* FROM ixlatest AS x LEFT JOIN stats_store AS s ON x.dist=s.dist WHERE oncpan=1 AND s.dist IS NULL',
+        'NOREPORTS1' => 'SELECT x.* FROM ixlatest AS x LEFT JOIN stats_store AS s ON x.dist=s.dist WHERE oncpan=1 AND s.dist IS NULL ORDER BY x.dist',
         'NOREPORTS2' => 'SELECT dist,osname FROM stats_store'
     );
 
@@ -1223,7 +1223,7 @@ sub _build_noreports {
     # loop for each OS
     for my $os (@osnames) {
         @rows = ();
-        for my $dist (keys %dists) {
+        for my $dist (sort keys %dists) {
             next unless($osmap{$dist}{$os});
 
             push @rows, $dists{$dist};
