@@ -3,6 +3,7 @@ Revision history for CPAN-Testers-WWW-Statistics
 
         - refactored noreports to use new stats_store table.
         - sort by dist name for output of noreport files.
+        - add stats_store data in tests.
 
 1.22    2017-06-12
         - updated date ranges for graphs.
