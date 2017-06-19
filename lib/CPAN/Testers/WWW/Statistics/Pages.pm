@@ -1194,7 +1194,7 @@ sub _build_noreports {
         $row->{datetime} = sprintf "%04d-%02d-%02d", $dt[5]+1900,$dt[4]+1,$dt[3];
         $dists{$row->{dist}} = $row;
 
-        $osmap{$row->{dist}}{$_} = 1 for(@osnames);
+        $osmap{$row->{dist}}{$_->{osname}} = 1 for(@osnames);
     }
 
     # load all the dists with no OS reports at all
@@ -1224,7 +1224,7 @@ sub _build_noreports {
     for my $os (@osnames) {
         @rows = ();
         for my $dist (sort keys %dists) {
-            next unless($osmap{$dist}{$os});
+            next unless($osmap{$dist}{$os->{osname}});
 
             push @rows, $dists{$dist};
         }
