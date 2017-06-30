@@ -1,6 +1,8 @@
 Revision history for CPAN-Testers-WWW-Statistics
 ================================================
 
+        - remove duplicates from noreports pages.
+
 1.23    2017-06-19
         - refactored noreports to use new stats_store table.
         - sort by dist name for output of noreport files.

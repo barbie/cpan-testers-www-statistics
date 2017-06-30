@@ -1183,7 +1183,7 @@ sub _build_noreports {
     my @osnames = map { { osname => $_, ostitle => $osnames->{$_} } } sort {$osnames->{$a} cmp $osnames->{$b}} keys %$osnames;
 
     # load all the latest distributions currently on CPAN
-    my (@rows,%dists,%osmap);
+    my (@rows,%dists,%osmap,%duplicate);
     my $next = $self->{parent}->{CPANSTATS}->iterator('hash',$phrasebook{LATEST});
     while(my $row = $next->()) {
         next    if($noreports && $row->{dist} =~ /^$noreports$/);
@@ -1201,8 +1201,10 @@ sub _build_noreports {
     $next = $self->{parent}->{CPANSTATS}->iterator('hash',$phrasebook{NOREPORTS1});
     while(my $row = $next->()) {
         next    unless($dists{$row->{dist}});
+        next    if($duplicate{$row->{dist}});
 
         push @rows, $dists{$row->{dist}};
+        $duplicate{$row->{dist}} = 1;
     }
 
     # write HTML & CSV files for dists with no reports at all
@@ -1223,10 +1225,13 @@ sub _build_noreports {
     # loop for each OS
     for my $os (@osnames) {
         @rows = ();
+        %duplicate = ();
         for my $dist (sort keys %dists) {
-            next unless($osmap{$dist}{$os->{osname}});
+            next    unless($osmap{$dist}{$os->{osname}});
+            next    if($duplicate{$dist});
 
             push @rows, $dists{$dist};
+            $duplicate{$dist} = 1;
         }
 
         # write HTML & CSV files for dists without reports for specific OS
