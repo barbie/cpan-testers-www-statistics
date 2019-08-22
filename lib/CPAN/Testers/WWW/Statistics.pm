@@ -511,7 +511,7 @@ cover the costs of servers and services.
 If you would like to donate to the CPAN Testers Fund, please follow the link
 below to the Enlightened Perl Organisation's donation site.
 
-F<https://members.enlightenedperl.org/drupal/donate-cpan-testers>
+F<https://ww2.enlightenedperl.org/donate/>
 
 If your company would like to support us, you can donate financially via the
 fund link above, or if you have servers or services that we might use, please
